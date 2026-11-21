@@ -1,0 +1,44 @@
+# AWS discovery demo against a local moto server (make demo-discovery). Uses only fake
+# credentials accepted by moto; no real AWS account is reachable from this workflow.
+name: discovery-demo
+
+on:
+  push:
+    branches: [main]
+    paths: ["internal/inventory/**", "internal/migration/**", "migration/**", "examples/migration/**", ".github/workflows/discovery-demo.yml"]
+  pull_request:
+    paths: ["internal/inventory/**", "internal/migration/**", "migration/**", "examples/migration/**", ".github/workflows/discovery-demo.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      AWS_ACCESS_KEY_ID: testing
+      AWS_SECRET_ACCESS_KEY: testing
+      AWS_SESSION_TOKEN: testing
+      AWS_DEFAULT_REGION: eu-north-1
+      AWS_EC2_METADATA_DISABLED: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Install moto server (pinned)
+        run: python -m pip install --disable-pip-version-check --no-input "moto[server]==5.2.5"
+      - name: Discovery demo
+        run: make demo-discovery

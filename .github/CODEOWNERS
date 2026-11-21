@@ -1,0 +1,10 @@
+# Code owners. Replace the placeholder below with your organisation's teams, for example:
+#   * @<your-org>/<platform-team>
+# Security-sensitive paths should require a review from the security owners:
+#   /policies/                     @<your-org>/<security-team>
+#   /infra/bootstrap/*/ci-identity/ @<your-org>/<security-team>
+#   /.github/                      @<your-org>/<security-team>
+#   /scripts/                      @<your-org>/<security-team>
+#   /internal/execution/           @<your-org>/<security-team>
+#   /internal/inventory/           @<your-org>/<security-team>
+# This file intentionally contains no real handles.

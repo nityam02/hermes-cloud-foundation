@@ -1,0 +1,414 @@
+{
+ "configuration": {
+  "root_module": {
+   "module_calls": {
+    "platform": {
+     "expressions": {
+      "protected": {
+       "constant_value": true
+      }
+     },
+     "source": "./modules/platform"
+    }
+   }
+  }
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.storage.google_storage_bucket.this[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "force_destroy": false,
+     "labels": {
+      "hermes-component": "storage",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "name": "sample-production-artifacts-1a2b",
+     "public_access_prevention": "enforced",
+     "terraform_labels": {
+      "hermes-component": "storage",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "uniform_bucket_level_access": true,
+     "versioning": [
+      {
+       "enabled": true
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "effective_labels": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_storage_bucket"
+  },
+  {
+   "address": "module.platform.module.storage.google_storage_bucket_iam_member.reader[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "sample-production-artifacts-1a2b",
+     "condition": [],
+     "member": "serviceAccount:sample-production-api@sample-project.iam.gserviceaccount.com",
+     "role": "roles/storage.objectViewer"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "reader",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_storage_bucket_iam_member"
+  },
+  {
+   "address": "module.platform.module.database.google_sql_database_instance.this",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "database_version": "POSTGRES_16",
+     "deletion_protection": true,
+     "name": "sample-production-db",
+     "settings": [
+      {
+       "backup_configuration": [
+        {
+         "enabled": true,
+         "point_in_time_recovery_enabled": true
+        }
+       ],
+       "deletion_protection_enabled": true,
+       "ip_configuration": [
+        {
+         "authorized_networks": [],
+         "ipv4_enabled": false,
+         "private_network": "projects/sample-project/global/networks/sample-production",
+         "ssl_mode": "ENCRYPTED_ONLY"
+        }
+       ],
+       "user_labels": {
+        "hermes-component": "database",
+        "hermes-environment": "production",
+        "hermes-managed-by": "hermes",
+        "hermes-project": "sample"
+       }
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_sql_database_instance"
+  },
+  {
+   "address": "module.platform.module.database.google_sql_user.iam[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "name": "sample-production-api@sample-project.iam",
+     "password": null,
+     "password_wo": null,
+     "type": "CLOUD_IAM_SERVICE_ACCOUNT"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "iam",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_sql_user"
+  },
+  {
+   "address": "module.platform.module.network.google_compute_firewall.health_checks",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "allow": [
+      {
+       "ports": [
+        "8080"
+       ],
+       "protocol": "tcp"
+      }
+     ],
+     "deny": [],
+     "direction": "INGRESS",
+     "disabled": false,
+     "name": "sample-production-allow-hc",
+     "source_ranges": [
+      "35.191.0.0/16",
+      "130.211.0.0/22"
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.network",
+   "name": "health_checks",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_compute_firewall"
+  },
+  {
+   "address": "module.platform.module.network.google_compute_firewall.public_https",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "allow": [
+      {
+       "ports": [
+        "443"
+       ],
+       "protocol": "tcp"
+      }
+     ],
+     "deny": [],
+     "description": "Load balancer HTTPS. hermes-component=compute",
+     "direction": "INGRESS",
+     "disabled": false,
+     "name": "sample-production-allow-https",
+     "source_ranges": [
+      "0.0.0.0/0"
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.network",
+   "name": "public_https",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_compute_firewall"
+  },
+  {
+   "address": "module.platform.module.network.google_compute_firewall.deny_all",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "allow": [],
+     "deny": [
+      {
+       "ports": [],
+       "protocol": "all"
+      }
+     ],
+     "direction": "INGRESS",
+     "disabled": false,
+     "name": "sample-production-deny-all",
+     "source_ranges": [
+      "0.0.0.0/0"
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.network",
+   "name": "deny_all",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_compute_firewall"
+  },
+  {
+   "address": "module.platform.module.compute.google_cloud_run_v2_service_iam_member.public[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "member": "allUsers",
+     "role": "roles/run.invoker"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_cloud_run_v2_service_iam_member"
+  },
+  {
+   "address": "module.platform.module.identity.google_project_iam_member.observability[\"api/logWriter\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "condition": [],
+     "member": "serviceAccount:sample-production-api@sample-project.iam.gserviceaccount.com",
+     "project": "sample-project",
+     "role": "roles/logging.logWriter"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.identity",
+   "name": "observability",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_project_iam_member"
+  },
+  {
+   "address": "module.platform.module.ci.google_iam_workload_identity_pool_provider.github",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "attribute_condition": "assertion.repository == \"example-org/example-repo\"",
+     "attribute_mapping": {
+      "google.subject": "assertion.sub"
+     },
+     "workload_identity_pool_provider_id": "github"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.ci",
+   "name": "github",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_iam_workload_identity_pool_provider"
+  },
+  {
+   "address": "module.platform.module.ci.google_service_account_iam_member.apply[\"production\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "condition": [],
+     "member": "principal://iam.googleapis.com/projects/123456789012/locations/global/workloadIdentityPools/github/subject/repo:example-org/example-repo:environment:production",
+     "role": "roles/iam.workloadIdentityUser"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.ci",
+   "name": "apply",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_service_account_iam_member"
+  },
+  {
+   "address": "module.platform.module.secrets.google_secret_manager_secret.this[\"db-password\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "labels": {
+      "hermes-component": "secrets",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "secret_id": "sample-production-db-password",
+     "terraform_labels": {
+      "hermes-component": "secrets",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.secrets",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_secret_manager_secret"
+  },
+  {
+   "address": "module.platform.module.messaging.google_pubsub_topic.this[\"telemetry\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "labels": {
+      "hermes-component": "messaging",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "name": "sample-production-telemetry",
+     "terraform_labels": {
+      "hermes-component": "messaging",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.messaging",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_pubsub_topic"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

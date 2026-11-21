@@ -1,0 +1,673 @@
+{
+ "configuration": {
+  "root_module": {}
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.bad.aws_s3_bucket_public_access_block.partial",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "block_public_acls": true,
+     "block_public_policy": true,
+     "bucket": "b",
+     "ignore_public_acls": true,
+     "restrict_public_buckets": false
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "partial",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_public_access_block"
+  },
+  {
+   "address": "module.platform.module.bad.aws_s3_bucket_acl.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "access_control_policy": [],
+     "acl": "public-read",
+     "bucket": "b"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_acl"
+  },
+  {
+   "address": "module.platform.module.bad.aws_s3_bucket_acl.grant",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "access_control_policy": [
+      {
+       "grant": [
+        {
+         "grantee": [
+          {
+           "id": null,
+           "type": "Group",
+           "uri": "http://acs.amazonaws.com/groups/global/AllUsers"
+          }
+         ],
+         "permission": "READ"
+        }
+       ],
+       "owner": [
+        {
+         "id": "abc"
+        }
+       ]
+      }
+     ],
+     "acl": null,
+     "bucket": "b"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "grant",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_acl"
+  },
+  {
+   "address": "module.platform.module.bad.aws_s3_bucket_policy.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "b",
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": \"*\", \"Action\": \"s3:GetObject\", \"Resource\": \"arn:aws:s3:::b/*\"}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_policy"
+  },
+  {
+   "address": "module.platform.module.bad.aws_db_instance.bad",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "backup_retention_period": 0,
+     "deletion_protection": false,
+     "identifier": "bad",
+     "password": "demo-not-a-secret",
+     "publicly_accessible": true,
+     "skip_final_snapshot": true,
+     "storage_encrypted": false,
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "bad",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_db_instance"
+  },
+  {
+   "address": "module.platform.module.bad.aws_db_parameter_group.no_tls",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "parameter": [
+      {
+       "apply_method": "immediate",
+       "name": "rds.force_ssl",
+       "value": "0"
+      }
+     ],
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "no_tls",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_db_parameter_group"
+  },
+  {
+   "address": "module.platform.module.bad.aws_sqs_queue.plain",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": null,
+     "sqs_managed_sse_enabled": false,
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "plain",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sqs_queue"
+  },
+  {
+   "address": "module.platform.module.bad.aws_sns_topic.plain",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": null,
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "plain",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sns_topic"
+  },
+  {
+   "address": "module.platform.module.bad.aws_security_group.ssh",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "ingress": [
+      {
+       "cidr_blocks": [
+        "0.0.0.0/0"
+       ],
+       "from_port": 22,
+       "ipv6_cidr_blocks": [],
+       "protocol": "tcp",
+       "to_port": 22
+      }
+     ],
+     "tags_all": {
+      "hermes-component": "compute",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "ssh",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_security_group"
+  },
+  {
+   "address": "module.platform.module.bad.aws_vpc_security_group_ingress_rule.web_not_compute",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ipv4": null,
+     "cidr_ipv6": "::/0",
+     "from_port": 443,
+     "ip_protocol": "tcp",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "to_port": 443
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "web_not_compute",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_vpc_security_group_ingress_rule"
+  },
+  {
+   "address": "module.platform.module.bad.aws_vpc_security_group_ingress_rule.all_traffic",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ipv4": "0.0.0.0/0",
+     "cidr_ipv6": null,
+     "from_port": null,
+     "ip_protocol": "-1",
+     "tags_all": {
+      "hermes-component": "compute",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "to_port": null
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "all_traffic",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_vpc_security_group_ingress_rule"
+  },
+  {
+   "address": "module.platform.module.bad.aws_security_group_rule.db",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_blocks": [
+      "0.0.0.0/0"
+     ],
+     "description": "postgres",
+     "from_port": 5432,
+     "ipv6_cidr_blocks": null,
+     "protocol": "tcp",
+     "to_port": 5432,
+     "type": "ingress"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "db",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_security_group_rule"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_role_policy.star",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"*\", \"Resource\": \"*\"}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "star",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role_policy"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_role_policy.not_action",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"NotAction\": \"iam:*\", \"Resource\": \"*\"}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "not_action",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role_policy"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_policy.data_star",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": {\"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"secretsmanager:GetSecretValue\", \"s3:ListAllMyBuckets\"], \"Resource\": \"*\"}}",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "data_star",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_policy"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_policy.pass_role",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": [\"iam:PassRole\", \"ec2:DescribeInstances\"], \"Resource\": \"*\"}, {\"Effect\": \"Allow\", \"Action\": \"iam:*\", \"Resource\": \"arn:aws:iam::123456789012:role/x\"}]}",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "pass_role",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_policy"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_role.public_trust",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"*\"}, \"Action\": \"sts:AssumeRole\"}]}",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public_trust",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_role.wildcard_sub",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Federated\": \"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}, \"Action\": \"sts:AssumeRoleWithWebIdentity\", \"Condition\": {\"StringEquals\": {\"token.actions.githubusercontent.com:aud\": \"sts.amazonaws.com\"}, \"StringLike\": {\"token.actions.githubusercontent.com:sub\": \"repo:example-org/*\"}}}]}",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "wildcard_sub",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_role.no_sub",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Federated\": \"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}, \"Action\": \"sts:AssumeRoleWithWebIdentity\", \"Condition\": {\"StringEquals\": {\"token.actions.githubusercontent.com:aud\": \"sts.amazonaws.com\"}}}]}",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "no_sub",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role"
+  },
+  {
+   "address": "module.platform.module.bad.aws_secretsmanager_secret_version.value",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "secret_string": "demo-not-a-secret",
+     "secret_string_wo": null
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "value",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_secretsmanager_secret_version"
+  },
+  {
+   "address": "module.platform.module.bad.aws_ssm_parameter.secure",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "type": "SecureString",
+     "value": "demo-not-a-secret"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "secure",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_ssm_parameter"
+  },
+  {
+   "address": "module.platform.module.bad.random_password.db",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "length": 24,
+     "special": true
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "result": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "db",
+   "provider_name": "registry.opentofu.org/hashicorp/random",
+   "type": "random_password"
+  },
+  {
+   "address": "module.platform.module.bad.aws_iam_access_key.ci",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "status": "Active",
+     "user": "ci"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "ci",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_access_key"
+  },
+  {
+   "address": "module.platform.module.bad.aws_sns_topic.untagged",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": "alias/aws/sns",
+     "tags": null,
+     "tags_all": {}
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "untagged",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sns_topic"
+  },
+  {
+   "address": "module.platform.module.bad.aws_sqs_queue.wrong_owner",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": null,
+     "sqs_managed_sse_enabled": true,
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "someone-else",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "wrong_owner",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sqs_queue"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

@@ -1,0 +1,70 @@
+# Dependabot: Go modules, GitHub Actions (SHA pins are updated with their version comment) and
+# provider constraints of every OpenTofu/Terraform module directory. A 7-day cooldown keeps
+# freshly published (possibly compromised) releases out of pull requests; review every bump.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      aws-sdk:
+        patterns: ["github.com/aws/*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directories:
+      - /infra/bootstrap/alibaba/ci-identity
+      - /infra/bootstrap/aws/ci-identity
+      - /infra/bootstrap/aws/state-backend
+      - /infra/bootstrap/gcp/ci-identity
+      - /infra/bootstrap/gcp/state-backend
+      - /infra/modules/alibaba/container-service
+      - /infra/modules/alibaba/kms
+      - /infra/modules/alibaba/messaging
+      - /infra/modules/alibaba/naming
+      - /infra/modules/alibaba/network
+      - /infra/modules/alibaba/object-storage
+      - /infra/modules/alibaba/observability
+      - /infra/modules/alibaba/postgres
+      - /infra/modules/alibaba/secrets
+      - /infra/modules/aws/container-service
+      - /infra/modules/aws/kms
+      - /infra/modules/aws/messaging
+      - /infra/modules/aws/naming
+      - /infra/modules/aws/network
+      - /infra/modules/aws/object-storage
+      - /infra/modules/aws/observability
+      - /infra/modules/aws/postgres
+      - /infra/modules/aws/secrets
+      - /infra/modules/gcp/container-service
+      - /infra/modules/gcp/kms
+      - /infra/modules/gcp/messaging
+      - /infra/modules/gcp/naming
+      - /infra/modules/gcp/network
+      - /infra/modules/gcp/object-storage
+      - /infra/modules/gcp/observability
+      - /infra/modules/gcp/postgres
+      - /infra/modules/gcp/secrets
+      - /infra/providers/alibaba/platform
+      - /infra/providers/aws/platform
+      - /infra/providers/gcp/platform
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      providers:
+        patterns: ["*"]

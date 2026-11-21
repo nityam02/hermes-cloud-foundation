@@ -1,0 +1,2685 @@
+{
+  "//": "Derived by scripts/gen-policy-fixtures.sh from a mock-provider plan of the golden render of examples/multi-cloud (environment gcpdev). Do not edit by hand: regenerate.",
+  "configuration": {
+    "root_module": {
+      "module_calls": {
+        "platform": {
+          "expressions": {
+            "protected": {
+              "constant_value": false
+            }
+          },
+          "source": "../../../infra/providers/gcp/platform"
+        }
+      }
+    }
+  },
+  "format_version": "1.2",
+  "planned_values": {
+    "root_module": {}
+  },
+  "resource_changes": [
+    {
+      "address": "module.platform.google_project_iam_member.database[\"api/client\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [
+            {
+              "description": "Only the sample-portable-gcpdev Cloud SQL instance.",
+              "title": "hermes-sample-portable-gcpdev-database"
+            }
+          ],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/cloudsql.client"
+        },
+        "after_unknown": {
+          "condition": [
+            {
+              "expression": true
+            }
+          ]
+        }
+      },
+      "index": "api/client",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "database",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.database[\"api/instanceUser\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [
+            {
+              "description": "Only the sample-portable-gcpdev Cloud SQL instance.",
+              "title": "hermes-sample-portable-gcpdev-database"
+            }
+          ],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/cloudsql.instanceUser"
+        },
+        "after_unknown": {
+          "condition": [
+            {
+              "expression": true
+            }
+          ]
+        }
+      },
+      "index": "api/instanceUser",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "database",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"api/logWriter\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/logging.logWriter"
+        },
+        "after_unknown": {}
+      },
+      "index": "api/logWriter",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"api/metricWriter\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/monitoring.metricWriter"
+        },
+        "after_unknown": {}
+      },
+      "index": "api/metricWriter",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"api/traceAgent\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/cloudtrace.agent"
+        },
+        "after_unknown": {}
+      },
+      "index": "api/traceAgent",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"consumer/logWriter\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/logging.logWriter"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer/logWriter",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"consumer/metricWriter\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/monitoring.metricWriter"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer/metricWriter",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_iam_member.observability[\"consumer/traceAgent\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "unBRNank",
+          "id": "AWFmPOmoBOHql",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "example-project-1234",
+          "role": "roles/cloudtrace.agent"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer/traceAgent",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "observability",
+      "type": "google_project_iam_member"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"cloudtrace.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "cloudtrace.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "cloudtrace.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"compute.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "compute.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "compute.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"iam.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "iam.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "iam.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"logging.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "logging.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "logging.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"monitoring.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "monitoring.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "monitoring.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"pubsub.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "pubsub.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "pubsub.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"run.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "run.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "run.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"secretmanager.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "secretmanager.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "secretmanager.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"servicenetworking.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "servicenetworking.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "servicenetworking.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"sqladmin.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "sqladmin.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "sqladmin.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_project_service.this[\"storage.googleapis.com\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "RXKEE4ozIRWmrM",
+          "disable_dependent_services": null,
+          "disable_on_destroy": false,
+          "id": "A6DMAM5A8w",
+          "project": "zL7VrT",
+          "service": "storage.googleapis.com",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "storage.googleapis.com",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "this",
+      "type": "google_project_service"
+    },
+    {
+      "address": "module.platform.google_pubsub_subscription_iam_member.service[\"consumer/events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "jOC8e",
+          "id": "vUWJ5E0C",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "9u6uJGx2t",
+          "role": "roles/pubsub.subscriber",
+          "subscription": "ikvFROl"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer/events-default",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_pubsub_subscription_iam_member"
+    },
+    {
+      "address": "module.platform.google_pubsub_topic_iam_member.service[\"api/events\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "ZfKNkq3NvuP",
+          "id": "w0QTE4124AY",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "X5jOiTMhw9",
+          "role": "roles/pubsub.publisher",
+          "topic": "46sy8F1"
+        },
+        "after_unknown": {}
+      },
+      "index": "api/events",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_pubsub_topic_iam_member"
+    },
+    {
+      "address": "module.platform.google_secret_manager_secret_iam_member.service[\"api/signing-key\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "wmBXE9",
+          "id": "kDBkDWHxV6J",
+          "member": "serviceAccount:rZ2Ba6",
+          "project": "hQsAiIKyaNF",
+          "role": "roles/secretmanager.secretAccessor",
+          "secret_id": "projects/example-project-1234/secrets/sample-portable-gcpdev-signing-key"
+        },
+        "after_unknown": {}
+      },
+      "index": "api/signing-key",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_secret_manager_secret_iam_member"
+    },
+    {
+      "address": "module.platform.google_service_account.service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "account_id": "sample-portable-gcpdev-api",
+          "create_ignore_already_exists": null,
+          "deletion_policy": "D4ZAZqIRRCK",
+          "description": "Runtime identity of the api service (least privilege, managed by Hermes).",
+          "disabled": null,
+          "display_name": "Hermes sample-portable-gcpdev api",
+          "email": "rZ2Ba6",
+          "id": "3sZmzLtRiUsO",
+          "member": "z0wyCNiLtl",
+          "name": "yyS9xIbKbX9",
+          "project": "zTC6u",
+          "timeouts": null,
+          "unique_id": "wih0bjC72W43Aa"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_service_account"
+    },
+    {
+      "address": "module.platform.google_service_account.service[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "account_id": "sample-portable-gcpdev-2e32a0",
+          "create_ignore_already_exists": null,
+          "deletion_policy": "D4ZAZqIRRCK",
+          "description": "Runtime identity of the consumer service (least privilege, managed by Hermes).",
+          "disabled": null,
+          "display_name": "Hermes sample-portable-gcpdev consumer",
+          "email": "rZ2Ba6",
+          "id": "3sZmzLtRiUsO",
+          "member": "z0wyCNiLtl",
+          "name": "yyS9xIbKbX9",
+          "project": "zTC6u",
+          "timeouts": null,
+          "unique_id": "wih0bjC72W43Aa"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_service_account"
+    },
+    {
+      "address": "module.platform.google_storage_bucket_iam_member.service[\"api/assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "7i8govN4",
+          "id": "f496GWKWm",
+          "member": "serviceAccount:rZ2Ba6",
+          "role": "roles/storage.objectUser",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "bucket": true,
+          "condition": []
+        }
+      },
+      "index": "api/assets",
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "service",
+      "type": "google_storage_bucket_iam_member"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_subscription.dead_letter[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "ack_deadline_seconds": 60,
+          "bigquery_config": [],
+          "bigtable_config": [],
+          "cloud_storage_config": [],
+          "dead_letter_policy": [],
+          "deletion_policy": "i858q86",
+          "effective_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "enable_exactly_once_delivery": null,
+          "enable_message_ordering": null,
+          "expiration_policy": [
+            {
+              "ttl": ""
+            }
+          ],
+          "filter": null,
+          "id": "ikvFROl",
+          "labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "message_retention_duration": "604800s",
+          "message_transforms": [],
+          "name": "sample-portable-gcpdev-events-default-dlq",
+          "project": "aFu1QLt5",
+          "push_config": [],
+          "retain_acked_messages": false,
+          "retry_policy": [],
+          "tags": null,
+          "terraform_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "topic": "46sy8F1"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dead_letter",
+      "type": "google_pubsub_subscription"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_subscription.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "ack_deadline_seconds": 30,
+          "bigquery_config": [],
+          "bigtable_config": [],
+          "cloud_storage_config": [],
+          "dead_letter_policy": [
+            {
+              "dead_letter_topic": "46sy8F1",
+              "max_delivery_attempts": 5
+            }
+          ],
+          "deletion_policy": "i858q86",
+          "effective_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "enable_exactly_once_delivery": null,
+          "enable_message_ordering": null,
+          "expiration_policy": [
+            {
+              "ttl": ""
+            }
+          ],
+          "filter": null,
+          "id": "ikvFROl",
+          "labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "message_retention_duration": "604800s",
+          "message_transforms": [],
+          "name": "sample-portable-gcpdev-events-default",
+          "project": "aFu1QLt5",
+          "push_config": [],
+          "retain_acked_messages": false,
+          "retry_policy": [
+            {
+              "maximum_backoff": "600s",
+              "minimum_backoff": "10s"
+            }
+          ],
+          "tags": null,
+          "terraform_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "topic": "46sy8F1"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "google_pubsub_subscription"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_subscription_iam_member.dead_letter_subscriber[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "jOC8e",
+          "id": "vUWJ5E0C",
+          "member": "serviceAccount:service-123456789012@gcp-sa-pubsub.iam.gserviceaccount.com",
+          "project": "9u6uJGx2t",
+          "role": "roles/pubsub.subscriber",
+          "subscription": "ikvFROl"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dead_letter_subscriber",
+      "type": "google_pubsub_subscription_iam_member"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_topic.dead_letter[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "jkKuXWxW1g",
+          "effective_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "id": "46sy8F1",
+          "ingestion_data_source_settings": [],
+          "kms_key_name": null,
+          "labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "message_retention_duration": null,
+          "message_storage_policy": [
+            {
+              "allowed_persistence_regions": [
+                "europe-north1"
+              ],
+              "enforce_in_transit": null
+            }
+          ],
+          "message_transforms": [],
+          "name": "sample-portable-gcpdev-events-default-dlq",
+          "project": "MmzbFmwQNpeId",
+          "schema_settings": [],
+          "tags": null,
+          "terraform_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dead_letter",
+      "type": "google_pubsub_topic"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_topic.this[\"events\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "jkKuXWxW1g",
+          "effective_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "id": "46sy8F1",
+          "ingestion_data_source_settings": [],
+          "kms_key_name": null,
+          "labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "message_retention_duration": "604800s",
+          "message_storage_policy": [
+            {
+              "allowed_persistence_regions": [
+                "europe-north1"
+              ],
+              "enforce_in_transit": null
+            }
+          ],
+          "message_transforms": [],
+          "name": "sample-portable-gcpdev-events",
+          "project": "MmzbFmwQNpeId",
+          "schema_settings": [],
+          "tags": null,
+          "terraform_labels": {
+            "hermes-component": "messaging",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "events",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "google_pubsub_topic"
+    },
+    {
+      "address": "module.platform.module.messaging.google_pubsub_topic_iam_member.dead_letter_publisher[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "ZfKNkq3NvuP",
+          "id": "w0QTE4124AY",
+          "member": "serviceAccount:service-123456789012@gcp-sa-pubsub.iam.gserviceaccount.com",
+          "project": "X5jOiTMhw9",
+          "role": "roles/pubsub.publisher",
+          "topic": "46sy8F1"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dead_letter_publisher",
+      "type": "google_pubsub_topic_iam_member"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_firewall.deny_all_ingress",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "allow": [],
+          "creation_timestamp": "v6OXohoZAp5HrK",
+          "deletion_policy": "GQueE3",
+          "deny": [
+            {
+              "ports": null,
+              "protocol": "all"
+            }
+          ],
+          "description": "Explicit deny-all ingress (documents the implied rule; allow rules must use a higher priority).",
+          "destination_ranges": [],
+          "direction": "INGRESS",
+          "disabled": null,
+          "enable_logging": false,
+          "firewall_id": 0,
+          "id": "HCQq63J",
+          "log_config": [
+            {
+              "metadata": "EXCLUDE_ALL_METADATA"
+            }
+          ],
+          "name": "sample-portable-gcpdev-deny-all-ingress",
+          "network": "projects/example-project-1234/global/networks/mock-network",
+          "params": [],
+          "priority": 65534,
+          "project": "V1j2x9EBN",
+          "self_link": "5LqUUKaXe0lWt5",
+          "source_ranges": [
+            "0.0.0.0/0"
+          ],
+          "source_service_accounts": null,
+          "source_tags": null,
+          "target_service_accounts": null,
+          "target_tags": null,
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "deny_all_ingress",
+      "type": "google_compute_firewall"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_global_address.psa[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "address": "10.20.128.0",
+          "address_type": "INTERNAL",
+          "creation_timestamp": "CvPbFF",
+          "deletion_policy": "VgBqh3YMjpm",
+          "description": "Private services access range (Cloud SQL).",
+          "effective_labels": {
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "id": "ODpX7o2",
+          "ip_version": null,
+          "label_fingerprint": "0NBgrX",
+          "labels": null,
+          "name": "sample-portable-gcpdev-psa",
+          "network": "projects/example-project-1234/global/networks/mock-network",
+          "prefix_length": 18,
+          "project": "OnwXD1p87FjcT6",
+          "purpose": "VPC_PEERING",
+          "self_link": "C5HokcMOVmb4",
+          "terraform_labels": {
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "psa",
+      "type": "google_compute_global_address"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_network.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "auto_create_subnetworks": false,
+          "bgp_always_compare_med": false,
+          "bgp_best_path_selection_mode": "F3Gj",
+          "bgp_inter_region_cost": "JljKGOO",
+          "delete_bgp_always_compare_med": null,
+          "delete_default_routes_on_create": false,
+          "deletion_policy": "xuAO852J",
+          "description": "Hermes environment network.",
+          "enable_ula_internal_ipv6": null,
+          "gateway_ipv4": "7yL3GBrsaIKOJnY",
+          "id": "projects/example-project-1234/global/networks/mock-network",
+          "internal_ipv6_range": "mlIKk2qTeFV",
+          "mtu": 0,
+          "name": "sample-portable-gcpdev-vpc",
+          "network_firewall_policy_enforcement_order": null,
+          "network_id": "OjuuNQX5Qoom3",
+          "network_profile": null,
+          "numeric_id": "DD1L",
+          "params": [],
+          "project": "3GSqxrlLO9ZJtR",
+          "routing_mode": "REGIONAL",
+          "self_link": "vxS1vtHtWnC",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "google_compute_network"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_router.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bgp": [],
+          "creation_timestamp": "PJEGZ",
+          "deletion_policy": "jNAi",
+          "description": null,
+          "encrypted_interconnect_router": null,
+          "id": "Ozz0mDywlaBUI",
+          "md5_authentication_keys": [],
+          "name": "sample-portable-gcpdev-router",
+          "ncc_gateway": null,
+          "network": "projects/example-project-1234/global/networks/mock-network",
+          "params": [],
+          "project": "MsaROf",
+          "region": "europe-north1",
+          "router_id": 0,
+          "self_link": "GwqBEn8",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "google_compute_router"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_router_nat.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "auto_network_tier": "t3pCqmiT",
+          "deletion_policy": "Q4T9xSZFvEd",
+          "drain_nat_ips": [],
+          "enable_dynamic_port_allocation": false,
+          "enable_endpoint_independent_mapping": false,
+          "endpoint_types": [],
+          "icmp_idle_timeout_sec": null,
+          "id": "TuPvlrgI",
+          "initial_nat_ips": null,
+          "log_config": [
+            {
+              "enable": true,
+              "filter": "ERRORS_ONLY"
+            }
+          ],
+          "max_ports_per_vm": null,
+          "min_ports_per_vm": 0,
+          "name": "sample-portable-gcpdev-nat",
+          "nat64_subnetwork": [],
+          "nat_ip_allocate_option": "AUTO_ONLY",
+          "nat_ips": [],
+          "project": "RLBuZ7fBX5",
+          "region": "europe-north1",
+          "router": "sample-portable-gcpdev-router",
+          "rules": [],
+          "source_subnetwork_ip_ranges_to_nat": "LIST_OF_SUBNETWORKS",
+          "source_subnetwork_ip_ranges_to_nat64": null,
+          "subnetwork": [
+            {
+              "name": "Tqf2icCa1q7dzp",
+              "secondary_ip_range_names": null,
+              "source_ip_ranges_to_nat": [
+                "ALL_IP_RANGES"
+              ]
+            }
+          ],
+          "tcp_established_idle_timeout_sec": null,
+          "tcp_time_wait_timeout_sec": null,
+          "tcp_transitory_idle_timeout_sec": null,
+          "timeouts": null,
+          "type": null,
+          "udp_idle_timeout_sec": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "google_compute_router_nat"
+    },
+    {
+      "address": "module.platform.module.network.google_compute_subnetwork.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "allow_subnet_cidr_routes_overlap": false,
+          "creation_timestamp": "FaGxxhcHOBAIx",
+          "deletion_policy": "gIJb",
+          "description": "Hermes environment subnet.",
+          "external_ipv6_prefix": "gUjIWFDe9pz8j",
+          "fingerprint": "3mD9biYbmKZfGB",
+          "gateway_address": "XB98iEAxkr7xC",
+          "id": "Tqf2icCa1q7dzp",
+          "internal_ipv6_prefix": "R7Bro0L",
+          "ip_cidr_range": "10.20.0.0/17",
+          "ip_collection": null,
+          "ipv6_access_type": null,
+          "ipv6_cidr_range": "MHtBZ16FD",
+          "ipv6_gce_endpoint": "WrO7hV",
+          "log_config": [
+            {
+              "aggregation_interval": "INTERVAL_5_MIN",
+              "filter_expr": null,
+              "flow_sampling": 0.5,
+              "metadata": "INCLUDE_ALL_METADATA",
+              "metadata_fields": null
+            }
+          ],
+          "name": "sample-portable-gcpdev-subnet",
+          "network": "projects/example-project-1234/global/networks/mock-network",
+          "params": [],
+          "private_ip_google_access": true,
+          "private_ipv6_google_access": "9SEc806cg",
+          "project": "prmAigE",
+          "purpose": "ZbuEsPVpelEH0",
+          "region": "europe-north1",
+          "reserved_internal_range": null,
+          "resolve_subnet_mask": null,
+          "role": null,
+          "secondary_ip_range": [],
+          "self_link": "e3ML2PTt5",
+          "send_secondary_ip_range_if_empty": null,
+          "stack_type": "IPV4_ONLY",
+          "state": "MvTvMY",
+          "subnetwork_id": 0,
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "google_compute_subnetwork"
+    },
+    {
+      "address": "module.platform.module.network.google_service_networking_connection.psa[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "deletion_policy": "ABANDON",
+          "id": "kymkJ3u",
+          "network": "projects/example-project-1234/global/networks/mock-network",
+          "peering": "m3mz9pZgiH3Bjl",
+          "reserved_peering_ranges": [
+            "sample-portable-gcpdev-psa"
+          ],
+          "service": "servicenetworking.googleapis.com",
+          "timeouts": null,
+          "update_on_creation_fail": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "psa",
+      "type": "google_service_networking_connection"
+    },
+    {
+      "address": "module.platform.module.observability.google_logging_project_bucket_config.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "cmek_settings": [],
+          "deletion_policy": "jpRE",
+          "description": "Hermes sample-portable-gcpdev logs.",
+          "enable_analytics": null,
+          "id": "8wxwkXsrL2uJu",
+          "index_configs": [],
+          "lifecycle_state": "ItIiwG",
+          "location": "europe-north1",
+          "locked": null,
+          "name": "lm0hJJB4uUr",
+          "project": "example-project-1234",
+          "retention_days": 30
+        },
+        "after_unknown": {
+          "bucket_id": true,
+          "cmek_settings": [],
+          "index_configs": []
+        }
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "this",
+      "type": "google_logging_project_bucket_config"
+    },
+    {
+      "address": "module.platform.module.observability.google_logging_project_exclusion.default_sink[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "description": "Excludes sample-portable-gcpdev logs from _Default (routed to the environment log bucket).",
+          "disabled": null,
+          "id": "D23p",
+          "name": "sample-portable-gcpdev-logs",
+          "project": "X4NyXY99g"
+        },
+        "after_unknown": {
+          "filter": true
+        }
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "default_sink",
+      "type": "google_logging_project_exclusion"
+    },
+    {
+      "address": "module.platform.module.observability.google_logging_project_sink.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bigquery_options": [],
+          "custom_writer_identity": null,
+          "deletion_policy": "8W5JZHXd4jTEsu",
+          "description": "Routes sample-portable-gcpdev logs to its log bucket.",
+          "destination": "logging.googleapis.com/8wxwkXsrL2uJu",
+          "disabled": null,
+          "exclusions": [],
+          "id": "XDvB4nVB",
+          "name": "sample-portable-gcpdev-logs",
+          "project": "crS1caP",
+          "unique_writer_identity": true,
+          "writer_identity": "Z9q3BKb588A"
+        },
+        "after_unknown": {
+          "bigquery_options": [],
+          "exclusions": [],
+          "filter": true
+        }
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "this",
+      "type": "google_logging_project_sink"
+    },
+    {
+      "address": "module.platform.module.postgres[0].google_sql_database.app",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "charset": "bjthgk7T",
+          "collation": "Mkjj6MEK2X5o2fX",
+          "deletion_policy": "ABANDON",
+          "id": "NA6ioWqnj0",
+          "name": "app",
+          "project": "eX8FNGrqmdx",
+          "self_link": "Rq9993ghfluOqk",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "instance": true
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "app",
+      "type": "google_sql_database"
+    },
+    {
+      "address": "module.platform.module.postgres[0].google_sql_database_instance.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "available_maintenance_versions": [],
+          "backupdr_backup": null,
+          "blue_green_deployment": [],
+          "clone": [],
+          "connection_name": "xyaIxyio",
+          "database_center_integration": null,
+          "database_version": "POSTGRES_16",
+          "deletion_policy": "zVGS",
+          "deletion_protection": false,
+          "dns_name": "1QW2",
+          "dns_names": [],
+          "encryption_confidential_mode": false,
+          "encryption_key_name": "lQkttWuaRH",
+          "enforce_new_sql_network_architecture": false,
+          "final_backup_description": null,
+          "first_ip_address": "6qy8DQS",
+          "id": "oXBOJp70MHiB",
+          "include_replicas_for_major_version_upgrade": null,
+          "instance_type": "jv7l",
+          "ip_address": [],
+          "maintenance_version": "hZlgk5xXHSw",
+          "master_instance_name": "bJc4",
+          "node_count": 0,
+          "point_in_time_restore_context": [],
+          "private_ip_address": "EmGWYPFhE",
+          "project": "UU7YNHV4q",
+          "psc_service_attachment_link": "5hjK6KCNx78gFRP",
+          "public_ip_address": "BbudAvvl",
+          "region": "europe-north1",
+          "replica_configuration": [],
+          "replica_names": [],
+          "replication_cluster": [],
+          "restore_backup_context": [],
+          "root_password": null,
+          "root_password_wo": null,
+          "root_password_wo_version": null,
+          "self_link": "TJ6nir1RN6g",
+          "server_ca_cert": [],
+          "service_account_email_address": "djl6N0gycIgu",
+          "settings": [
+            {
+              "activation_policy": null,
+              "active_directory_config": [],
+              "advanced_machine_features": [],
+              "auto_upgrade_enabled": null,
+              "availability_type": "ZONAL",
+              "backup_configuration": [
+                {
+                  "backup_retention_settings": [
+                    {
+                      "retained_backups": 7,
+                      "retention_unit": "COUNT"
+                    }
+                  ],
+                  "backup_tier": "hgDbBV",
+                  "binary_log_enabled": null,
+                  "enabled": true,
+                  "location": null,
+                  "point_in_time_recovery_enabled": true,
+                  "start_time": "02:00",
+                  "transaction_log_retention_days": 7
+                }
+              ],
+              "collation": null,
+              "connection_pool_config": [],
+              "connector_enforcement": "XXQ8",
+              "data_api_access": "9n9KynCZWys1z",
+              "data_cache_config": [],
+              "data_disk_provisioned_iops": 0,
+              "data_disk_provisioned_throughput": 0,
+              "database_flags": [
+                {
+                  "name": "cloudsql.enable_pgaudit",
+                  "value": "on"
+                },
+                {
+                  "name": "cloudsql.iam_authentication",
+                  "value": "on"
+                },
+                {
+                  "name": "log_checkpoints",
+                  "value": "on"
+                },
+                {
+                  "name": "log_connections",
+                  "value": "on"
+                },
+                {
+                  "name": "log_disconnections",
+                  "value": "on"
+                },
+                {
+                  "name": "log_duration",
+                  "value": "on"
+                },
+                {
+                  "name": "log_hostname",
+                  "value": "on"
+                },
+                {
+                  "name": "log_lock_waits",
+                  "value": "on"
+                },
+                {
+                  "name": "log_min_duration_statement",
+                  "value": "-1"
+                },
+                {
+                  "name": "log_min_error_statement",
+                  "value": "error"
+                },
+                {
+                  "name": "log_min_messages",
+                  "value": "warning"
+                },
+                {
+                  "name": "log_statement",
+                  "value": "ddl"
+                },
+                {
+                  "name": "log_temp_files",
+                  "value": "0"
+                }
+              ],
+              "deletion_protection_enabled": false,
+              "deny_maintenance_period": [],
+              "disk_autoresize": true,
+              "disk_autoresize_limit": 100,
+              "disk_size": 20,
+              "disk_type": "PD_SSD",
+              "edition": "ENTERPRISE",
+              "effective_availability_type": "7kXGHZb933t",
+              "enable_dataplex_integration": null,
+              "enable_google_ml_integration": null,
+              "entraid_config": [],
+              "final_backup_config": [],
+              "insights_config": [
+                {
+                  "enhanced_query_insights_enabled": null,
+                  "query_insights_enabled": true,
+                  "query_plans_per_minute": 0,
+                  "query_string_length": 1024,
+                  "record_application_tags": true,
+                  "record_client_address": false
+                }
+              ],
+              "ip_configuration": [
+                {
+                  "allocated_ip_range": null,
+                  "authorized_networks": [],
+                  "custom_subject_alternative_names": null,
+                  "enable_private_path_for_google_cloud_services": null,
+                  "ipv4_enabled": false,
+                  "private_network": "projects/example-project-1234/global/networks/mock-network",
+                  "psc_config": [],
+                  "server_ca_mode": "5Jo38zs",
+                  "server_ca_pool": null,
+                  "server_certificate_rotation_mode": null,
+                  "ssl_mode": "ENCRYPTED_ONLY"
+                }
+              ],
+              "location_preference": [],
+              "maintenance_window": [
+                {
+                  "day": 7,
+                  "hour": 3,
+                  "update_track": "stable"
+                }
+              ],
+              "password_validation_policy": [],
+              "pricing_plan": null,
+              "read_pool_auto_scale_config": [],
+              "replication_lag_max_seconds": 0,
+              "retain_backups_on_delete": null,
+              "sql_server_audit_config": [],
+              "tier": "db-custom-1-3840",
+              "time_zone": null,
+              "user_labels": {
+                "hermes-component": "database",
+                "hermes-environment": "gcpdev",
+                "hermes-managed-by": "hermes",
+                "hermes-project": "sample-portable"
+              },
+              "version": 0
+            }
+          ],
+          "switch_transaction_logs_to_cloud_storage_enabled": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "available_maintenance_versions": [],
+          "blue_green_deployment": [],
+          "clone": [],
+          "dns_names": [],
+          "ip_address": [],
+          "name": true,
+          "point_in_time_restore_context": [],
+          "replica_configuration": [],
+          "replica_names": [],
+          "replication_cluster": [],
+          "restore_backup_context": [],
+          "server_ca_cert": [],
+          "settings": [
+            {
+              "active_directory_config": [],
+              "advanced_machine_features": [],
+              "backup_configuration": [
+                {
+                  "backup_retention_settings": [
+                    {}
+                  ]
+                }
+              ],
+              "connection_pool_config": [],
+              "data_cache_config": [],
+              "database_flags": [
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "deny_maintenance_period": [],
+              "entraid_config": [],
+              "final_backup_config": [],
+              "insights_config": [
+                {}
+              ],
+              "ip_configuration": [
+                {
+                  "authorized_networks": [],
+                  "psc_config": []
+                }
+              ],
+              "location_preference": [],
+              "maintenance_window": [
+                {}
+              ],
+              "password_validation_policy": [],
+              "read_pool_auto_scale_config": [],
+              "sql_server_audit_config": [],
+              "user_labels": {}
+            }
+          ]
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "google_sql_database_instance"
+    },
+    {
+      "address": "module.platform.module.postgres[0].google_sql_user.iam[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "database_roles": null,
+          "deletion_policy": "ABANDON",
+          "host": "9erEZu0bJzrMq9",
+          "iam_email": "R0TL6yby",
+          "id": "e5wvt",
+          "name": "rZ2Ba6",
+          "password": null,
+          "password_policy": [],
+          "password_wo": null,
+          "password_wo_version": null,
+          "project": "6nbfzPJVeekV",
+          "sql_server_user_details": [],
+          "timeouts": null,
+          "type": "CLOUD_IAM_SERVICE_ACCOUNT"
+        },
+        "after_unknown": {
+          "instance": true,
+          "password_policy": [],
+          "sql_server_user_details": []
+        }
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "iam",
+      "type": "google_sql_user"
+    },
+    {
+      "address": "module.platform.module.secrets.google_secret_manager_secret.this[\"signing-key\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "annotations": null,
+          "create_time": "sPgb",
+          "deletion_policy": "O5kdlWdJi",
+          "deletion_protection": null,
+          "effective_annotations": {},
+          "effective_labels": {
+            "hermes-component": "secrets",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "expire_time": "Vdv4Kgvo",
+          "id": "projects/example-project-1234/secrets/sample-portable-gcpdev-signing-key",
+          "labels": {
+            "hermes-component": "secrets",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "name": "4QFEeBtf2v9kyNu",
+          "project": "6yzmW4Os8IHJ3",
+          "replication": [
+            {
+              "auto": [],
+              "user_managed": [
+                {
+                  "replicas": [
+                    {
+                      "customer_managed_encryption": [],
+                      "location": "europe-north1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rotation": [],
+          "secret_id": "sample-portable-gcpdev-signing-key",
+          "secret_type": null,
+          "tags": null,
+          "terraform_labels": {
+            "hermes-component": "secrets",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "topics": [],
+          "ttl": null,
+          "version_aliases": null,
+          "version_destroy_ttl": "604800s"
+        },
+        "after_unknown": {}
+      },
+      "index": "signing-key",
+      "mode": "managed",
+      "module_address": "module.platform.module.secrets",
+      "name": "this",
+      "type": "google_secret_manager_secret"
+    },
+    {
+      "address": "module.platform.module.service[\"api\"].google_cloud_run_v2_service.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "annotations": null,
+          "binary_authorization": [],
+          "build_config": [],
+          "client": null,
+          "client_version": null,
+          "conditions": [],
+          "create_time": "82UU",
+          "creator": "eu6IqSDkhUO9Z",
+          "custom_audiences": null,
+          "default_uri_disabled": null,
+          "delete_time": "DTyu9r",
+          "deletion_policy": "agfUJuCHyHjM",
+          "deletion_protection": false,
+          "description": "Hermes containerized service.",
+          "effective_annotations": {},
+          "effective_labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "etag": "mJkN1",
+          "expire_time": "ZNd7NQj",
+          "generation": "kQhqM",
+          "iap_enabled": null,
+          "id": "d5wOoOYnq3B6",
+          "ingress": "INGRESS_TRAFFIC_ALL",
+          "invoker_iam_disabled": null,
+          "labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "last_modifier": "hlWLc2Sj0Ly",
+          "latest_created_revision": "YwRvVE",
+          "latest_ready_revision": "l1MQgAg5Fw8BuBX",
+          "launch_stage": "Ir7kVCU2Sp4",
+          "location": "europe-north1",
+          "multi_region_settings": [],
+          "name": "sample-portable-gcpdev-api",
+          "observed_generation": "vWRsJ58Spdo",
+          "project": "xxxjQTBdaOeRHR",
+          "reconciling": false,
+          "scaling": [],
+          "ssh_enabled": null,
+          "tags": null,
+          "template": [
+            {
+              "annotations": null,
+              "containers": [
+                {
+                  "args": null,
+                  "base_image_uri": null,
+                  "build_info": [],
+                  "command": null,
+                  "depends_on": null,
+                  "env": [
+                    {
+                      "name": "HERMES_BUCKET_ASSETS",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_DB_AUTH",
+                      "value": "iam",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_DB_HOST",
+                      "value": "EmGWYPFhE",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_DB_NAME",
+                      "value": "app",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_DB_PORT",
+                      "value": "5432",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_DB_USER",
+                      "value": "rZ2Ba6",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_ENVIRONMENT",
+                      "value": "gcpdev",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_PROJECT",
+                      "value": "sample-portable",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_PROVIDER",
+                      "value": "gcp",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_REGION",
+                      "value": "europe-north1",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_SERVICE",
+                      "value": "api",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_TOPIC_EVENTS",
+                      "value": "46sy8F1",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://localhost:4317",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "grpc",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.namespace=sample-portable,deployment.environment.name=gcpdev,cloud.provider=gcp,cloud.platform=gcp_cloud_run,cloud.region=europe-north1",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "api",
+                      "value_source": []
+                    },
+                    {
+                      "name": "SIGNING_KEY",
+                      "value": null,
+                      "value_source": [
+                        {
+                          "secret_key_ref": [
+                            {
+                              "secret": "sample-portable-gcpdev-signing-key",
+                              "version": "latest"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "image": "ghcr.io/example/portable-api:3.1.0",
+                  "liveness_probe": [
+                    {
+                      "failure_threshold": 3,
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": [],
+                          "path": "/healthz",
+                          "port": 8080
+                        }
+                      ],
+                      "initial_delay_seconds": null,
+                      "period_seconds": 30,
+                      "tcp_socket": [],
+                      "timeout_seconds": 3
+                    }
+                  ],
+                  "name": "app",
+                  "ports": [
+                    {
+                      "container_port": 8080,
+                      "name": "http1"
+                    }
+                  ],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "cpu_idle": false,
+                      "limits": {
+                        "cpu": "1",
+                        "memory": "2048Mi"
+                      },
+                      "startup_cpu_boost": true
+                    }
+                  ],
+                  "sandbox_launcher": null,
+                  "startup_probe": [
+                    {
+                      "failure_threshold": 6,
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": [],
+                          "path": "/healthz",
+                          "port": 8080
+                        }
+                      ],
+                      "initial_delay_seconds": 0,
+                      "period_seconds": 10,
+                      "tcp_socket": [],
+                      "timeout_seconds": 3
+                    }
+                  ],
+                  "volume_mounts": [],
+                  "working_dir": null
+                },
+                {
+                  "args": [
+                    "--config=env:OTELCOL_CONFIG"
+                  ],
+                  "base_image_uri": null,
+                  "build_info": [],
+                  "command": null,
+                  "depends_on": null,
+                  "env": [
+                    {
+                      "name": "OTELCOL_CONFIG",
+                      "value": "\"exporters\":\n  \"googlecloud\": {}\n\"processors\":\n  \"batch\":\n    \"send_batch_size\": 200\n    \"timeout\": \"5s\"\n  \"memory_limiter\":\n    \"check_interval\": \"1s\"\n    \"limit_mib\": 400\n    \"spike_limit_mib\": 100\n  \"resourcedetection\":\n    \"detectors\":\n    - \"env\"\n    - \"gcp\"\n    \"override\": false\n    \"timeout\": \"10s\"\n\"receivers\":\n  \"otlp\":\n    \"protocols\":\n      \"grpc\":\n        \"endpoint\": \"localhost:4317\"\n      \"http\":\n        \"endpoint\": \"localhost:4318\"\n\"service\":\n  \"pipelines\":\n    \"metrics\":\n      \"exporters\":\n      - \"googlecloud\"\n      \"processors\":\n      - \"memory_limiter\"\n      - \"resourcedetection\"\n      - \"batch\"\n      \"receivers\":\n      - \"otlp\"\n    \"traces\":\n      \"exporters\":\n      - \"googlecloud\"\n      \"processors\":\n      - \"memory_limiter\"\n      - \"resourcedetection\"\n      - \"batch\"\n      \"receivers\":\n      - \"otlp\"\n  \"telemetry\":\n    \"logs\":\n      \"level\": \"warn\"\n",
+                      "value_source": []
+                    }
+                  ],
+                  "image": "otel/opentelemetry-collector-contrib:0.130.0",
+                  "liveness_probe": [],
+                  "name": "otel-collector",
+                  "ports": [],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "cpu_idle": false,
+                      "limits": {
+                        "cpu": "500m",
+                        "memory": "512Mi"
+                      },
+                      "startup_cpu_boost": null
+                    }
+                  ],
+                  "sandbox_launcher": null,
+                  "startup_probe": [],
+                  "volume_mounts": [],
+                  "working_dir": null
+                }
+              ],
+              "encryption_key": null,
+              "execution_environment": "EXECUTION_ENVIRONMENT_GEN2",
+              "gpu_zonal_redundancy_disabled": null,
+              "health_check_disabled": null,
+              "labels": null,
+              "max_instance_request_concurrency": 0,
+              "node_selector": [],
+              "revision": null,
+              "sandboxes": [],
+              "scaling": [
+                {
+                  "concurrency_utilization": null,
+                  "cpu_utilization": null,
+                  "max_instance_count": 3,
+                  "min_instance_count": 1
+                }
+              ],
+              "service_account": "rZ2Ba6",
+              "session_affinity": null,
+              "timeout": "U0AEvsvbNZ",
+              "volumes": [],
+              "vpc_access": [
+                {
+                  "connector": null,
+                  "egress": "PRIVATE_RANGES_ONLY",
+                  "network_interfaces": [
+                    {
+                      "network": "sample-portable-gcpdev-vpc",
+                      "subnetwork": "sample-portable-gcpdev-subnet",
+                      "tags": null
+                    }
+                  ]
+                }
+              ],
+              "workload_identity_config": []
+            }
+          ],
+          "terminal_condition": [],
+          "terraform_labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "traffic": [],
+          "traffic_statuses": [],
+          "uid": "Zmb5Snl4QTvtKr",
+          "update_time": "vccljxkitwU",
+          "uri": "qIhy5kiJ",
+          "urls": []
+        },
+        "after_unknown": {
+          "binary_authorization": [],
+          "build_config": [],
+          "conditions": [],
+          "effective_annotations": {},
+          "effective_labels": {},
+          "labels": {},
+          "multi_region_settings": [],
+          "scaling": [],
+          "template": [
+            {
+              "containers": [
+                {
+                  "build_info": [],
+                  "env": [
+                    {
+                      "value": true,
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": []
+                    },
+                    {
+                      "value_source": [
+                        {
+                          "secret_key_ref": [
+                            {}
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "liveness_probe": [
+                    {
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": []
+                        }
+                      ],
+                      "tcp_socket": []
+                    }
+                  ],
+                  "ports": [
+                    {}
+                  ],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "limits": {}
+                    }
+                  ],
+                  "startup_probe": [
+                    {
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": []
+                        }
+                      ],
+                      "tcp_socket": []
+                    }
+                  ],
+                  "volume_mounts": []
+                },
+                {
+                  "args": [
+                    false
+                  ],
+                  "build_info": [],
+                  "env": [
+                    {
+                      "value_source": []
+                    }
+                  ],
+                  "liveness_probe": [],
+                  "ports": [],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "limits": {}
+                    }
+                  ],
+                  "startup_probe": [],
+                  "volume_mounts": []
+                }
+              ],
+              "node_selector": [],
+              "sandboxes": [],
+              "scaling": [
+                {}
+              ],
+              "volumes": [],
+              "vpc_access": [
+                {
+                  "network_interfaces": [
+                    {}
+                  ]
+                }
+              ],
+              "workload_identity_config": []
+            }
+          ],
+          "terminal_condition": [],
+          "terraform_labels": {},
+          "traffic": [],
+          "traffic_statuses": [],
+          "urls": []
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.service[\"api\"]",
+      "name": "this",
+      "type": "google_cloud_run_v2_service"
+    },
+    {
+      "address": "module.platform.module.service[\"api\"].google_cloud_run_v2_service_iam_member.public_invoker[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "etag": "1xPKnUpaOd",
+          "id": "BgBJG",
+          "location": "europe-north1",
+          "member": "allUsers",
+          "name": "sample-portable-gcpdev-api",
+          "project": "fMa6D",
+          "role": "roles/run.invoker"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.service[\"api\"]",
+      "name": "public_invoker",
+      "type": "google_cloud_run_v2_service_iam_member"
+    },
+    {
+      "address": "module.platform.module.service[\"consumer\"].google_cloud_run_v2_service.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "annotations": null,
+          "binary_authorization": [],
+          "build_config": [],
+          "client": null,
+          "client_version": null,
+          "conditions": [],
+          "create_time": "82UU",
+          "creator": "eu6IqSDkhUO9Z",
+          "custom_audiences": null,
+          "default_uri_disabled": null,
+          "delete_time": "DTyu9r",
+          "deletion_policy": "agfUJuCHyHjM",
+          "deletion_protection": false,
+          "description": "Hermes containerized service.",
+          "effective_annotations": {},
+          "effective_labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "etag": "mJkN1",
+          "expire_time": "ZNd7NQj",
+          "generation": "kQhqM",
+          "iap_enabled": null,
+          "id": "d5wOoOYnq3B6",
+          "ingress": "INGRESS_TRAFFIC_INTERNAL_ONLY",
+          "invoker_iam_disabled": null,
+          "labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "last_modifier": "hlWLc2Sj0Ly",
+          "latest_created_revision": "YwRvVE",
+          "latest_ready_revision": "l1MQgAg5Fw8BuBX",
+          "launch_stage": "Ir7kVCU2Sp4",
+          "location": "europe-north1",
+          "multi_region_settings": [],
+          "name": "sample-portable-gcpdev-consumer",
+          "observed_generation": "vWRsJ58Spdo",
+          "project": "xxxjQTBdaOeRHR",
+          "reconciling": false,
+          "scaling": [],
+          "ssh_enabled": null,
+          "tags": null,
+          "template": [
+            {
+              "annotations": null,
+              "containers": [
+                {
+                  "args": null,
+                  "base_image_uri": null,
+                  "build_info": [],
+                  "command": null,
+                  "depends_on": null,
+                  "env": [
+                    {
+                      "name": "HERMES_ENVIRONMENT",
+                      "value": "gcpdev",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_PROJECT",
+                      "value": "sample-portable",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_PROVIDER",
+                      "value": "gcp",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_REGION",
+                      "value": "europe-north1",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_SERVICE",
+                      "value": "consumer",
+                      "value_source": []
+                    },
+                    {
+                      "name": "HERMES_SUBSCRIPTION_EVENTS_DEFAULT",
+                      "value": "ikvFROl",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                      "value": "http://localhost:4317",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                      "value": "grpc",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_RESOURCE_ATTRIBUTES",
+                      "value": "service.namespace=sample-portable,deployment.environment.name=gcpdev,cloud.provider=gcp,cloud.platform=gcp_cloud_run,cloud.region=europe-north1",
+                      "value_source": []
+                    },
+                    {
+                      "name": "OTEL_SERVICE_NAME",
+                      "value": "consumer",
+                      "value_source": []
+                    }
+                  ],
+                  "image": "ghcr.io/example/portable-consumer:3.1.0",
+                  "liveness_probe": [
+                    {
+                      "failure_threshold": 3,
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": [],
+                          "path": "/healthz",
+                          "port": 8080
+                        }
+                      ],
+                      "initial_delay_seconds": null,
+                      "period_seconds": 30,
+                      "tcp_socket": [],
+                      "timeout_seconds": 3
+                    }
+                  ],
+                  "name": "app",
+                  "ports": [
+                    {
+                      "container_port": 8080,
+                      "name": "http1"
+                    }
+                  ],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "cpu_idle": false,
+                      "limits": {
+                        "cpu": "1",
+                        "memory": "2048Mi"
+                      },
+                      "startup_cpu_boost": true
+                    }
+                  ],
+                  "sandbox_launcher": null,
+                  "startup_probe": [
+                    {
+                      "failure_threshold": 6,
+                      "grpc": [],
+                      "http_get": [
+                        {
+                          "http_headers": [],
+                          "path": "/healthz",
+                          "port": 8080
+                        }
+                      ],
+                      "initial_delay_seconds": 0,
+                      "period_seconds": 10,
+                      "tcp_socket": [],
+                      "timeout_seconds": 3
+                    }
+                  ],
+                  "volume_mounts": [],
+                  "working_dir": null
+                },
+                {
+                  "args": [
+                    "--config=env:OTELCOL_CONFIG"
+                  ],
+                  "base_image_uri": null,
+                  "build_info": [],
+                  "command": null,
+                  "depends_on": null,
+                  "env": [
+                    {
+                      "name": "OTELCOL_CONFIG",
+                      "value": "\"exporters\":\n  \"googlecloud\": {}\n\"processors\":\n  \"batch\":\n    \"send_batch_size\": 200\n    \"timeout\": \"5s\"\n  \"memory_limiter\":\n    \"check_interval\": \"1s\"\n    \"limit_mib\": 400\n    \"spike_limit_mib\": 100\n  \"resourcedetection\":\n    \"detectors\":\n    - \"env\"\n    - \"gcp\"\n    \"override\": false\n    \"timeout\": \"10s\"\n\"receivers\":\n  \"otlp\":\n    \"protocols\":\n      \"grpc\":\n        \"endpoint\": \"localhost:4317\"\n      \"http\":\n        \"endpoint\": \"localhost:4318\"\n\"service\":\n  \"pipelines\":\n    \"metrics\":\n      \"exporters\":\n      - \"googlecloud\"\n      \"processors\":\n      - \"memory_limiter\"\n      - \"resourcedetection\"\n      - \"batch\"\n      \"receivers\":\n      - \"otlp\"\n    \"traces\":\n      \"exporters\":\n      - \"googlecloud\"\n      \"processors\":\n      - \"memory_limiter\"\n      - \"resourcedetection\"\n      - \"batch\"\n      \"receivers\":\n      - \"otlp\"\n  \"telemetry\":\n    \"logs\":\n      \"level\": \"warn\"\n",
+                      "value_source": []
+                    }
+                  ],
+                  "image": "otel/opentelemetry-collector-contrib:0.130.0",
+                  "liveness_probe": [],
+                  "name": "otel-collector",
+                  "ports": [],
+                  "readiness_probe": [],
+                  "resources": [
+                    {
+                      "cpu_idle": false,
+                      "limits": {
+                        "cpu": "500m",
+                        "memory": "512Mi"
+                      },
+                      "startup_cpu_boost": null
+                    }
+                  ],
+                  "sandbox_launcher": null,
+                  "startup_probe": [],
+                  "volume_mounts": [],
+                  "working_dir": null
+                }
+              ],
+              "encryption_key": null,
+              "execution_environment": "EXECUTION_ENVIRONMENT_GEN2",
+              "gpu_zonal_redundancy_disabled": null,
+              "health_check_disabled": null,
+              "labels": null,
+              "max_instance_request_concurrency": 0,
+              "node_selector": [],
+              "revision": null,
+              "sandboxes": [],
+              "scaling": [
+                {
+                  "concurrency_utilization": null,
+                  "cpu_utilization": null,
+                  "max_instance_count": 2,
+                  "min_instance_count": 1
+                }
+              ],
+              "service_account": "rZ2Ba6",
+              "session_affinity": null,
+              "timeout": "U0AEvsvbNZ",
+              "volumes": [],
+              "vpc_access": [
+                {
+                  "connector": null,
+                  "egress": "PRIVATE_RANGES_ONLY",
+                  "network_interfaces": [
+                    {
+                      "network": "sample-portable-gcpdev-vpc",
+                      "subnetwork": "sample-portable-gcpdev-subnet",
+                      "tags": null
+                    }
+                  ]
+                }
+              ],
+              "workload_identity_config": []
+            }
+          ],
+          "terminal_condition": [],
+          "terraform_labels": {
+            "hermes-component": "compute",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "traffic": [],
+          "traffic_statuses": [],
+          "uid": "Zmb5Snl4QTvtKr",
+          "update_time": "vccljxkitwU",
+          "uri": "qIhy5kiJ",
+          "urls": []
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.service[\"consumer\"]",
+      "name": "this",
+      "type": "google_cloud_run_v2_service"
+    },
+    {
+      "address": "module.platform.module.storage.google_storage_bucket.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "autoclass": [],
+          "cors": [],
+          "custom_placement_config": [],
+          "default_event_based_hold": null,
+          "deletion_policy": "Vpe8xzuq8D7o",
+          "effective_labels": {
+            "hermes-component": "storage",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "enable_object_retention": null,
+          "encryption": [],
+          "force_destroy": false,
+          "hierarchical_namespace": [],
+          "id": "WAKhfsmc",
+          "ip_filter": [],
+          "labels": {
+            "hermes-component": "storage",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "lifecycle_rule": [
+            {
+              "action": [
+                {
+                  "storage_class": null,
+                  "type": "Delete"
+                }
+              ],
+              "condition": [
+                {
+                  "age": null,
+                  "created_before": null,
+                  "custom_time_before": null,
+                  "days_since_custom_time": null,
+                  "days_since_noncurrent_time": 30,
+                  "matches_prefix": null,
+                  "matches_storage_class": null,
+                  "matches_suffix": null,
+                  "noncurrent_time_before": null,
+                  "num_newer_versions": null,
+                  "send_age_if_zero": null,
+                  "send_days_since_custom_time_if_zero": null,
+                  "send_days_since_noncurrent_time_if_zero": null,
+                  "send_num_newer_versions_if_zero": null,
+                  "size_above_bytes": null,
+                  "size_below_bytes": null,
+                  "with_state": "ARCHIVED"
+                }
+              ]
+            },
+            {
+              "action": [
+                {
+                  "storage_class": null,
+                  "type": "AbortIncompleteMultipartUpload"
+                }
+              ],
+              "condition": [
+                {
+                  "age": 7,
+                  "created_before": null,
+                  "custom_time_before": null,
+                  "days_since_custom_time": null,
+                  "days_since_noncurrent_time": null,
+                  "matches_prefix": null,
+                  "matches_storage_class": null,
+                  "matches_suffix": null,
+                  "noncurrent_time_before": null,
+                  "num_newer_versions": null,
+                  "send_age_if_zero": null,
+                  "send_days_since_custom_time_if_zero": null,
+                  "send_days_since_noncurrent_time_if_zero": null,
+                  "send_num_newer_versions_if_zero": null,
+                  "size_above_bytes": null,
+                  "size_below_bytes": null,
+                  "with_state": "tw5fOHoeaU3"
+                }
+              ]
+            }
+          ],
+          "location": "EUROPE-NORTH1",
+          "logging": [],
+          "project": "EXnLjOj0fAu",
+          "project_number": 0,
+          "public_access_prevention": "enforced",
+          "requester_pays": null,
+          "retention_policy": [],
+          "rpo": "6QfpT",
+          "self_link": "yykVSs2ASXhw",
+          "soft_delete_policy": [],
+          "storage_class": "STANDARD",
+          "terraform_labels": {
+            "hermes-component": "storage",
+            "hermes-environment": "gcpdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "time_created": "BTUTgxS9KGqbUwk",
+          "timeouts": null,
+          "uniform_bucket_level_access": true,
+          "updated": "zq6xDdNfTvz",
+          "url": "NHv0RZFnzN5huu1",
+          "versioning": [
+            {
+              "enabled": true
+            }
+          ],
+          "website": []
+        },
+        "after_unknown": {
+          "autoclass": [],
+          "cors": [],
+          "custom_placement_config": [],
+          "effective_labels": {},
+          "encryption": [],
+          "hierarchical_namespace": [],
+          "ip_filter": [],
+          "labels": {},
+          "lifecycle_rule": [
+            {
+              "action": [
+                {}
+              ],
+              "condition": [
+                {}
+              ]
+            },
+            {
+              "action": [
+                {}
+              ],
+              "condition": [
+                {}
+              ]
+            }
+          ],
+          "logging": [],
+          "name": true,
+          "retention_policy": [],
+          "soft_delete_policy": [],
+          "terraform_labels": {},
+          "versioning": [
+            {}
+          ],
+          "website": []
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "this",
+      "type": "google_storage_bucket"
+    },
+    {
+      "address": "module.platform.random_id.database[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "byte_length": 2,
+          "keepers": {
+            "customer_managed_keys": "false",
+            "region": "europe-north1"
+          },
+          "prefix": null
+        },
+        "after_unknown": {
+          "b64_std": true,
+          "b64_url": true,
+          "dec": true,
+          "hex": true,
+          "id": true,
+          "keepers": {}
+        }
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "database",
+      "type": "random_id"
+    },
+    {
+      "address": "module.platform.random_id.suffix",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "byte_length": 4,
+          "keepers": null,
+          "prefix": null
+        },
+        "after_unknown": {
+          "b64_std": true,
+          "b64_url": true,
+          "dec": true,
+          "hex": true,
+          "id": true
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "suffix",
+      "type": "random_id"
+    },
+    {
+      "address": "module.platform.terraform_data.spec_guard",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "input": null,
+          "output": null,
+          "triggers_replace": null
+        },
+        "after_unknown": {
+          "id": true
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "spec_guard",
+      "type": "terraform_data"
+    }
+  ]
+}

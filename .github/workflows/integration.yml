@@ -1,0 +1,233 @@
+# Manual integration run against a REAL cloud account: plan by default, apply only on request and
+# only after the GitHub environment's protection rules (required reviewers) approve the job.
+#
+# Never runs for forks. Federated credentials only (OIDC); there are no cloud secrets in GitHub.
+#
+# Saved-plan model (F-09): the plan job plans ONCE and writes the plan summary and plan id to the
+# job summary. For an apply run it uploads the saved plan directory (.hermes/plans/<env>/) as a
+# 1-day artifact; the apply job starts only after the GitHub environment's required reviewers
+# approve it (THAT review is the human approval of the plan shown in the summary), downloads THAT
+# artifact, checks its sha256 against the reviewed plan id and runs `hermes apply` on it. There is
+# no re-plan, so what is applied is exactly what was reviewed (the engine refuses a saved plan
+# whose state changed meanwhile; hermes refuses plans older than --max-plan-age, 24h by default).
+# The pipeline passes `--approve <plan id>` taken from the reviewed plan job's output.
+#
+# The plan artifact is SENSITIVE: plan.tfplan and plan.json contain the full planned values. Use
+# this workflow only in a private repository, keep artifact access restricted to maintainers, and
+# keep the 1-day retention. Plan-only runs upload nothing.
+#
+# The artifact actions are pinned to the commits of their v4.6.2 / v4.3.0 release tags as recorded
+# here; verify the SHAs (`gh api repos/actions/upload-artifact/commits/v4.6.2 --jq .sha`) before
+# the first run. An unknown SHA fails the job; it can never run something else silently.
+#
+# One-time setup (see docs/security/ci-cd-authentication.md):
+#   1. Apply infra/bootstrap/<provider>/ci-identity for this repository.
+#   2. Create one GitHub environment per Hermes environment, with required reviewers, "prevent
+#      self-review", and deployment branches limited to main.
+#   3. Repository variables (Settings -> Variables):
+#        HERMES_SPEC_DIR                        directory containing hermes.yaml (default ".")
+#        AWS:     HERMES_AWS_REGION, HERMES_AWS_PLAN_ROLE_ARN
+#        GCP:     HERMES_GCP_WORKLOAD_IDENTITY_PROVIDER, HERMES_GCP_PLAN_SERVICE_ACCOUNT
+#        Alibaba: HERMES_ALIBABA_REGION, HERMES_ALIBABA_OIDC_PROVIDER_ARN, HERMES_ALIBABA_PLAN_ROLE_ARN
+#      Environment variables (Settings -> Environments -> <env>):
+#        HERMES_AWS_APPLY_ROLE_ARN | HERMES_GCP_APPLY_SERVICE_ACCOUNT | HERMES_ALIBABA_APPLY_ROLE_ARN
+name: integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: Cloud provider
+        type: choice
+        options: [aws, gcp, alibaba]
+        required: true
+      environment:
+        description: Hermes environment (must exist as a protected GitHub environment)
+        type: string
+        required: true
+      action:
+        description: plan (default) or apply (requires environment approval)
+        type: choice
+        options: [plan, apply]
+        default: plan
+      allow_destructive:
+        description: Allow deletes/replacements in the apply (never default)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ inputs.provider }}-${{ inputs.environment }}
+  cancel-in-progress: false
+
+env:
+  HERMES_PROVIDER: ${{ inputs.provider }}
+  HERMES_ENV: ${{ inputs.environment }}
+  SPEC_DIR: ${{ vars.HERMES_SPEC_DIR || '.' }}
+  TF_IN_AUTOMATION: "1"
+
+jobs:
+  guard:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read # read the environment's protection rules
+    steps:
+      - name: Validate inputs
+        run: |
+          [[ "$HERMES_ENV" =~ ^[a-z][a-z0-9]{1,11}$ ]] || { echo "::error::invalid environment name"; exit 1; }
+          [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "::error::integration runs only from main"; exit 1; }
+      - name: Refuse apply into an unprotected environment
+        if: inputs.action == 'apply'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rules=$(gh api "repos/$GITHUB_REPOSITORY/environments/$HERMES_ENV" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length') || {
+            echo "::error::GitHub environment $HERMES_ENV does not exist"; exit 1; }
+          [ "$rules" -gt 0 ] || { echo "::error::environment $HERMES_ENV has no required reviewers"; exit 1; }
+
+  plan:
+    needs: guard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the PLAN identity (subject repo:<repo>:ref:refs/heads/main)
+    outputs:
+      plan_id: ${{ steps.plan.outputs.plan_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: 1.13.9
+          tofu_wrapper: false
+      - name: Install conftest (pinned, checksum-verified)
+        run: |
+          scripts/ci/install-tools.sh "$RUNNER_TEMP/bin" conftest
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - run: make build
+      - name: AWS credentials (plan role)
+        if: inputs.provider == 'aws'
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.HERMES_AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.HERMES_AWS_REGION }}
+          role-duration-seconds: 3600
+      - name: GCP credentials (plan service account)
+        if: inputs.provider == 'gcp'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.HERMES_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.HERMES_GCP_PLAN_SERVICE_ACCOUNT }}
+      - name: Alibaba Cloud credentials (plan role)
+        if: inputs.provider == 'alibaba'
+        uses: aliyun/configure-aliyun-credentials-action@1e5248c8d5d93a8781ac344a68e19a43341e79e6 # v1.1.0
+        with:
+          role-to-assume: ${{ vars.HERMES_ALIBABA_PLAN_ROLE_ARN }}
+          oidc-provider-arn: ${{ vars.HERMES_ALIBABA_OIDC_PROVIDER_ARN }}
+          audience: sts.aliyuncs.com
+      - name: hermes plan (policy-checked; the summary shows actions and addresses, never values)
+        id: plan
+        run: |
+          cd "$SPEC_DIR"
+          "$GITHUB_WORKSPACE/bin/hermes" plan --env "$HERMES_ENV" | tee "$RUNNER_TEMP/plan.txt"
+          dir=".hermes/plans/$HERMES_ENV"
+          plan_id=$(jq -r .plan_id "$dir/meta.json")
+          [ "$plan_id" = "$(sha256sum "$dir/plan.tfplan" | cut -d' ' -f1)" ] || { echo "::error::plan_id does not match plan.tfplan"; exit 1; }
+          echo "plan_id=$plan_id" >> "$GITHUB_OUTPUT"
+          { echo "### Plan for $HERMES_PROVIDER / $HERMES_ENV"; echo
+            echo "Plan id: \`$plan_id\`"; echo
+            echo "Approving the \`$HERMES_ENV\` environment deployment applies exactly this saved plan."; echo
+            echo '```'; cat "$RUNNER_TEMP/plan.txt"; echo
+            jq -r '.resource_changes[]? | select(.change.actions != ["no-op"]) | "\(.change.actions | join("/"))\t\(.address)"' "$dir/plan.json"
+            echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      # Only for apply runs: the reviewed saved plan, for the approved apply job. Sensitive
+      # (full planned values): private repository, 1-day retention.
+      - name: Upload the saved plan for the apply job
+        if: inputs.action == 'apply'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: hermes-plan-${{ inputs.provider }}-${{ inputs.environment }}-${{ github.run_id }}
+          path: ${{ env.SPEC_DIR }}/.hermes/plans/${{ inputs.environment }}/
+          retention-days: 1
+          if-no-files-found: error
+
+  apply:
+    needs: plan
+    if: inputs.action == 'apply'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    # The environment's required reviewers are the human approval of the plan in the plan job's
+    # summary; this job starts only after they approve.
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the APPLY identity (subject repo:<repo>:environment:<env>)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: 1.13.9
+          tofu_wrapper: false
+      - run: make build
+      - name: Download the reviewed saved plan (no re-plan)
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: hermes-plan-${{ inputs.provider }}-${{ inputs.environment }}-${{ github.run_id }}
+          path: ${{ env.SPEC_DIR }}/.hermes/plans/${{ inputs.environment }}/
+      - name: Refuse unless the downloaded plan is the reviewed one
+        env:
+          REVIEWED_PLAN_ID: ${{ needs.plan.outputs.plan_id }}
+        run: |
+          cd "$SPEC_DIR"
+          dir=".hermes/plans/$HERMES_ENV"
+          [[ "$REVIEWED_PLAN_ID" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::missing reviewed plan id"; exit 1; }
+          got=$(sha256sum "$dir/plan.tfplan" | cut -d' ' -f1)
+          [ "$got" = "$REVIEWED_PLAN_ID" ] || { echo "::error::downloaded plan $got is not the reviewed plan $REVIEWED_PLAN_ID"; exit 1; }
+      - name: AWS credentials (apply role)
+        if: inputs.provider == 'aws'
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.HERMES_AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ vars.HERMES_AWS_REGION }}
+          role-duration-seconds: 3600
+      - name: GCP credentials (apply service account)
+        if: inputs.provider == 'gcp'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.HERMES_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.HERMES_GCP_APPLY_SERVICE_ACCOUNT }}
+      - name: Alibaba Cloud credentials (apply role)
+        if: inputs.provider == 'alibaba'
+        uses: aliyun/configure-aliyun-credentials-action@1e5248c8d5d93a8781ac344a68e19a43341e79e6 # v1.1.0
+        with:
+          role-to-assume: ${{ vars.HERMES_ALIBABA_APPLY_ROLE_ARN }}
+          oidc-provider-arn: ${{ vars.HERMES_ALIBABA_OIDC_PROVIDER_ARN }}
+          audience: sts.aliyuncs.com
+      # hermes re-renders the root (its digest must match the plan's), initialises it on this
+      # fresh runner and applies the saved plan file only.
+      - name: hermes apply (the reviewed saved plan)
+        env:
+          REVIEWED_PLAN_ID: ${{ needs.plan.outputs.plan_id }}
+          ALLOW_DESTRUCTIVE: ${{ inputs.allow_destructive }}
+        run: |
+          cd "$SPEC_DIR"
+          args=(apply --env "$HERMES_ENV" --approve "$REVIEWED_PLAN_ID" --yes)
+          [ "$ALLOW_DESTRUCTIVE" = "true" ] && args+=(--allow-destructive)
+          "$GITHUB_WORKSPACE/bin/hermes" "${args[@]}"

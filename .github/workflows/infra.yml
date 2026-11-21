@@ -1,0 +1,85 @@
+# HCL checks: formatting, validate + mock-provider tests for every module, tflint, and a
+# Terraform compatibility job for the three provider compositions. Mock providers only:
+# no cloud credentials exist in this workflow.
+name: infra
+
+on:
+  push:
+    branches: [main]
+    paths: ["infra/**", "tests/contracts/**", "tests/policy-fixtures/**", "policies/**", "internal/render/testdata/golden/**", "scripts/gen-policy-fixtures.sh", ".tflint.hcl", "Makefile", ".github/workflows/infra.yml"]
+  pull_request:
+    paths: ["infra/**", "tests/contracts/**", "tests/policy-fixtures/**", "policies/**", "internal/render/testdata/golden/**", "scripts/gen-policy-fixtures.sh", ".tflint.hcl", "Makefile", ".github/workflows/infra.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.tf-plugin-cache
+  TF_IN_AUTOMATION: "1"
+
+jobs:
+  opentofu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: 1.13.9
+          tofu_wrapper: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+      - name: fmt + init -backend=false + validate (every module)
+        run: make tf-validate
+      - name: tofu test with mock providers (every module with tests)
+        run: make tf-test
+      - name: Contract tests
+        run: make contract-test
+      # The policy regression fixtures are derived from mock plans of the compositions: a module
+      # change that the embedded policies would deny shows up here (F-14).
+      - name: Policy fixtures derived from the compositions are up to date
+        run: make policy-fixtures-check
+
+  tflint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337 # v6.3.2
+        with:
+          tflint_version: v0.66.0
+      - name: tflint every module (pinned rulesets; signatures verified by tflint --init)
+        run: scripts/security-scan.sh --strict --only tflint
+        env:
+          HERMES_TFLINT_INIT: "1"
+          GITHUB_TOKEN: ${{ github.token }}
+
+  terraform-compat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.15.6
+          terraform_wrapper: false
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: 1.13.9
+          tofu_wrapper: false
+      - run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+      - name: Validate and test the compositions with Terraform
+        run: make tf-compat

@@ -1,0 +1,26 @@
+# Checkov configuration (run from the repository root: checkov --config-file .checkov.yaml).
+# Scans the HCL modules and the GitHub Actions workflows. Generated working files, test fixtures
+# and examples are skipped. There are no blanket skips: an intentional finding is suppressed
+# inline next to the resource with `#checkov:skip=CKV_X_N: <specific justification>`, and any
+# check listed under skip-check below must carry a justification comment.
+# Checkov's Alibaba coverage is thin (about 43 checks); policies/plan covers the gaps.
+directory:
+  - infra
+  - .github/workflows
+framework:
+  - terraform
+  - github_actions
+skip-path:
+  - \.hermes/
+  - \.terraform/
+  - tests/
+  - examples/
+  - policies/tests/
+compact: true
+quiet: true
+download-external-modules: false
+skip-check:
+  # CKV_GHA_7 (workflow_dispatch inputs must be empty) targets build-provenance workflows.
+  # Only integration.yml has inputs: an operator chooses provider/environment/plan|apply; the
+  # inputs are validated, never reach a shell unquoted, and produce no build artifact.
+  - CKV_GHA_7

@@ -1,0 +1,477 @@
+{
+ "configuration": {
+  "root_module": {
+   "module_calls": {
+    "platform": {
+     "expressions": {
+      "protected": {
+       "constant_value": true
+      }
+     },
+     "source": "./modules/platform"
+    }
+   }
+  }
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.storage.aws_s3_bucket.this[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "sample-production-artifacts-1a2b",
+     "force_destroy": false,
+     "tags": null,
+     "tags_all": {
+      "hermes-component": "storage",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket"
+  },
+  {
+   "address": "module.platform.module.storage.aws_s3_bucket_public_access_block.this[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "block_public_acls": true,
+     "block_public_policy": true,
+     "bucket": "sample-production-artifacts-1a2b",
+     "ignore_public_acls": true,
+     "restrict_public_buckets": true
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_public_access_block"
+  },
+  {
+   "address": "module.platform.module.storage.aws_s3_bucket_versioning.this[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "sample-production-artifacts-1a2b",
+     "versioning_configuration": [
+      {
+       "mfa_delete": null,
+       "status": "Enabled"
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_versioning"
+  },
+  {
+   "address": "module.platform.module.storage.aws_s3_bucket_policy.tls_only[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "sample-production-artifacts-1a2b",
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"DenyInsecureTransport\", \"Effect\": \"Deny\", \"Principal\": \"*\", \"Action\": \"s3:*\", \"Resource\": [\"arn:aws:s3:::sample-production-artifacts-1a2b\", \"arn:aws:s3:::sample-production-artifacts-1a2b/*\"], \"Condition\": {\"Bool\": {\"aws:SecureTransport\": \"false\"}}}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "tls_only",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket_policy"
+  },
+  {
+   "address": "module.platform.module.database.aws_db_instance.this",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "backup_retention_period": 7,
+     "deletion_protection": true,
+     "engine": "postgres",
+     "identifier": "sample-production-db",
+     "manage_master_user_password": true,
+     "password": null,
+     "password_wo": null,
+     "publicly_accessible": false,
+     "skip_final_snapshot": false,
+     "storage_encrypted": true,
+     "tags": null,
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_db_instance"
+  },
+  {
+   "address": "module.platform.module.database.aws_db_parameter_group.this",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "family": "postgres16",
+     "parameter": [
+      {
+       "apply_method": "pending-reboot",
+       "name": "rds.force_ssl",
+       "value": "1"
+      }
+     ],
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_db_parameter_group"
+  },
+  {
+   "address": "module.platform.module.messaging.aws_sqs_queue.this[\"telemetry-ingest\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": null,
+     "name": "sample-production-telemetry-ingest",
+     "sqs_managed_sse_enabled": true,
+     "tags_all": {
+      "hermes-component": "messaging",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.messaging",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sqs_queue"
+  },
+  {
+   "address": "module.platform.module.messaging.aws_sns_topic.this[\"telemetry\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "kms_master_key_id": "alias/aws/sns",
+     "name": "sample-production-telemetry",
+     "tags_all": {
+      "hermes-component": "messaging",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.messaging",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_sns_topic"
+  },
+  {
+   "address": "module.platform.module.compute.aws_security_group.alb",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "ingress": [
+      {
+       "cidr_blocks": [
+        "0.0.0.0/0"
+       ],
+       "from_port": 443,
+       "ipv6_cidr_blocks": [],
+       "protocol": "tcp",
+       "self": false,
+       "to_port": 443
+      }
+     ],
+     "name": "sample-production-alb",
+     "tags_all": {
+      "hermes-component": "compute",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "alb",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_security_group"
+  },
+  {
+   "address": "module.platform.module.compute.aws_vpc_security_group_ingress_rule.alb_https",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ipv4": "0.0.0.0/0",
+     "cidr_ipv6": null,
+     "from_port": 443,
+     "ip_protocol": "tcp",
+     "tags_all": {
+      "hermes-component": "compute",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "to_port": 443
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "alb_https",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_vpc_security_group_ingress_rule"
+  },
+  {
+   "address": "module.platform.module.database.aws_vpc_security_group_ingress_rule.from_services",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ipv4": null,
+     "cidr_ipv6": null,
+     "from_port": 5432,
+     "ip_protocol": "tcp",
+     "tags_all": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "to_port": 5432
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "referenced_security_group_id": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "from_services",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_vpc_security_group_ingress_rule"
+  },
+  {
+   "address": "module.platform.module.compute.aws_iam_role.task[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ecs-tasks.amazonaws.com\"}, \"Action\": \"sts:AssumeRole\", \"Condition\": {\"StringEquals\": {\"aws:SourceAccount\": \"123456789012\"}}}]}",
+     "max_session_duration": 3600,
+     "name": "sample-production-api-task",
+     "tags_all": {
+      "hermes-component": "compute",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "task",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role"
+  },
+  {
+   "address": "module.platform.module.compute.aws_iam_role_policy.task[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "name": "access",
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"Buckets\", \"Effect\": \"Allow\", \"Action\": [\"s3:GetObject\", \"s3:PutObject\"], \"Resource\": \"arn:aws:s3:::sample-production-artifacts-1a2b/*\"}, {\"Sid\": \"ListBucket\", \"Effect\": \"Allow\", \"Action\": \"s3:ListBucket\", \"Resource\": \"arn:aws:s3:::sample-production-artifacts-1a2b\"}, {\"Sid\": \"Registry\", \"Effect\": \"Allow\", \"Action\": \"ecr:GetAuthorizationToken\", \"Resource\": \"*\"}, {\"Sid\": \"Metrics\", \"Effect\": \"Allow\", \"Action\": \"cloudwatch:PutMetricData\", \"Resource\": \"*\"}, {\"Sid\": \"Publish\", \"Effect\": \"Allow\", \"Action\": \"sns:Publish\", \"Resource\": \"arn:aws:sns:eu-north-1:123456789012:sample-production-telemetry\"}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "task",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role_policy"
+  },
+  {
+   "address": "module.platform.module.ci.aws_iam_role.apply",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Federated\": \"arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com\"}, \"Action\": \"sts:AssumeRoleWithWebIdentity\", \"Condition\": {\"StringEquals\": {\"token.actions.githubusercontent.com:aud\": \"sts.amazonaws.com\", \"token.actions.githubusercontent.com:sub\": \"repo:example-org/example-repo:environment:production\"}}}]}",
+     "max_session_duration": 3600,
+     "name": "sample-ci-apply-production",
+     "tags_all": {
+      "hermes-component": "identity",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.ci",
+   "name": "apply",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role"
+  },
+  {
+   "address": "module.platform.module.secrets.aws_secretsmanager_secret.this[\"db-password\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "name": "sample-production-db-password",
+     "recovery_window_in_days": 30,
+     "tags_all": {
+      "hermes-component": "secrets",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.secrets",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_secretsmanager_secret"
+  },
+  {
+   "address": "module.platform.module.kms.aws_kms_key.this",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "enable_key_rotation": true,
+     "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"Root\", \"Effect\": \"Allow\", \"Principal\": {\"AWS\": \"arn:aws:iam::123456789012:root\"}, \"Action\": \"kms:*\", \"Resource\": \"*\"}]}",
+     "tags_all": {
+      "hermes-component": "security",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.kms",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_kms_key"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

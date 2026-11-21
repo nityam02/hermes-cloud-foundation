@@ -1,0 +1,21 @@
+# Trivy configuration for `trivy config` (IaC misconfiguration scan), run from the repository root:
+#   trivy config --config trivy.yaml --skip-check-update .
+# --skip-check-update makes the scan use the checks embedded in the pinned, checksum-verified
+# binary instead of downloading a bundle at run time (reproducible, smaller supply-chain surface).
+# Trivy has no Alibaba Cloud checks; policies/plan covers Alibaba.
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+  - LOW
+exit-code: 1
+ignorefile: .trivyignore
+scan:
+  skip-dirs:
+    - .hermes
+    - "**/.terraform"
+    - policies/tests
+    - tests/contracts/fixtures
+misconfiguration:
+  scanners:
+    - terraform

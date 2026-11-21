@@ -1,0 +1,43 @@
+# gitleaks configuration: default rules plus Hermes-specific rules.
+# Run: gitleaks dir . --config .gitleaks.toml --redact   (and `gitleaks git` when history exists).
+# The allowlist covers ONLY the obviously fake fixture values the project uses on purpose
+# (AWS example account 123456789012, the literal "demo-not-a-secret", the Alibaba secrets module
+# placeholder and documentation-style resource ids). Never allowlist paths or real-looking values.
+title = "Hermes Cloud Foundation gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "hermes-terraform-state"
+description = "OpenTofu/Terraform state committed to the repository (state is sensitive even without secrets)"
+regex = '''"lineage"\s*:\s*"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"'''
+keywords = ["lineage"]
+
+[[rules]]
+id = "hermes-github-oidc-token"
+description = "GitHub Actions OIDC token (JWT issued by token.actions.githubusercontent.com)"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]*dG9rZW4uYWN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb2[A-Za-z0-9_-]*\.[A-Za-z0-9_-]{20,}'''
+keywords = ["eyj"]
+
+[[allowlists]]
+description = "Obviously fake fixture values"
+regexTarget = "secret"
+regexes = [
+  '''^123456789012$''',
+  '''^demo-not-a-secret$''',
+  '''^set-out-of-band$''',
+  # AWS documentation-style placeholder resource ids used in module tests (sg-0123456789abcdef0).
+  '''^(sg|vpc|subnet|igw|nat|rtb|eni)-0123456789abcdef[0-9]$''',
+]
+
+[[allowlists]]
+description = "False positives of the generic-api-key rule: exact public words and enum constants, never secrets"
+targetRules = ["generic-api-key"]
+regexTarget = "secret"
+regexes = [
+  '''^S3-compatible$''',
+  # Alibaba KMS key-spec enum constant, set by infra/modules/alibaba/kms and present in the
+  # composition-derived policy fixture policies/tests/fixtures/alibaba_default ("key_spec").
+  '''^Aliyun_AES_256$''',
+]

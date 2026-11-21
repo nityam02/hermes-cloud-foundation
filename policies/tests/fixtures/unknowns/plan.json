@@ -1,0 +1,175 @@
+{
+ "configuration": {
+  "root_module": {}
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.compute.aws_iam_role_policy.task[\"api\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "name": "access"
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "policy": true,
+     "role": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.compute",
+   "name": "task",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_iam_role_policy"
+  },
+  {
+   "address": "module.platform.module.storage.aws_s3_bucket.this[\"data\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "force_destroy": false,
+     "tags": {
+      "hermes-component": "storage"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "bucket": true,
+     "tags_all": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_s3_bucket"
+  },
+  {
+   "address": "module.platform.module.storage.google_storage_bucket.this[\"data\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "terraform_labels": {
+      "hermes-component": "storage",
+      "hermes-environment": "dev",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "uniform_bucket_level_access": true,
+     "versioning": [
+      {
+       "enabled": true
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "name": true,
+     "public_access_prevention": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_storage_bucket"
+  },
+  {
+   "address": "module.platform.module.database.aws_db_instance.this",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "deletion_protection": false,
+     "publicly_accessible": false,
+     "storage_encrypted": true,
+     "tags": null
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "tags_all": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/aws",
+   "type": "aws_db_instance"
+  },
+  {
+   "address": "module.platform.module.messaging.alicloud_ram_policy.mns",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy_name": "x",
+     "tags": {
+      "hermes-component": "messaging",
+      "hermes-environment": "dev",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "policy_document": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.messaging",
+   "name": "mns",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_policy"
+  },
+  {
+   "address": "module.platform.module.storage.alicloud_oss_bucket.this[\"data\"]",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "tags": {
+      "hermes-component": "storage",
+      "hermes-environment": "dev",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "server_side_encryption_rule": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_oss_bucket"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

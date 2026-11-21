@@ -1,0 +1,17 @@
+# lychee link checker configuration (docs workflow and `make docs-links`).
+# Placeholder and documentation hosts are excluded; they are not meant to resolve.
+exclude = [
+  '^https?://([a-z0-9-]+\.)*example\.(com|org|net)',
+  '^https?://([a-z0-9-]+\.)*example(/|$)',
+  '^https?://localhost',
+  '^https?://127\.0\.0\.1',
+  '^https?://0\.0\.0\.0',
+  '^https?://[a-z0-9.-]*\.internal',
+  '^https?://ghcr\.io/example/',
+  '^mailto:',
+]
+exclude_all_private = true
+exclude_path = ['\.hermes/', '\.terraform/', 'node_modules/']
+max_retries = 2
+timeout = 20
+accept = ["200..=299", "429"]

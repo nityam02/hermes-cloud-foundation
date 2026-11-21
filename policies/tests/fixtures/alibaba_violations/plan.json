@@ -1,0 +1,461 @@
+{
+ "configuration": {
+  "root_module": {}
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.bad_storage.alicloud_oss_bucket.plain",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "acl": "public-read",
+     "server_side_encryption_rule": [],
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "versioning": [
+      {
+       "status": "Suspended"
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad_storage",
+   "name": "plain",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_oss_bucket"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_oss_bucket_acl.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "acl": "public-read-write",
+     "bucket": "b"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_oss_bucket_acl"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_oss_bucket_public_access_block.off",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "block_public_access": false,
+     "bucket": "b"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "off",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_oss_bucket_public_access_block"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_oss_bucket_policy.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "bucket": "b",
+     "policy": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": [\"*\"], \"Action\": [\"oss:GetObject\"], \"Resource\": [\"acs:oss:*:*:b/*\"]}]}"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_oss_bucket_policy"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_db_instance.bad",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "deletion_protection": false,
+     "encryption_key": "key-demo-0001",
+     "engine": "PostgreSQL",
+     "security_ips": [
+      "10.20.0.0/16,0.0.0.0/0"
+     ],
+     "ssl_action": "Close",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "bad",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_db_instance"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_db_connection.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "connection_prefix": "bad",
+     "instance_id": "pgm-demo"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_db_connection"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_security_group_rule.ssh",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ip": "0.0.0.0/0",
+     "description": "ssh hermes-component=compute",
+     "ip_protocol": "tcp",
+     "policy": "accept",
+     "port_range": "22/22",
+     "type": "ingress"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "ssh",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_security_group_rule"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_security_group_rule.web_unmarked",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ip": "0.0.0.0/0",
+     "description": null,
+     "ip_protocol": "tcp",
+     "policy": "accept",
+     "port_range": "443/443",
+     "type": "ingress"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "web_unmarked",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_security_group_rule"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_security_group_rule.all_v6",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "cidr_ip": null,
+     "ip_protocol": "all",
+     "ipv6_cidr_ip": "::/0",
+     "port_range": "-1/-1",
+     "type": "ingress"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "all_v6",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_security_group_rule"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_policy.star",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy_document": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": [\"*\"], \"Resource\": [\"*\"]}]}",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "star",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_policy"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_policy.oss_star",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "policy_document": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": [\"oss:*\", \"kms:GetSecretValue\"], \"Resource\": [\"*\"]}]}",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "oss_star",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_policy"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_policy.legacy_document",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "document": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"ram:*\", \"Resource\": \"acs:ram:*:*:role/x\"}]}",
+     "policy_document": null,
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "legacy_document",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_policy"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_role.no_sub",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy_document": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"sts:AssumeRole\", \"Principal\": {\"Federated\": [\"acs:ram::123456789012:oidc-provider/github\"]}, \"Condition\": {\"StringEquals\": {\"oidc:aud\": \"sts.aliyuncs.com\"}}}]}",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "no_sub",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_role"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_role.public",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "assume_role_policy_document": "{\"Version\": \"1\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"sts:AssumeRole\", \"Principal\": {\"RAM\": [\"*\"]}}]}",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "public",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_role"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_kms_secret.real_value",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "secret_data": "demo-not-a-secret",
+     "tags": {
+      "hermes-component": "database",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "real_value",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_kms_secret"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_ram_access_key.ci",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "user_name": "ci"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "ci",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_ram_access_key"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_db_account.password",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "account_name": "app",
+     "account_password": "demo-not-a-secret"
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "password",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_db_account"
+  },
+  {
+   "address": "module.platform.module.bad.alicloud_db_instance.untagged",
+   "change": {
+    "actions": [
+     "create"
+    ],
+    "after": {
+     "deletion_protection": true,
+     "encryption_key": "key-demo-0001",
+     "engine": "PostgreSQL",
+     "security_ips": [
+      "10.20.0.0/16"
+     ],
+     "ssl_action": "Open",
+     "tags": {
+      "hermes-environment": "dev"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.bad",
+   "name": "untagged",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_db_instance"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

@@ -1,0 +1,1839 @@
+{
+  "//": "Derived by scripts/gen-policy-fixtures.sh from a mock-provider plan of the golden render of examples/multi-cloud (environment alidev). Do not edit by hand: regenerate.",
+  "configuration": {
+    "root_module": {
+      "module_calls": {
+        "platform": {
+          "expressions": {
+            "protected": {
+              "constant_value": false
+            }
+          },
+          "source": "../../../infra/providers/alibaba/platform"
+        }
+      }
+    }
+  },
+  "format_version": "1.2",
+  "planned_values": {
+    "root_module": {}
+  },
+  "resource_changes": [
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_policy.service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "attachment_count": 0,
+          "create_time": "Qz3wFXss",
+          "default_version": "UjgE7L3yRy",
+          "description": "Least-privilege access for service api (sample-portable-alidev)",
+          "document": "gNDq8M",
+          "force": null,
+          "id": "vOKXtaXKIbUH",
+          "name": "zW1cJcDCHpInE",
+          "policy_name": "sample-portable-alidev-api-access",
+          "rotate_strategy": "DeleteOldestNonDefaultVersionWhenLimitExceeded",
+          "statement": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "type": "stjJfhg6cy7",
+          "version": null,
+          "version_id": "Bfm7mEi7aE"
+        },
+        "after_unknown": {
+          "policy_document": true,
+          "statement": [],
+          "tags": {}
+        }
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_policy"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_policy.service[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "attachment_count": 0,
+          "create_time": "Qz3wFXss",
+          "default_version": "UjgE7L3yRy",
+          "description": "Least-privilege access for service consumer (sample-portable-alidev)",
+          "document": "gNDq8M",
+          "force": null,
+          "id": "vOKXtaXKIbUH",
+          "name": "zW1cJcDCHpInE",
+          "policy_document": "{\"Statement\":[{\"Action\":[\"mns:ReceiveMessage\",\"mns:DeleteMessage\",\"mns:ChangeMessageVisibility\"],\"Effect\":\"Allow\",\"Resource\":[\"acs:mns:eu-central-1:5000000000000001:/queues/sample-portable-alidev-events-default/messages\"]}],\"Version\":\"1\"}",
+          "policy_name": "sample-portable-alidev-consumer-access",
+          "rotate_strategy": "DeleteOldestNonDefaultVersionWhenLimitExceeded",
+          "statement": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "type": "stjJfhg6cy7",
+          "version": null,
+          "version_id": "Bfm7mEi7aE"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_policy"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_role.service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "XF42y4wY",
+          "assume_role_policy_document": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"sae.aliyuncs.com\"]}}],\"Version\":\"1\"}",
+          "create_time": "dthb4Q",
+          "description": "Hermes workload identity for service api (sample-portable-alidev)",
+          "document": "6RdG7nc3EY8",
+          "force": null,
+          "id": "7iW1",
+          "max_session_duration": 3600,
+          "name": "v9FkwrLTUSmEO",
+          "ram_users": [],
+          "role_id": "Yrow54ZFgiZ",
+          "role_name": "sample-portable-alidev-api",
+          "services": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "version": null
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_role"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_role.service[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "XF42y4wY",
+          "assume_role_policy_document": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"sae.aliyuncs.com\"]}}],\"Version\":\"1\"}",
+          "create_time": "dthb4Q",
+          "description": "Hermes workload identity for service consumer (sample-portable-alidev)",
+          "document": "6RdG7nc3EY8",
+          "force": null,
+          "id": "7iW1",
+          "max_session_duration": 3600,
+          "name": "v9FkwrLTUSmEO",
+          "ram_users": [],
+          "role_id": "Yrow54ZFgiZ",
+          "role_name": "sample-portable-alidev-consumer",
+          "services": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "version": null
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_role"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_role_policy_attachment.service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "igKBzdqMXN5",
+          "policy_name": "sample-portable-alidev-api-access",
+          "policy_type": "Custom",
+          "role_name": "sample-portable-alidev-api",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_role_policy_attachment"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_ram_role_policy_attachment.service[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "igKBzdqMXN5",
+          "policy_name": "sample-portable-alidev-consumer-access",
+          "policy_type": "Custom",
+          "role_name": "sample-portable-alidev-consumer",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "service",
+      "type": "alicloud_ram_role_policy_attachment"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_application.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "acr_assume_role_arn": "jei4",
+          "acr_instance_id": null,
+          "app_description": "Hermes service api",
+          "app_name": "sample-portable-alidev-api",
+          "auto_config": null,
+          "auto_enable_application_scaling_rule": null,
+          "batch_wait_time": 0,
+          "change_order_desc": null,
+          "command": null,
+          "command_args": "4PCW",
+          "command_args_v2": [],
+          "config_map_mount_desc": "k5GZnQ",
+          "config_map_mount_desc_v2": [],
+          "cpu": 1000,
+          "custom_host_alias": "bxE10SrUBfXBf",
+          "custom_host_alias_v2": [],
+          "deploy": null,
+          "edas_container_version": null,
+          "enable_ahas": "WMBnf7CZ8XZ",
+          "enable_grey_tag_route": false,
+          "id": "c976IyVTih",
+          "image_pull_secrets": null,
+          "image_url": "ghcr.io/example/portable-api:3.1.0",
+          "jar_start_args": null,
+          "jar_start_options": null,
+          "jdk": null,
+          "kafka_configs": [],
+          "liveness": "i7v6pw6b53H",
+          "liveness_v2": [
+            {
+              "exec": [],
+              "failure_threshold": 3,
+              "http_get": [
+                {
+                  "is_contain_key_word": false,
+                  "key_word": "f03c",
+                  "path": "/healthz",
+                  "port": 8080,
+                  "scheme": "HTTP"
+                }
+              ],
+              "initial_delay_seconds": 15,
+              "period_seconds": 30,
+              "tcp_socket": [],
+              "timeout_seconds": 5
+            }
+          ],
+          "memory": 2048,
+          "micro_registration": "GWmJ",
+          "min_ready_instance_ratio": 0,
+          "min_ready_instances": 0,
+          "namespace_id": "ky1ftweDipSU9q",
+          "nas_configs": [],
+          "oss_ak_id": null,
+          "oss_ak_secret": null,
+          "oss_mount_descs": "ddStJQvWD",
+          "oss_mount_descs_v2": [],
+          "package_type": "Image",
+          "package_url": null,
+          "package_version": "igOc05",
+          "php": null,
+          "php_arms_config_location": "KpyRlOksmzC",
+          "php_config": null,
+          "php_config_location": null,
+          "post_start": "31FBvE",
+          "post_start_v2": [],
+          "pre_stop": "aXxytLS02hMsq0",
+          "pre_stop_v2": [],
+          "programming_language": "kqZ5oKW5VyPgkB",
+          "pvtz_discovery_svc": [],
+          "readiness": "hAeJvE6Y9",
+          "readiness_v2": [
+            {
+              "exec": [],
+              "failure_threshold": 3,
+              "http_get": [
+                {
+                  "is_contain_key_word": false,
+                  "key_word": "Xu7suAc27",
+                  "path": "/healthz",
+                  "port": 8080,
+                  "scheme": "HTTP"
+                }
+              ],
+              "initial_delay_seconds": 5,
+              "period_seconds": 10,
+              "success_threshold": 0,
+              "tcp_socket": [],
+              "timeout_seconds": 5
+            }
+          ],
+          "replicas": 1,
+          "security_group_id": "Ez1ydRsXZl",
+          "status": "xqeyDcuuryNrUTX",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "termination_grace_period_seconds": 0,
+          "timezone": "VhTvAuV",
+          "tomcat_config": "jp2N3Gli",
+          "tomcat_config_v2": [],
+          "update_strategy": "lhF4poOXW",
+          "update_strategy_v2": [],
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vswitch_id": "XhYFeuNj6GG,XhYFeuNj6GG",
+          "war_start_options": null,
+          "web_container": null
+        },
+        "after_unknown": {
+          "command_args_v2": [],
+          "config_map_mount_desc_v2": [],
+          "custom_host_alias_v2": [],
+          "envs": true,
+          "kafka_configs": [],
+          "liveness_v2": [
+            {
+              "exec": [],
+              "http_get": [
+                {}
+              ],
+              "tcp_socket": []
+            }
+          ],
+          "nas_configs": [],
+          "oss_mount_descs_v2": [],
+          "post_start_v2": [],
+          "pre_stop_v2": [],
+          "pvtz_discovery_svc": [],
+          "readiness_v2": [
+            {
+              "exec": [],
+              "http_get": [
+                {}
+              ],
+              "tcp_socket": []
+            }
+          ],
+          "sls_configs": true,
+          "tags": {},
+          "tomcat_config_v2": [],
+          "update_strategy_v2": []
+        }
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "this",
+      "type": "alicloud_sae_application"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_application.this[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "acr_assume_role_arn": "jei4",
+          "acr_instance_id": null,
+          "app_description": "Hermes service consumer",
+          "app_name": "sample-portable-alidev-consumer",
+          "auto_config": null,
+          "auto_enable_application_scaling_rule": null,
+          "batch_wait_time": 0,
+          "change_order_desc": null,
+          "command": null,
+          "command_args": "4PCW",
+          "command_args_v2": [],
+          "config_map_mount_desc": "k5GZnQ",
+          "config_map_mount_desc_v2": [],
+          "cpu": 1000,
+          "custom_host_alias": "bxE10SrUBfXBf",
+          "custom_host_alias_v2": [],
+          "deploy": null,
+          "edas_container_version": null,
+          "enable_ahas": "WMBnf7CZ8XZ",
+          "enable_grey_tag_route": false,
+          "envs": "[{\"name\":\"HERMES_ENVIRONMENT\",\"value\":\"alidev\"},{\"name\":\"HERMES_PROJECT\",\"value\":\"sample-portable\"},{\"name\":\"HERMES_PROVIDER\",\"value\":\"alibaba\"},{\"name\":\"HERMES_REGION\",\"value\":\"eu-central-1\"},{\"name\":\"HERMES_SERVICE\",\"value\":\"consumer\"},{\"name\":\"HERMES_SUBSCRIPTION_EVENTS_DEFAULT\",\"value\":\"sample-portable-alidev-events-default\"},{\"name\":\"OTEL_EXPORTER_OTLP_ENDPOINT\",\"value\":\"\"},{\"name\":\"OTEL_EXPORTER_OTLP_PROTOCOL\",\"value\":\"grpc\"},{\"name\":\"OTEL_RESOURCE_ATTRIBUTES\",\"value\":\"service.namespace=sample-portable,deployment.environment=alidev,cloud.provider=alibaba_cloud,cloud.region=eu-central-1\"},{\"name\":\"OTEL_SERVICE_NAME\",\"value\":\"consumer\"}]",
+          "id": "c976IyVTih",
+          "image_pull_secrets": null,
+          "image_url": "ghcr.io/example/portable-consumer:3.1.0",
+          "jar_start_args": null,
+          "jar_start_options": null,
+          "jdk": null,
+          "kafka_configs": [],
+          "liveness": "i7v6pw6b53H",
+          "liveness_v2": [
+            {
+              "exec": [],
+              "failure_threshold": 3,
+              "http_get": [
+                {
+                  "is_contain_key_word": false,
+                  "key_word": "f03c",
+                  "path": "/healthz",
+                  "port": 8080,
+                  "scheme": "HTTP"
+                }
+              ],
+              "initial_delay_seconds": 15,
+              "period_seconds": 30,
+              "tcp_socket": [],
+              "timeout_seconds": 5
+            }
+          ],
+          "memory": 2048,
+          "micro_registration": "GWmJ",
+          "min_ready_instance_ratio": 0,
+          "min_ready_instances": 0,
+          "namespace_id": "ky1ftweDipSU9q",
+          "nas_configs": [],
+          "oss_ak_id": null,
+          "oss_ak_secret": null,
+          "oss_mount_descs": "ddStJQvWD",
+          "oss_mount_descs_v2": [],
+          "package_type": "Image",
+          "package_url": null,
+          "package_version": "igOc05",
+          "php": null,
+          "php_arms_config_location": "KpyRlOksmzC",
+          "php_config": null,
+          "php_config_location": null,
+          "post_start": "31FBvE",
+          "post_start_v2": [],
+          "pre_stop": "aXxytLS02hMsq0",
+          "pre_stop_v2": [],
+          "programming_language": "kqZ5oKW5VyPgkB",
+          "pvtz_discovery_svc": [],
+          "readiness": "hAeJvE6Y9",
+          "readiness_v2": [
+            {
+              "exec": [],
+              "failure_threshold": 3,
+              "http_get": [
+                {
+                  "is_contain_key_word": false,
+                  "key_word": "Xu7suAc27",
+                  "path": "/healthz",
+                  "port": 8080,
+                  "scheme": "HTTP"
+                }
+              ],
+              "initial_delay_seconds": 5,
+              "period_seconds": 10,
+              "success_threshold": 0,
+              "tcp_socket": [],
+              "timeout_seconds": 5
+            }
+          ],
+          "replicas": 1,
+          "security_group_id": "Ez1ydRsXZl",
+          "status": "xqeyDcuuryNrUTX",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "termination_grace_period_seconds": 0,
+          "timezone": "VhTvAuV",
+          "tomcat_config": "jp2N3Gli",
+          "tomcat_config_v2": [],
+          "update_strategy": "lhF4poOXW",
+          "update_strategy_v2": [],
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vswitch_id": "XhYFeuNj6GG,XhYFeuNj6GG",
+          "war_start_options": null,
+          "web_container": null
+        },
+        "after_unknown": {
+          "command_args_v2": [],
+          "config_map_mount_desc_v2": [],
+          "custom_host_alias_v2": [],
+          "kafka_configs": [],
+          "liveness_v2": [
+            {
+              "exec": [],
+              "http_get": [
+                {}
+              ],
+              "tcp_socket": []
+            }
+          ],
+          "nas_configs": [],
+          "oss_mount_descs_v2": [],
+          "post_start_v2": [],
+          "pre_stop_v2": [],
+          "pvtz_discovery_svc": [],
+          "readiness_v2": [
+            {
+              "exec": [],
+              "http_get": [
+                {}
+              ],
+              "tcp_socket": []
+            }
+          ],
+          "sls_configs": true,
+          "tags": {},
+          "tomcat_config_v2": [],
+          "update_strategy_v2": []
+        }
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "this",
+      "type": "alicloud_sae_application"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_application_scaling_rule.cpu[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "app_id": "c976IyVTih",
+          "id": "C0t6",
+          "min_ready_instance_ratio": null,
+          "min_ready_instances": null,
+          "scaling_rule_enable": true,
+          "scaling_rule_metric": [
+            {
+              "max_replicas": 3,
+              "metrics": [
+                {
+                  "metric_target_average_utilization": 70,
+                  "metric_type": "CPU",
+                  "slb_id": null,
+                  "slb_log_store": null,
+                  "slb_project": null,
+                  "vport": null
+                }
+              ],
+              "min_replicas": 1,
+              "scale_down_rules": [],
+              "scale_up_rules": []
+            }
+          ],
+          "scaling_rule_name": "hermes-cpu",
+          "scaling_rule_timer": [],
+          "scaling_rule_type": "metric"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "cpu",
+      "type": "alicloud_sae_application_scaling_rule"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_application_scaling_rule.cpu[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "app_id": "c976IyVTih",
+          "id": "C0t6",
+          "min_ready_instance_ratio": null,
+          "min_ready_instances": null,
+          "scaling_rule_enable": true,
+          "scaling_rule_metric": [
+            {
+              "max_replicas": 2,
+              "metrics": [
+                {
+                  "metric_target_average_utilization": 70,
+                  "metric_type": "CPU",
+                  "slb_id": null,
+                  "slb_log_store": null,
+                  "slb_project": null,
+                  "vport": null
+                }
+              ],
+              "min_replicas": 1,
+              "scale_down_rules": [],
+              "scale_up_rules": []
+            }
+          ],
+          "scaling_rule_name": "hermes-cpu",
+          "scaling_rule_timer": [],
+          "scaling_rule_type": "metric"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "cpu",
+      "type": "alicloud_sae_application_scaling_rule"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_load_balancer_internet.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "app_id": "c976IyVTih",
+          "id": "uSE5K5qYEkwOF",
+          "internet": [
+            {
+              "https_cert_id": null,
+              "port": 80,
+              "protocol": "HTTP",
+              "target_port": 8080
+            }
+          ],
+          "internet_ip": "3voI4",
+          "internet_slb_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "this",
+      "type": "alicloud_sae_load_balancer_internet"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_sae_namespace.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "enable_micro_registration": false,
+          "id": "ky1ftweDipSU9q",
+          "namespace_description": "Hermes services for sample-portable-alidev",
+          "namespace_id": "mFBZaVZHnbsb4O",
+          "namespace_name": "sample-portable-alidev",
+          "namespace_short_id": "sampleportablealidev",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "this",
+      "type": "alicloud_sae_namespace"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_security_group.services",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": "wVIKPjKcA",
+          "description": "Hermes SAE services for sample-portable-alidev",
+          "id": "Ez1ydRsXZl",
+          "inner_access": false,
+          "inner_access_policy": "Gkamr8tNkH",
+          "name": "CgmltfP9hz",
+          "resource_group_id": "Zg975UjTNYOn",
+          "security_group_name": "sample-portable-alidev-services",
+          "security_group_type": "ExS4NfP",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "qoSaYBUJeKkqcOf"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "services",
+      "type": "alicloud_security_group"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_security_group_rule.load_balancer[\"8080\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "cidr_ip": "100.64.0.0/10",
+          "description": "Service port from the Alibaba Cloud load balancer range",
+          "id": "0OOXtyy",
+          "ip_protocol": "tcp",
+          "ipv6_cidr_ip": null,
+          "nic_type": "KPxC1kA",
+          "policy": "accept",
+          "port_range": "8080/8080",
+          "prefix_list_id": "VrVbnMBJ3VwM4",
+          "priority": 1,
+          "security_group_id": "Ez1ydRsXZl",
+          "security_group_rule_id": "ExQEJzmO7oJlxs",
+          "source_group_owner_account": null,
+          "source_group_owner_id": null,
+          "source_security_group_id": null,
+          "type": "ingress"
+        },
+        "after_unknown": {}
+      },
+      "index": "8080",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "load_balancer",
+      "type": "alicloud_security_group_rule"
+    },
+    {
+      "address": "module.platform.module.compute[0].alicloud_security_group_rule.vpc[\"8080\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "cidr_ip": "10.20.0.0/16",
+          "description": "Service port from the VPC",
+          "id": "0OOXtyy",
+          "ip_protocol": "tcp",
+          "ipv6_cidr_ip": null,
+          "nic_type": "KPxC1kA",
+          "policy": "accept",
+          "port_range": "8080/8080",
+          "prefix_list_id": "VrVbnMBJ3VwM4",
+          "priority": 1,
+          "security_group_id": "Ez1ydRsXZl",
+          "security_group_rule_id": "ExQEJzmO7oJlxs",
+          "source_group_owner_account": null,
+          "source_group_owner_id": null,
+          "source_security_group_id": null,
+          "type": "ingress"
+        },
+        "after_unknown": {}
+      },
+      "index": "8080",
+      "mode": "managed",
+      "module_address": "module.platform.module.compute[0]",
+      "name": "vpc",
+      "type": "alicloud_security_group_rule"
+    },
+    {
+      "address": "module.platform.module.kms[0].alicloud_kms_key.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "SiQTC",
+          "automatic_rotation": "Enabled",
+          "creation_date": "wRHaGGI",
+          "creator": "UYxbnjsOgR0",
+          "delete_date": "sfsi9W",
+          "deletion_protection": "Disabled",
+          "deletion_protection_description": null,
+          "deletion_window_in_days": null,
+          "description": "Hermes customer-managed key for sample-portable-alidev",
+          "dkms_instance_id": "kst-example-placeholder",
+          "id": "00ZJxH",
+          "is_enabled": false,
+          "key_spec": "Aliyun_AES_256",
+          "key_state": "Enabled",
+          "key_usage": "ENCRYPT/DECRYPT",
+          "last_rotation_date": "mWQ3aJL4ZhjAb",
+          "material_expire_time": "8Nuv1z1l",
+          "next_rotation_date": "BR24XBwsInnSJJ",
+          "origin": "Aliyun_KMS",
+          "pending_window_in_days": 7,
+          "policy": "3VbKSFPMw0LO",
+          "primary_key_version": "H7a0rc",
+          "protection_level": "SOFTWARE",
+          "rotation_interval": "365d",
+          "status": "Enabled",
+          "tags": {
+            "hermes-component": "secrets",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.kms[0]",
+      "name": "this",
+      "type": "alicloud_kms_key"
+    },
+    {
+      "address": "module.platform.module.messaging.alicloud_message_service_queue.dead_letter[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": 0,
+          "delay_seconds": 0,
+          "dlq_policy": [],
+          "enable_sse": false,
+          "encryption_enabled": false,
+          "id": "4M8782CwU6vawMx",
+          "kms_key_id": "1fnmnH8",
+          "logging_enabled": null,
+          "maximum_message_size": 65536,
+          "message_retention_period": 604800,
+          "polling_wait_seconds": 0,
+          "queue_name": "sample-portable-alidev-events-default-dlq",
+          "queue_type": "4RUlL",
+          "sse_algorithm": "pZGQwDTnHG",
+          "sse_type": "yxxaDv",
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "visibility_timeout": 30
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dead_letter",
+      "type": "alicloud_message_service_queue"
+    },
+    {
+      "address": "module.platform.module.messaging.alicloud_message_service_queue.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": 0,
+          "delay_seconds": 0,
+          "dlq_policy": [
+            {
+              "dead_letter_target_queue": "sample-portable-alidev-events-default-dlq",
+              "enabled": true,
+              "max_receive_count": 5
+            }
+          ],
+          "enable_sse": false,
+          "encryption_enabled": false,
+          "id": "4M8782CwU6vawMx",
+          "kms_key_id": "1fnmnH8",
+          "logging_enabled": null,
+          "maximum_message_size": 65536,
+          "message_retention_period": 604800,
+          "polling_wait_seconds": 0,
+          "queue_name": "sample-portable-alidev-events-default",
+          "queue_type": "4RUlL",
+          "sse_algorithm": "pZGQwDTnHG",
+          "sse_type": "yxxaDv",
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "visibility_timeout": 30
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "alicloud_message_service_queue"
+    },
+    {
+      "address": "module.platform.module.messaging.alicloud_message_service_subscription.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": 0,
+          "dlq_policy": [],
+          "endpoint": "sample-portable-alidev-events-default",
+          "filter_tag": null,
+          "id": "xFbWKqpCK",
+          "notify_content_format": "SIMPLIFIED",
+          "notify_strategy": "ScoAnItZbI6WO",
+          "push_type": "queue",
+          "sts_role_arn": null,
+          "subscription_name": "events-default",
+          "timeouts": null,
+          "topic_name": "sample-portable-alidev-events"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "alicloud_message_service_subscription"
+    },
+    {
+      "address": "module.platform.module.messaging.alicloud_message_service_topic.this[\"events\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": "SF0et",
+          "enable_logging": false,
+          "enable_sse": false,
+          "id": "ZtZiiasG5R",
+          "kms_key_id": null,
+          "logging_enabled": false,
+          "max_message_size": 65536,
+          "sse_algorithm": "LajjD",
+          "sse_type": "pVAalRCz52a",
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "topic_name": "sample-portable-alidev-events",
+          "topic_type": "utZAFD8A"
+        },
+        "after_unknown": {}
+      },
+      "index": "events",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "alicloud_message_service_topic"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_eip_address.nat[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "activity_id": null,
+          "address_name": "sample-portable-alidev-nat-eip",
+          "allocation_id": "WMF5nMEsRj7",
+          "auto_pay": null,
+          "bandwidth": "100",
+          "create_time": "7xvCPz",
+          "deletion_protection": false,
+          "description": "Hermes NAT egress address for sample-portable-alidev",
+          "high_definition_monitor_log_status": "vW4Ut57dbuc7r",
+          "id": "wVBHm1WA",
+          "instance_charge_type": "7UsJPEKaIzmbC",
+          "internet_charge_type": "PayByTraffic",
+          "ip_address": "uqExkFB1DOjI8",
+          "isp": "BGP",
+          "log_project": null,
+          "log_store": null,
+          "mode": "u2SCmLrJaU3",
+          "name": "0rSGH8YI74uthm",
+          "netmode": "jlx2DWx",
+          "payment_type": "PayAsYouGo",
+          "period": null,
+          "pricing_cycle": null,
+          "public_ip_address_pool_id": null,
+          "resource_group_id": "0X5wpznBDm",
+          "security_protection_types": null,
+          "status": "v1g1mnHzJt",
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "zone": "nO3U"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "nat",
+      "type": "alicloud_eip_address"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_eip_association.nat[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "allocation_id": "wVBHm1WA",
+          "force": null,
+          "id": "QJr3",
+          "instance_id": "QtnjC",
+          "instance_type": "Nat",
+          "mode": "Aatf",
+          "private_ip_address": null,
+          "timeouts": null,
+          "vpc_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "nat",
+      "type": "alicloud_eip_association"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_nat_gateway.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "access_mode": [],
+          "availability_mode": "CrossAZ",
+          "deletion_protection": false,
+          "description": "Hermes egress NAT for sample-portable-alidev",
+          "dry_run": null,
+          "eip_bind_mode": "3FvQDfb9bosnIX",
+          "force": null,
+          "forward_table_ids": "mzWtuhpN",
+          "icmp_reply_enabled": false,
+          "id": "QtnjC",
+          "instance_charge_type": "RNtwlEy",
+          "internet_charge_type": "PayByLcu",
+          "name": "o8eP3Yb",
+          "nat_gateway_name": "sample-portable-alidev-nat",
+          "nat_type": "Enhanced",
+          "network_type": "internet",
+          "payment_type": "PayAsYouGo",
+          "period": null,
+          "private_link_enabled": null,
+          "snat_table_ids": "yMGCD",
+          "specification": "NxxIYXI",
+          "status": "nl6naY5hHP",
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vswitch_id": "XhYFeuNj6GG"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_nat_gateway"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_snat_entry.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "eip_affinity": null,
+          "id": "ngeJJm",
+          "snat_entry_id": "5yyw1dDI",
+          "snat_entry_name": "sample-portable-alidev-nat-0",
+          "snat_ip": "uqExkFB1DOjI8",
+          "snat_table_id": "yMGCD",
+          "source_cidr": "aEkCCYT0MFGVsgZ",
+          "source_vswitch_id": "XhYFeuNj6GG",
+          "status": "Y5mSaR",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_snat_entry"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_snat_entry.this[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "eip_affinity": null,
+          "id": "ngeJJm",
+          "snat_entry_id": "5yyw1dDI",
+          "snat_entry_name": "sample-portable-alidev-nat-1",
+          "snat_ip": "uqExkFB1DOjI8",
+          "snat_table_id": "yMGCD",
+          "source_cidr": "aEkCCYT0MFGVsgZ",
+          "source_vswitch_id": "XhYFeuNj6GG",
+          "status": "Y5mSaR",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_snat_entry"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_vpc.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "cidr_block": "10.20.0.0/16",
+          "classic_link_enabled": null,
+          "create_time": "gAb8Fpj",
+          "description": "Hermes VPC for sample-portable-alidev",
+          "dns_hostname_status": "Az3tT6uXiBiN",
+          "dry_run": null,
+          "enable_ipv6": false,
+          "force_delete": null,
+          "id": "qoSaYBUJeKkqcOf",
+          "ipv4_cidr_mask": null,
+          "ipv4_ipam_pool_id": null,
+          "ipv6_cidr_block": "or9B4EOz4J372WR",
+          "ipv6_cidr_blocks": [],
+          "ipv6_isp": "LiUEyI5",
+          "is_default": false,
+          "name": "L6hFY9gBvTex",
+          "region_id": "tgaieG4R5Ft5kwi",
+          "resource_group_id": "KGLh",
+          "route_table_id": "SjsGG1R",
+          "router_id": "vNMl9Rqra8xuNN",
+          "router_table_id": "8o2ZjqnAnBDz",
+          "secondary_cidr_blocks": [],
+          "secondary_cidr_mask": null,
+          "status": "CzyHPPl1",
+          "system_route_table_description": "5bL9M0g9s",
+          "system_route_table_name": "4ZVwfPPVHL",
+          "system_route_table_route_propagation_enable": false,
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "user_cidrs": [],
+          "vpc_name": "sample-portable-alidev-vpc"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_vpc"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_vswitch.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "availability_zone": "obz99qwREIxasE",
+          "cidr_block": "10.20.0.0/20",
+          "create_time": "2De4cPFYydA",
+          "description": "Hermes private vSwitch (zone eu-central-1a)",
+          "enable_ipv6": false,
+          "id": "XhYFeuNj6GG",
+          "ipv6_cidr_block": "DqKHdLB45Z66xys",
+          "ipv6_cidr_block_mask": 0,
+          "is_default": false,
+          "name": "D0ucC4Gg",
+          "status": "wM7T",
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vpc_ipv6_cidr_block": null,
+          "vswitch_name": "sample-portable-alidev-vpc-eu-central-1a",
+          "zone_id": "eu-central-1a"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_vswitch"
+    },
+    {
+      "address": "module.platform.module.network.alicloud_vswitch.this[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "availability_zone": "obz99qwREIxasE",
+          "cidr_block": "10.20.16.0/20",
+          "create_time": "2De4cPFYydA",
+          "description": "Hermes private vSwitch (zone eu-central-1b)",
+          "enable_ipv6": false,
+          "id": "XhYFeuNj6GG",
+          "ipv6_cidr_block": "DqKHdLB45Z66xys",
+          "ipv6_cidr_block_mask": 0,
+          "is_default": false,
+          "name": "D0ucC4Gg",
+          "status": "wM7T",
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vpc_ipv6_cidr_block": null,
+          "vswitch_name": "sample-portable-alidev-vpc-eu-central-1b",
+          "zone_id": "eu-central-1b"
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "alicloud_vswitch"
+    },
+    {
+      "address": "module.platform.module.observability[0].alicloud_log_project.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "create_time": "aNHJAczAF",
+          "description": "Hermes logs for sample-portable-alidev",
+          "id": "AzhjRZ7n3GA",
+          "name": "Mn6GWPXqfKVx",
+          "policy": null,
+          "resource_group_id": "G5qej16DeePjJwi",
+          "status": "Yq0O2X",
+          "tags": {
+            "hermes-component": "observability",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {
+          "project_name": true,
+          "tags": {}
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability[0]",
+      "name": "this",
+      "type": "alicloud_log_project"
+    },
+    {
+      "address": "module.platform.module.observability[0].alicloud_log_store.services",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "append_meta": true,
+          "auto_split": true,
+          "create_time": 0,
+          "enable_web_tracking": null,
+          "encrypt_conf": [
+            {
+              "enable": true,
+              "encrypt_type": "default",
+              "user_cmk_info": []
+            }
+          ],
+          "hot_ttl": null,
+          "id": "TtNgk",
+          "infrequent_access_ttl": null,
+          "logstore_name": "services",
+          "max_split_shard_count": 16,
+          "metering_mode": "iRY9PeO7V",
+          "mode": "UYEqoESiye2dZXH",
+          "name": "NknM",
+          "project": "sBBsC5QdVVeJV",
+          "retention_period": 30,
+          "shard_count": 2,
+          "shards": [],
+          "telemetry_type": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "encrypt_conf": [
+            {
+              "user_cmk_info": []
+            }
+          ],
+          "project_name": true,
+          "shards": []
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability[0]",
+      "name": "services",
+      "type": "alicloud_log_store"
+    },
+    {
+      "address": "module.platform.module.observability[0].random_id.suffix",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "byte_length": 3,
+          "keepers": null,
+          "prefix": null
+        },
+        "after_unknown": {
+          "b64_std": true,
+          "b64_url": true,
+          "dec": true,
+          "hex": true,
+          "id": true
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability[0]",
+      "name": "suffix",
+      "type": "random_id"
+    },
+    {
+      "address": "module.platform.module.postgres[0].alicloud_db_backup_policy.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "archive_backup_keep_count": 0,
+          "archive_backup_keep_policy": "g1EdzuHUDDftxt",
+          "archive_backup_retention_period": 0,
+          "backup_interval": "GMmqaeEG",
+          "backup_method": "gaMthdCNeVqIJqg",
+          "backup_period": [],
+          "backup_priority": null,
+          "backup_retention_period": 7,
+          "backup_time": "gHWCVgQek9ZP",
+          "category": "y4ZdYkIbrXwi185",
+          "compress_type": "qVx6UMxP85Tdz11",
+          "enable_backup_log": false,
+          "enable_increment_data_backup": false,
+          "enable_pitr_protection": false,
+          "high_space_usage_protection": null,
+          "id": "q78cO4s",
+          "inc_backup_interval": 0,
+          "instance_id": "c8z4aW",
+          "local_log_retention_hours": 0,
+          "local_log_retention_space": 0,
+          "log_backup": false,
+          "log_backup_frequency": "lcPkAKYFpWJN",
+          "log_backup_local_retention_number": 0,
+          "log_backup_retention_period": 0,
+          "log_retention_period": 0,
+          "preferred_backup_period": [
+            "Friday",
+            "Monday",
+            "Saturday",
+            "Sunday",
+            "Thursday",
+            "Tuesday",
+            "Wednesday"
+          ],
+          "preferred_backup_time": "02:00Z-03:00Z",
+          "released_keep_policy": "None",
+          "retention_period": 0
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "alicloud_db_backup_policy"
+    },
+    {
+      "address": "module.platform.module.postgres[0].alicloud_db_database.app",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "account_name": null,
+          "account_privilege": null,
+          "character_set": "UTF8,C,en_US.utf8",
+          "collation_name": null,
+          "data_base_name": "app",
+          "description": "Hermes application database",
+          "id": "t4xyuOle3Xu",
+          "instance_id": "c8z4aW",
+          "name": "nGtL",
+          "status": "HvjSP",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "app",
+      "type": "alicloud_db_database"
+    },
+    {
+      "address": "module.platform.module.postgres[0].alicloud_db_instance.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "acl": "HHHE9TgRDocfX",
+          "auto_renew": null,
+          "auto_renew_period": null,
+          "auto_upgrade_minor_version": "Auto",
+          "babelfish_config": [],
+          "babelfish_port": "lLtGPYD",
+          "bursting_enabled": null,
+          "ca_type": "aliyun",
+          "category": "Basic",
+          "client_ca_cert": null,
+          "client_ca_enabled": null,
+          "client_cert_revocation_list": null,
+          "client_crl_enabled": null,
+          "cold_data_enabled": null,
+          "collation": "Bmwn9MbTYjbtM",
+          "collect_stat_mode": null,
+          "connection_string": "CfrmdIEqUAoK",
+          "connection_string_prefix": "QDmFw2",
+          "create_time": "3uhsinxh",
+          "db_instance_ip_array_attribute": null,
+          "db_instance_ip_array_name": null,
+          "db_instance_storage_type": "cloud_essd",
+          "db_instance_type": "4DbEDSTq",
+          "db_is_ignore_case": false,
+          "db_param_group_id": null,
+          "db_time_zone": "LFEvNaQ4YBStYn",
+          "deletion_protection": false,
+          "direction": null,
+          "effective_time": null,
+          "encryption_key": "hMZYjdnMO",
+          "engine": "PostgreSQL",
+          "engine_version": "16.0",
+          "force": null,
+          "force_delete": null,
+          "force_encryption": 1,
+          "force_restart": null,
+          "fresh_white_list_readins": null,
+          "ha_config": "wRgpdHR65Bbr52k",
+          "id": "c8z4aW",
+          "instance_charge_type": "Postpaid",
+          "instance_name": "sample-portable-alidev-pg",
+          "instance_storage": 20,
+          "instance_type": "pg.n2.2c.1m",
+          "maintain_time": "tVFO3oRtLexu",
+          "manual_ha_time": null,
+          "modify_mode": null,
+          "monitoring_period": 0,
+          "node_id": "nRJUG5",
+          "optimized_writes": "Egaf5",
+          "parameters": [
+            {
+              "name": "log_connections",
+              "value": "on"
+            },
+            {
+              "name": "log_disconnections",
+              "value": "on"
+            },
+            {
+              "name": "log_duration",
+              "value": "on"
+            }
+          ],
+          "period": null,
+          "pg_bouncer_enabled": null,
+          "pg_hba_conf": [],
+          "port": "7gI9",
+          "private_ip_address": "xz5TSOSW",
+          "recovery_model": "EXJkgSzVVPManMV",
+          "released_keep_policy": null,
+          "replication_acl": "u0p6dcXE",
+          "resource_group_id": "YlBwd5cVJ9WTBJa",
+          "role_arn": "tPkWACz7",
+          "security_group_id": "xzighEG6Xs0gDcL",
+          "security_group_ids": [],
+          "security_ip_mode": null,
+          "security_ip_type": null,
+          "security_ips": [
+            "10.20.0.0/16"
+          ],
+          "server_cert": "iXHDVfaE",
+          "server_key": "demo-not-a-secret",
+          "serverless_config": [],
+          "sql_collector_config_value": 180,
+          "sql_collector_status": "Enabled",
+          "ssl_action": "Open",
+          "ssl_certificate": null,
+          "ssl_connection_string": "FY70h9Nm4l3mu",
+          "ssl_password": null,
+          "ssl_status": "Wuk8dN",
+          "status": "RSUK",
+          "storage_auto_scale": "Enable",
+          "storage_threshold": 20,
+          "storage_upper_bound": 100,
+          "switch_time": null,
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "target_minor_version": "OIg8",
+          "tcp_connection_type": "VbPeqqU",
+          "tde_certificate": null,
+          "tde_db_name": null,
+          "tde_encryption_key": null,
+          "tde_password": null,
+          "tde_private_key": null,
+          "tde_status": "Z1fWC4pZr",
+          "template_id_list": null,
+          "templates": [],
+          "time_zone": "DeddnDKaXUIo",
+          "timeouts": null,
+          "upgrade_db_instance_kernel_version": null,
+          "upgrade_time": null,
+          "vpc_id": "qoSaYBUJeKkqcOf",
+          "vswitch_id": "XhYFeuNj6GG",
+          "whitelist_network_type": null,
+          "zone_id": "eu-central-1a",
+          "zone_id_slave_a": "SdMqK8",
+          "zone_id_slave_b": "7Lrx8V1edyu"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "alicloud_db_instance"
+    },
+    {
+      "address": "module.platform.module.secrets[0].alicloud_kms_secret.this[\"signing-key\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "9hEvi4Na0Al",
+          "create_time": "qX3ag",
+          "description": "Hermes secret signing-key for sample-portable-alidev. The value is managed out-of-band.",
+          "dkms_instance_id": "kst-example-placeholder",
+          "enable_automatic_rotation": null,
+          "encryption_key_id": "00ZJxH",
+          "extended_config": null,
+          "force_delete_without_recovery": false,
+          "id": "T937G5Sv2JYeD",
+          "planned_delete_time": "704Bsn2tMTb",
+          "policy": "VVLsGMvYVE4Bk",
+          "recovery_window_in_days": 7,
+          "rotation_interval": null,
+          "secret_data": "set-out-of-band",
+          "secret_data_type": "text",
+          "secret_name": "sample-portable-alidev-signing-key",
+          "secret_type": "Generic",
+          "tags": {
+            "hermes-component": "secrets",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "version_id": "hermes-placeholder",
+          "version_stages": []
+        },
+        "after_unknown": {}
+      },
+      "index": "signing-key",
+      "mode": "managed",
+      "module_address": "module.platform.module.secrets[0]",
+      "name": "this",
+      "type": "alicloud_kms_secret"
+    },
+    {
+      "address": "module.platform.module.storage.alicloud_oss_bucket.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "access_monitor": [],
+          "acl": "8jUussJeBJ",
+          "cors_rule": [],
+          "creation_date": "m7hY40z",
+          "extranet_endpoint": "DdK8X",
+          "force_destroy": false,
+          "id": "HQimlxzZN6xTNbR",
+          "intranet_endpoint": "p9VRcLxF",
+          "lifecycle_rule": [
+            {
+              "abort_multipart_upload": [
+                {
+                  "created_before_date": null,
+                  "days": 7
+                }
+              ],
+              "enabled": true,
+              "expiration": [],
+              "filter": [],
+              "id": "hermes-abort-incomplete-uploads",
+              "noncurrent_version_expiration": [],
+              "noncurrent_version_transition": [],
+              "prefix": null,
+              "tags": null,
+              "transitions": []
+            }
+          ],
+          "lifecycle_rule_allow_same_action_overlap": null,
+          "location": "Nhc8",
+          "logging": [],
+          "logging_isenable": null,
+          "owner": "7lQnp",
+          "policy": null,
+          "redundancy_type": "LRS",
+          "referer_config": [],
+          "resource_group_id": "4a38",
+          "server_side_encryption_rule": [
+            {
+              "kms_data_encryption": null,
+              "kms_master_key_id": null,
+              "sse_algorithm": "AES256"
+            }
+          ],
+          "storage_class": "Standard",
+          "tags": {
+            "hermes-component": "storage",
+            "hermes-environment": "alidev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "transfer_acceleration": [],
+          "versioning": [
+            {
+              "status": "Enabled"
+            }
+          ],
+          "website": []
+        },
+        "after_unknown": {
+          "access_monitor": [],
+          "bucket": true,
+          "cors_rule": [],
+          "lifecycle_rule": [
+            {
+              "abort_multipart_upload": [
+                {}
+              ],
+              "expiration": [],
+              "filter": [],
+              "noncurrent_version_expiration": [],
+              "noncurrent_version_transition": [],
+              "transitions": []
+            }
+          ],
+          "logging": [],
+          "referer_config": [],
+          "server_side_encryption_rule": [
+            {}
+          ],
+          "tags": {},
+          "transfer_acceleration": [],
+          "versioning": [
+            {}
+          ],
+          "website": []
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "this",
+      "type": "alicloud_oss_bucket"
+    },
+    {
+      "address": "module.platform.module.storage.alicloud_oss_bucket_acl.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "acl": "private",
+          "id": "botP9GL2n83K",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "bucket": true
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "this",
+      "type": "alicloud_oss_bucket_acl"
+    },
+    {
+      "address": "module.platform.module.storage.alicloud_oss_bucket_policy.tls_only[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "N07Ov67DO2",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "bucket": true,
+          "policy": true
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "tls_only",
+      "type": "alicloud_oss_bucket_policy"
+    },
+    {
+      "address": "module.platform.module.storage.alicloud_oss_bucket_public_access_block.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "block_public_access": true,
+          "id": "lYBkgp2AWR3R",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "bucket": true
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "this",
+      "type": "alicloud_oss_bucket_public_access_block"
+    },
+    {
+      "address": "module.platform.module.storage.random_id.suffix[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "byte_length": 3,
+          "keepers": null,
+          "prefix": null
+        },
+        "after_unknown": {
+          "b64_std": true,
+          "b64_url": true,
+          "dec": true,
+          "hex": true,
+          "id": true
+        }
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.storage",
+      "name": "suffix",
+      "type": "random_id"
+    },
+    {
+      "address": "module.platform.terraform_data.guardrails",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "input": "sample-portable-alidev",
+          "triggers_replace": null
+        },
+        "after_unknown": {
+          "id": true,
+          "output": true
+        }
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform",
+      "name": "guardrails",
+      "type": "terraform_data"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Trivy ignore file. Every entry needs: a justification comment, and an expiry (`exp:YYYY-MM-DD`)
+# after which Trivy reports the finding again and the entry must be re-reviewed.
+# Prefer inline ignores next to the resource (`#trivy:ignore:AVD-XXX-NNNN` with a comment) so the
+# justification sits with the code; use this file only for findings that cannot be scoped inline.
+#
+# Format:
+#   # <why this is acceptable, who reviewed it>
+#   AVD-AWS-0000 exp:2027-05-31

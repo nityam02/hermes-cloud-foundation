@@ -1,0 +1,113 @@
+{
+ "configuration": {
+  "root_module": {}
+ },
+ "format_version": "1.2",
+ "planned_values": {
+  "root_module": {}
+ },
+ "resource_changes": [
+  {
+   "address": "module.platform.module.database.aws_db_instance.this",
+   "change": {
+    "actions": [
+     "delete"
+    ],
+    "after": null,
+    "after_unknown": {},
+    "before": {
+     "identifier": "sample-production-db"
+    }
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.database",
+   "name": "this",
+   "type": "aws_db_instance"
+  },
+  {
+   "address": "module.platform.module.storage.google_storage_bucket.this[\"artifacts\"]",
+   "change": {
+    "actions": [
+     "delete",
+     "create"
+    ],
+    "after": {
+     "name": "sample-production-artifacts-9f8e",
+     "public_access_prevention": "enforced",
+     "terraform_labels": {
+      "hermes-component": "storage",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     },
+     "uniform_bucket_level_access": true,
+     "versioning": [
+      {
+       "enabled": true
+      }
+     ]
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.storage",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/hashicorp/google",
+   "type": "google_storage_bucket"
+  },
+  {
+   "address": "module.platform.module.naming.random_id.suffix",
+   "change": {
+    "actions": [
+     "delete",
+     "create"
+    ],
+    "after": {
+     "byte_length": 4
+    },
+    "after_sensitive": {},
+    "after_unknown": {
+     "hex": true
+    },
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.naming",
+   "name": "suffix",
+   "provider_name": "registry.opentofu.org/hashicorp/random",
+   "type": "random_id"
+  },
+  {
+   "address": "module.platform.module.secrets.alicloud_kms_secret.this[\"db-password\"]",
+   "change": {
+    "actions": [
+     "create",
+     "delete"
+    ],
+    "after": {
+     "secret_data": "set-out-of-band",
+     "tags": {
+      "hermes-component": "secrets",
+      "hermes-environment": "production",
+      "hermes-managed-by": "hermes",
+      "hermes-project": "sample"
+     }
+    },
+    "after_sensitive": {},
+    "after_unknown": {},
+    "before": null,
+    "before_sensitive": false
+   },
+   "mode": "managed",
+   "module_address": "module.platform.module.secrets",
+   "name": "this",
+   "provider_name": "registry.opentofu.org/aliyun/alicloud",
+   "type": "alicloud_kms_secret"
+  }
+ ],
+ "terraform_version": "1.13.9"
+}

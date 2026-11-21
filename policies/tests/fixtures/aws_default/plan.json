@@ -1,0 +1,4029 @@
+{
+  "//": "Derived by scripts/gen-policy-fixtures.sh from a mock-provider plan of the golden render of examples/multi-cloud (environment awsdev). Do not edit by hand: regenerate.",
+  "configuration": {
+    "root_module": {
+      "module_calls": {
+        "platform": {
+          "expressions": {
+            "protected": {
+              "constant_value": false
+            }
+          },
+          "source": "../../../infra/providers/aws/platform"
+        }
+      }
+    }
+  },
+  "format_version": "1.2",
+  "planned_values": {
+    "root_module": {}
+  },
+  "resource_changes": [
+    {
+      "address": "module.platform.module.container_service[0].aws_appautoscaling_policy.cpu[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alarm_arns": [],
+          "arn": "arn:aws:autoscaling:eu-north-1:123456789012:scalingPolicy:00000000-0000-4000-8000-000000000000:resource/ecs/service/mock/mock:policyName/mock",
+          "id": "E0EdScl77HLQP3",
+          "name": "sample-portable-awsdev-api-cpu",
+          "policy_type": "TargetTrackingScaling",
+          "predictive_scaling_policy_configuration": [],
+          "region": "Ghm767izq",
+          "resource_id": "service/sample-portable-awsdev/sample-portable-awsdev-api",
+          "scalable_dimension": "ecs:service:DesiredCount",
+          "service_namespace": "ecs",
+          "step_scaling_policy_configuration": [],
+          "target_tracking_scaling_policy_configuration": [
+            {
+              "customized_metric_specification": [],
+              "disable_scale_in": false,
+              "predefined_metric_specification": [
+                {
+                  "predefined_metric_type": "ECSServiceAverageCPUUtilization",
+                  "resource_label": null
+                }
+              ],
+              "scale_in_cooldown": 300,
+              "scale_out_cooldown": 60,
+              "target_value": 60
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "cpu",
+      "type": "aws_appautoscaling_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_appautoscaling_policy.cpu[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alarm_arns": [],
+          "arn": "arn:aws:autoscaling:eu-north-1:123456789012:scalingPolicy:00000000-0000-4000-8000-000000000000:resource/ecs/service/mock/mock:policyName/mock",
+          "id": "E0EdScl77HLQP3",
+          "name": "sample-portable-awsdev-consumer-cpu",
+          "policy_type": "TargetTrackingScaling",
+          "predictive_scaling_policy_configuration": [],
+          "region": "Ghm767izq",
+          "resource_id": "service/sample-portable-awsdev/sample-portable-awsdev-consumer",
+          "scalable_dimension": "ecs:service:DesiredCount",
+          "service_namespace": "ecs",
+          "step_scaling_policy_configuration": [],
+          "target_tracking_scaling_policy_configuration": [
+            {
+              "customized_metric_specification": [],
+              "disable_scale_in": false,
+              "predefined_metric_specification": [
+                {
+                  "predefined_metric_type": "ECSServiceAverageCPUUtilization",
+                  "resource_label": null
+                }
+              ],
+              "scale_in_cooldown": 300,
+              "scale_out_cooldown": 60,
+              "target_value": 60
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "cpu",
+      "type": "aws_appautoscaling_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_appautoscaling_target.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "PEil",
+          "id": "RINufvsKUgH4",
+          "max_capacity": 3,
+          "min_capacity": 1,
+          "region": "XYfDO59wNQO",
+          "resource_id": "service/sample-portable-awsdev/sample-portable-awsdev-api",
+          "role_arn": "2Snp",
+          "scalable_dimension": "ecs:service:DesiredCount",
+          "service_namespace": "ecs",
+          "suspended_state": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_appautoscaling_target"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_appautoscaling_target.this[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "PEil",
+          "id": "RINufvsKUgH4",
+          "max_capacity": 2,
+          "min_capacity": 1,
+          "region": "XYfDO59wNQO",
+          "resource_id": "service/sample-portable-awsdev/sample-portable-awsdev-consumer",
+          "role_arn": "2Snp",
+          "scalable_dimension": "ecs:service:DesiredCount",
+          "service_namespace": "ecs",
+          "suspended_state": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_appautoscaling_target"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_cloudwatch_metric_alarm.alb_5xx[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Load balancer generated 10 or more 5xx responses in 5 minutes.",
+          "alarm_name": "sample-portable-awsdev-web-elb-5xx",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanOrEqualToThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "LoadBalancer": "app/mock-web/0123456789abcdef"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 1,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "HTTPCode_ELB_5XX_Count",
+          "metric_query": [],
+          "namespace": "AWS/ApplicationELB",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Sum",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 10,
+          "threshold_metric_id": null,
+          "treat_missing_data": "notBreaching",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "alb_5xx",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_cloudwatch_metric_alarm.service_cpu_high[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Service api: average CPU above 85% for 15 minutes.",
+          "alarm_name": "sample-portable-awsdev-api-cpu-high",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "ClusterName": "sample-portable-awsdev",
+            "ServiceName": "sample-portable-awsdev-api"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 3,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "CPUUtilization",
+          "metric_query": [],
+          "namespace": "AWS/ECS",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Average",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 85,
+          "threshold_metric_id": null,
+          "treat_missing_data": "notBreaching",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "service_cpu_high",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_cloudwatch_metric_alarm.service_cpu_high[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Service consumer: average CPU above 85% for 15 minutes.",
+          "alarm_name": "sample-portable-awsdev-consumer-cpu-high",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "ClusterName": "sample-portable-awsdev",
+            "ServiceName": "sample-portable-awsdev-consumer"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 3,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "CPUUtilization",
+          "metric_query": [],
+          "namespace": "AWS/ECS",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Average",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 85,
+          "threshold_metric_id": null,
+          "treat_missing_data": "notBreaching",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "service_cpu_high",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_cloudwatch_metric_alarm.target_5xx[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Service api returned 10 or more 5xx responses in 5 minutes.",
+          "alarm_name": "sample-portable-awsdev-api-target-5xx",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanOrEqualToThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "LoadBalancer": "app/mock-web/0123456789abcdef",
+            "TargetGroup": "targetgroup/mock/0123456789abcdef"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 1,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "HTTPCode_Target_5XX_Count",
+          "metric_query": [],
+          "namespace": "AWS/ApplicationELB",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Sum",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 10,
+          "threshold_metric_id": null,
+          "treat_missing_data": "notBreaching",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "target_5xx",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_ecs_cluster.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:ecs:eu-north-1:123456789012:cluster/mock",
+          "configuration": [],
+          "id": "9tG8C",
+          "name": "sample-portable-awsdev",
+          "region": "25f2hH",
+          "service_connect_defaults": [],
+          "setting": [
+            {
+              "name": "containerInsights",
+              "value": "enabled"
+            }
+          ],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_ecs_cluster"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_ecs_service.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alarms": [],
+          "arn": "wBOPvrJCN6PKv",
+          "availability_zone_rebalancing": "hiqNCGCsxnWK",
+          "capacity_provider_strategy": [],
+          "cluster": "arn:aws:ecs:eu-north-1:123456789012:cluster/mock",
+          "deployment_circuit_breaker": [
+            {
+              "enable": true,
+              "rollback": true
+            }
+          ],
+          "deployment_configuration": [],
+          "deployment_controller": [],
+          "deployment_maximum_percent": 200,
+          "deployment_minimum_healthy_percent": 100,
+          "desired_count": 1,
+          "enable_ecs_managed_tags": true,
+          "enable_execute_command": false,
+          "force_delete": null,
+          "force_new_deployment": null,
+          "health_check_grace_period_seconds": 60,
+          "iam_role": "zNODp",
+          "id": "sGKInqgXgVGXL",
+          "launch_type": "FARGATE",
+          "load_balancer": [
+            {
+              "advanced_configuration": [],
+              "container_name": "app",
+              "container_port": 8080,
+              "elb_name": null,
+              "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/mock/0123456789abcdef"
+            }
+          ],
+          "name": "sample-portable-awsdev-api",
+          "network_configuration": [
+            {
+              "assign_public_ip": false,
+              "security_groups": [
+                "HJTg"
+              ],
+              "subnets": [
+                "GcX0E6TRLUkLq1j"
+              ]
+            }
+          ],
+          "ordered_placement_strategy": [],
+          "placement_constraints": [],
+          "platform_version": "LATEST",
+          "propagate_tags": "SERVICE",
+          "region": "FSqYUiN",
+          "scheduling_strategy": null,
+          "service_connect_configuration": [],
+          "service_registries": [],
+          "sigint_rollback": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "task_definition": "arn:aws:ecs:eu-north-1:123456789012:task-definition/mock:1",
+          "timeouts": null,
+          "triggers": {},
+          "volume_configuration": [],
+          "vpc_lattice_configurations": [],
+          "wait_for_steady_state": null
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_ecs_service"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_ecs_service.this[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alarms": [],
+          "arn": "wBOPvrJCN6PKv",
+          "availability_zone_rebalancing": "hiqNCGCsxnWK",
+          "capacity_provider_strategy": [],
+          "cluster": "arn:aws:ecs:eu-north-1:123456789012:cluster/mock",
+          "deployment_circuit_breaker": [
+            {
+              "enable": true,
+              "rollback": true
+            }
+          ],
+          "deployment_configuration": [],
+          "deployment_controller": [],
+          "deployment_maximum_percent": 200,
+          "deployment_minimum_healthy_percent": 100,
+          "desired_count": 1,
+          "enable_ecs_managed_tags": true,
+          "enable_execute_command": false,
+          "force_delete": null,
+          "force_new_deployment": null,
+          "health_check_grace_period_seconds": null,
+          "iam_role": "zNODp",
+          "id": "sGKInqgXgVGXL",
+          "launch_type": "FARGATE",
+          "load_balancer": [],
+          "name": "sample-portable-awsdev-consumer",
+          "network_configuration": [
+            {
+              "assign_public_ip": false,
+              "security_groups": [
+                "HJTg"
+              ],
+              "subnets": [
+                "GcX0E6TRLUkLq1j"
+              ]
+            }
+          ],
+          "ordered_placement_strategy": [],
+          "placement_constraints": [],
+          "platform_version": "LATEST",
+          "propagate_tags": "SERVICE",
+          "region": "FSqYUiN",
+          "scheduling_strategy": null,
+          "service_connect_configuration": [],
+          "service_registries": [],
+          "sigint_rollback": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "task_definition": "arn:aws:ecs:eu-north-1:123456789012:task-definition/mock:1",
+          "timeouts": null,
+          "triggers": {},
+          "volume_configuration": [],
+          "vpc_lattice_configurations": [],
+          "wait_for_steady_state": null
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_ecs_service"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_ecs_task_definition.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:ecs:eu-north-1:123456789012:task-definition/mock:1",
+          "arn_without_revision": "q4UaAoWftFVF26T",
+          "cpu": "1024",
+          "enable_fault_injection": false,
+          "ephemeral_storage": [],
+          "execution_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-api-exec",
+          "family": "sample-portable-awsdev-api",
+          "id": "Hs75HnNKejhIz",
+          "ipc_mode": null,
+          "memory": "2048",
+          "network_mode": "awsvpc",
+          "pid_mode": null,
+          "placement_constraints": [],
+          "proxy_configuration": [],
+          "region": "7dAgx",
+          "requires_compatibilities": [
+            "FARGATE"
+          ],
+          "revision": 0,
+          "runtime_platform": [
+            {
+              "cpu_architecture": "X86_64",
+              "operating_system_family": "LINUX"
+            }
+          ],
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "task_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-api-task",
+          "track_latest": null,
+          "volume": [
+            {
+              "configure_at_launch": false,
+              "docker_volume_configuration": [],
+              "efs_volume_configuration": [],
+              "fsx_windows_file_server_volume_configuration": [],
+              "host_path": null,
+              "name": "tmp",
+              "s3files_volume_configuration": []
+            }
+          ]
+        },
+        "after_unknown": {
+          "container_definitions": true,
+          "ephemeral_storage": [],
+          "placement_constraints": [],
+          "proxy_configuration": [],
+          "requires_compatibilities": [
+            false
+          ],
+          "runtime_platform": [
+            {}
+          ],
+          "tags": {},
+          "tags_all": {},
+          "volume": [
+            {
+              "docker_volume_configuration": [],
+              "efs_volume_configuration": [],
+              "fsx_windows_file_server_volume_configuration": [],
+              "s3files_volume_configuration": []
+            }
+          ]
+        }
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_ecs_task_definition"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_ecs_task_definition.this[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:ecs:eu-north-1:123456789012:task-definition/mock:1",
+          "arn_without_revision": "q4UaAoWftFVF26T",
+          "container_definitions": "[{\"dependsOn\":[{\"condition\":\"START\",\"containerName\":\"otel-collector\"}],\"environment\":[{\"name\":\"HERMES_ENVIRONMENT\",\"value\":\"awsdev\"},{\"name\":\"HERMES_PROJECT\",\"value\":\"sample-portable\"},{\"name\":\"HERMES_PROVIDER\",\"value\":\"aws\"},{\"name\":\"HERMES_REGION\",\"value\":\"eu-north-1\"},{\"name\":\"HERMES_SERVICE\",\"value\":\"consumer\"},{\"name\":\"HERMES_SUBSCRIPTION_EVENTS_DEFAULT\",\"value\":\"https://sqs.eu-north-1.amazonaws.com/123456789012/sample-portable-awsdev-events-default\"},{\"name\":\"OTEL_EXPORTER_OTLP_ENDPOINT\",\"value\":\"http://localhost:4317\"},{\"name\":\"OTEL_EXPORTER_OTLP_PROTOCOL\",\"value\":\"grpc\"},{\"name\":\"OTEL_RESOURCE_ATTRIBUTES\",\"value\":\"service.namespace=sample-portable,deployment.environment.name=awsdev,cloud.provider=aws,cloud.platform=aws_ecs,cloud.region=eu-north-1\"},{\"name\":\"OTEL_SERVICE_NAME\",\"value\":\"consumer\"}],\"essential\":true,\"image\":\"ghcr.io/example/portable-consumer:3.1.0\",\"linuxParameters\":{\"initProcessEnabled\":true},\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/hermes/sample-portable/awsdev/services/consumer\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"app\"}},\"mountPoints\":[{\"containerPath\":\"/tmp\",\"readOnly\":false,\"sourceVolume\":\"tmp\"}],\"name\":\"app\",\"portMappings\":[{\"containerPort\":8080,\"name\":\"http\",\"protocol\":\"tcp\"}],\"readonlyRootFilesystem\":true,\"secrets\":[]},{\"environment\":[{\"name\":\"AOT_CONFIG_CONTENT\",\"value\":\"\\\"exporters\\\":\\n  \\\"awsemf\\\":\\n    \\\"log_group_name\\\": \\\"/hermes/sample-portable/awsdev/services/consumer\\\"\\n    \\\"log_stream_name\\\": \\\"otel-metrics/{TaskId}\\\"\\n    \\\"namespace\\\": \\\"Hermes/sample-portable/awsdev\\\"\\n  \\\"awsxray\\\": {}\\n\\\"extensions\\\":\\n  \\\"health_check\\\": {}\\n\\\"processors\\\":\\n  \\\"batch\\\": {}\\n\\\"receivers\\\":\\n  \\\"otlp\\\":\\n    \\\"protocols\\\":\\n      \\\"grpc\\\":\\n        \\\"endpoint\\\": \\\"127.0.0.1:4317\\\"\\n      \\\"http\\\":\\n        \\\"endpoint\\\": \\\"127.0.0.1:4318\\\"\\n\\\"service\\\":\\n  \\\"extensions\\\":\\n  - \\\"health_check\\\"\\n  \\\"pipelines\\\":\\n    \\\"metrics\\\":\\n      \\\"exporters\\\":\\n      - \\\"awsemf\\\"\\n      \\\"processors\\\":\\n      - \\\"batch\\\"\\n      \\\"receivers\\\":\\n      - \\\"otlp\\\"\\n    \\\"traces\\\":\\n      \\\"exporters\\\":\\n      - \\\"awsxray\\\"\\n      \\\"processors\\\":\\n      - \\\"batch\\\"\\n      \\\"receivers\\\":\\n      - \\\"otlp\\\"\\n\"}],\"essential\":false,\"healthCheck\":{\"command\":[\"/healthcheck\"],\"interval\":30,\"retries\":3,\"startPeriod\":10,\"timeout\":5},\"image\":\"public.ecr.aws/aws-observability/aws-otel-collector:v0.51.0\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/hermes/sample-portable/awsdev/services/consumer\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"otel\"}},\"memoryReservation\":64,\"name\":\"otel-collector\",\"readonlyRootFilesystem\":true}]",
+          "cpu": "1024",
+          "enable_fault_injection": false,
+          "ephemeral_storage": [],
+          "execution_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-consumer-exec",
+          "family": "sample-portable-awsdev-consumer",
+          "id": "Hs75HnNKejhIz",
+          "ipc_mode": null,
+          "memory": "2048",
+          "network_mode": "awsvpc",
+          "pid_mode": null,
+          "placement_constraints": [],
+          "proxy_configuration": [],
+          "region": "7dAgx",
+          "requires_compatibilities": [
+            "FARGATE"
+          ],
+          "revision": 0,
+          "runtime_platform": [
+            {
+              "cpu_architecture": "X86_64",
+              "operating_system_family": "LINUX"
+            }
+          ],
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "task_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-consumer-task",
+          "track_latest": null,
+          "volume": [
+            {
+              "configure_at_launch": false,
+              "docker_volume_configuration": [],
+              "efs_volume_configuration": [],
+              "fsx_windows_file_server_volume_configuration": [],
+              "host_path": null,
+              "name": "tmp",
+              "s3files_volume_configuration": []
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_ecs_task_definition"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role.execution[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:ecs:eu-north-1:123456789012:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": "ECS execution role for service api",
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-api-exec",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "execution",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role.execution[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:ecs:eu-north-1:123456789012:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": "ECS execution role for service consumer",
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-consumer-exec",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "execution",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role.task[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:ecs:eu-north-1:123456789012:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": "Application identity for service api",
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-api-task",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role.task[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:ecs:eu-north-1:123456789012:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": "Application identity for service consumer",
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-consumer-task",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role_policy.execution[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "PnS1QNTP",
+          "name": "execution",
+          "name_prefix": "ngjHmua9AqfQM",
+          "policy": "{\"Statement\":[{\"Action\":[\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/api\",\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/api:*\"],\"Sid\":\"WriteServiceLogs\"},{\"Action\":[\"secretsmanager:GetSecretValue\"],\"Effect\":\"Allow\",\"Resource\":[\"GR6KIaPB00o2eFc\"],\"Sid\":\"ReadServiceSecrets\"}],\"Version\":\"2012-10-17\"}",
+          "role": "sample-portable-awsdev-api-exec"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "execution",
+      "type": "aws_iam_role_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role_policy.execution[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "PnS1QNTP",
+          "name": "execution",
+          "name_prefix": "ngjHmua9AqfQM",
+          "policy": "{\"Statement\":[{\"Action\":[\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/consumer\",\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/consumer:*\"],\"Sid\":\"WriteServiceLogs\"}],\"Version\":\"2012-10-17\"}",
+          "role": "sample-portable-awsdev-consumer-exec"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "execution",
+      "type": "aws_iam_role_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role_policy.task[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "PnS1QNTP",
+          "name": "access",
+          "name_prefix": "ngjHmua9AqfQM",
+          "role": "sample-portable-awsdev-api-task"
+        },
+        "after_unknown": {
+          "policy": true
+        }
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_iam_role_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_iam_role_policy.task[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "PnS1QNTP",
+          "name": "access",
+          "name_prefix": "ngjHmua9AqfQM",
+          "policy": "{\"Statement\":[{\"Action\":[\"sqs:ReceiveMessage\",\"sqs:DeleteMessage\",\"sqs:ChangeMessageVisibility\",\"sqs:GetQueueAttributes\",\"sqs:GetQueueUrl\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default\"],\"Sid\":\"ConsumeGrantedQueues\"},{\"Action\":[\"xray:PutTraceSegments\",\"xray:PutTelemetryRecords\",\"xray:GetSamplingRules\",\"xray:GetSamplingTargets\",\"xray:GetSamplingStatisticSummaries\"],\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"WriteTraces\"},{\"Action\":[\"logs:CreateLogStream\",\"logs:PutLogEvents\",\"logs:DescribeLogStreams\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/consumer\",\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/services/consumer:*\"],\"Sid\":\"CollectorEmbeddedMetrics\"},{\"Action\":[\"cloudwatch:PutMetricData\"],\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"PutCustomMetrics\"}],\"Version\":\"2012-10-17\"}",
+          "role": "sample-portable-awsdev-consumer-task"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_iam_role_policy"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_lb.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "access_logs": [],
+          "arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/mock-web/0123456789abcdef",
+          "arn_suffix": "app/mock-web/0123456789abcdef",
+          "client_keep_alive": null,
+          "connection_logs": [],
+          "customer_owned_ipv4_pool": null,
+          "desync_mitigation_mode": null,
+          "dns_name": "mock-web-123456789.eu-north-1.elb.amazonaws.com",
+          "dns_record_client_routing_policy": null,
+          "drop_invalid_header_fields": true,
+          "enable_cross_zone_load_balancing": null,
+          "enable_deletion_protection": false,
+          "enable_http2": null,
+          "enable_prefix_for_ipv6_source_nat": "NGZl6bR",
+          "enable_tls_version_and_cipher_suite_headers": null,
+          "enable_waf_fail_open": null,
+          "enable_xff_client_port": null,
+          "enable_zonal_shift": null,
+          "enforce_security_group_inbound_rules_on_private_link_traffic": "vCtG1ds",
+          "health_check_logs": [],
+          "id": "ZUsIy",
+          "idle_timeout": null,
+          "internal": false,
+          "ip_address_type": "8crOGmGW2srxZm",
+          "ipam_pools": [],
+          "load_balancer_type": "application",
+          "minimum_load_balancer_capacity": [],
+          "name": "sample-portable-awsdev-web",
+          "name_prefix": "eTa7bFVWl6",
+          "preserve_host_header": null,
+          "region": "izy3rwd",
+          "secondary_ips_auto_assigned_per_subnet": 0,
+          "security_groups": [
+            "HJTg"
+          ],
+          "subnet_mapping": [],
+          "subnets": [
+            "GcX0E6TRLUkLq1j"
+          ],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "6IAVcfiHEb9Ku",
+          "xff_header_processing_mode": null,
+          "zone_id": "B6iHQJy"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_lb"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_lb_listener.http[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alpn_policy": null,
+          "arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/mock-web/0123456789abcdef/0123456789abcdef",
+          "certificate_arn": null,
+          "default_action": [
+            {
+              "authenticate_cognito": [],
+              "authenticate_oidc": [],
+              "fixed_response": [],
+              "forward": [],
+              "jwt_validation": [],
+              "order": 0,
+              "redirect": [],
+              "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/mock/0123456789abcdef",
+              "type": "forward"
+            }
+          ],
+          "id": "KNJH3Ra0BVDnJ9t",
+          "load_balancer_arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/mock-web/0123456789abcdef",
+          "mutual_authentication": [],
+          "port": 80,
+          "protocol": "HTTP",
+          "region": "hEBMlG7NhRN",
+          "routing_http_request_x_amzn_mtls_clientcert_header_name": "h59e",
+          "routing_http_request_x_amzn_mtls_clientcert_issuer_header_name": "Z6q9",
+          "routing_http_request_x_amzn_mtls_clientcert_leaf_header_name": "VCFmy05Fju9",
+          "routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name": "XllDObfu5p",
+          "routing_http_request_x_amzn_mtls_clientcert_subject_header_name": "wjVR2nEOtgC4",
+          "routing_http_request_x_amzn_mtls_clientcert_validity_header_name": "kRnxpSj5y8p27",
+          "routing_http_request_x_amzn_tls_cipher_suite_header_name": "mcaQSim2Fnutc",
+          "routing_http_request_x_amzn_tls_version_header_name": "V9VXOkeQVgNqcF",
+          "routing_http_response_access_control_allow_credentials_header_value": "demo-not-a-secret",
+          "routing_http_response_access_control_allow_headers_header_value": "d0qpEc5AmYwaIsu",
+          "routing_http_response_access_control_allow_methods_header_value": "FT6N",
+          "routing_http_response_access_control_allow_origin_header_value": "kEjKcNioRBpv",
+          "routing_http_response_access_control_expose_headers_header_value": "PDUZQfg1",
+          "routing_http_response_access_control_max_age_header_value": "JGQlg",
+          "routing_http_response_content_security_policy_header_value": "2Fmc5GgQehmuO",
+          "routing_http_response_server_enabled": false,
+          "routing_http_response_strict_transport_security_header_value": "SiBMD",
+          "routing_http_response_x_content_type_options_header_value": "sQdyU",
+          "routing_http_response_x_frame_options_header_value": "Kue3Ox5Lr",
+          "ssl_policy": "Ul7mb",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tcp_idle_timeout_seconds": 0,
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "http",
+      "type": "aws_lb_listener"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_lb_target_group.this[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/mock/0123456789abcdef",
+          "arn_suffix": "targetgroup/mock/0123456789abcdef",
+          "connection_termination": false,
+          "deregistration_delay": "30",
+          "health_check": [
+            {
+              "enabled": true,
+              "healthy_threshold": 2,
+              "interval": 15,
+              "matcher": "200-399",
+              "path": "/healthz",
+              "port": "traffic-port",
+              "protocol": "HTTP",
+              "timeout": 5,
+              "unhealthy_threshold": 3
+            }
+          ],
+          "id": "CI1IOO",
+          "ip_address_type": "FFemH2jykbe",
+          "lambda_multi_value_headers_enabled": null,
+          "load_balancer_arns": [],
+          "load_balancing_algorithm_type": "wlkhLiki",
+          "load_balancing_anomaly_mitigation": "sZXYYaM3loBVHdp",
+          "load_balancing_cross_zone_enabled": "WfRIcj4IXj6q",
+          "name": "sample-portable-awsdev-api",
+          "name_prefix": "u05fkYdKIRse",
+          "port": 8080,
+          "preserve_client_ip": "mt83eHWY6WEZM0",
+          "protocol": "HTTP",
+          "protocol_version": "S0utJDPii",
+          "proxy_protocol_v2": null,
+          "region": "Oqy2hQzqIQek",
+          "slow_start": null,
+          "stickiness": [],
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "target_control_port": null,
+          "target_failover": [],
+          "target_group_health": [],
+          "target_health_state": [],
+          "target_type": "ip",
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "this",
+      "type": "aws_lb_target_group"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_security_group.alb[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "UuxOvk",
+          "description": "Shared public ALB",
+          "egress": [],
+          "id": "HJTg",
+          "ingress": [],
+          "name": "sample-portable-awsdev-alb",
+          "name_prefix": "HdNvRrVsMW",
+          "owner_id": "O6prSzyl9FG9gSH",
+          "region": "FH5Ip",
+          "revoke_rules_on_delete": null,
+          "tags": {
+            "Name": "sample-portable-awsdev-alb",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-alb",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "alb",
+      "type": "aws_security_group"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_security_group.task[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "UuxOvk",
+          "description": "Tasks of service api",
+          "egress": [],
+          "id": "HJTg",
+          "ingress": [],
+          "name": "sample-portable-awsdev-api-tasks",
+          "name_prefix": "HdNvRrVsMW",
+          "owner_id": "O6prSzyl9FG9gSH",
+          "region": "FH5Ip",
+          "revoke_rules_on_delete": null,
+          "tags": {
+            "Name": "sample-portable-awsdev-api-tasks",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-api-tasks",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_security_group"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_security_group.task[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "UuxOvk",
+          "description": "Tasks of service consumer",
+          "egress": [],
+          "id": "HJTg",
+          "ingress": [],
+          "name": "sample-portable-awsdev-consumer-tasks",
+          "name_prefix": "HdNvRrVsMW",
+          "owner_id": "O6prSzyl9FG9gSH",
+          "region": "FH5Ip",
+          "revoke_rules_on_delete": null,
+          "tags": {
+            "Name": "sample-portable-awsdev-consumer-tasks",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-consumer-tasks",
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task",
+      "type": "aws_security_group"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_egress_rule.alb_to_tasks[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "R0Vs3z",
+          "cidr_ipv4": null,
+          "cidr_ipv6": null,
+          "description": "To tasks of service api",
+          "from_port": 8080,
+          "id": "zifV",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": "HJTg",
+          "region": "vkn4C43acrZjCKJ",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "KXyD2V6nOLZ",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 8080
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "alb_to_tasks",
+      "type": "aws_vpc_security_group_egress_rule"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_egress_rule.task_database[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "R0Vs3z",
+          "cidr_ipv4": null,
+          "cidr_ipv6": null,
+          "description": "PostgreSQL",
+          "from_port": 5432,
+          "id": "zifV",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": "HJTg",
+          "region": "vkn4C43acrZjCKJ",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "KXyD2V6nOLZ",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 5432
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task_database",
+      "type": "aws_vpc_security_group_egress_rule"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_egress_rule.task_https[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "R0Vs3z",
+          "cidr_ipv4": "0.0.0.0/0",
+          "cidr_ipv6": null,
+          "description": "HTTPS egress",
+          "from_port": 443,
+          "id": "zifV",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": null,
+          "region": "vkn4C43acrZjCKJ",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "KXyD2V6nOLZ",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 443
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task_https",
+      "type": "aws_vpc_security_group_egress_rule"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_egress_rule.task_https[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "R0Vs3z",
+          "cidr_ipv4": "0.0.0.0/0",
+          "cidr_ipv6": null,
+          "description": "HTTPS egress",
+          "from_port": 443,
+          "id": "zifV",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": null,
+          "region": "vkn4C43acrZjCKJ",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "KXyD2V6nOLZ",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 443
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task_https",
+      "type": "aws_vpc_security_group_egress_rule"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_ingress_rule.alb[\"80-0.0.0.0/0\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "VqZaQKYXn",
+          "cidr_ipv4": "0.0.0.0/0",
+          "cidr_ipv6": null,
+          "description": "Public ingress on 80",
+          "from_port": 80,
+          "id": "EMWQo",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": null,
+          "region": "IS4V7vT9",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "NkPIGu6LsyxWf",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 80
+        },
+        "after_unknown": {}
+      },
+      "index": "80-0.0.0.0/0",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "alb",
+      "type": "aws_vpc_security_group_ingress_rule"
+    },
+    {
+      "address": "module.platform.module.container_service[0].aws_vpc_security_group_ingress_rule.task_from_alb[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "VqZaQKYXn",
+          "cidr_ipv4": null,
+          "cidr_ipv6": null,
+          "description": "Traffic from the shared ALB only",
+          "from_port": 8080,
+          "id": "EMWQo",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": "HJTg",
+          "region": "IS4V7vT9",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "NkPIGu6LsyxWf",
+          "tags": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "compute",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 8080
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.container_service[0]",
+      "name": "task_from_alb",
+      "type": "aws_vpc_security_group_ingress_rule"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_cloudwatch_metric_alarm.dlq_not_empty[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Messages of subscription \"events-default\" were dead-lettered after 5 delivery attempts.",
+          "alarm_name": "sample-portable-awsdev-events-default-dlq-not-empty",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanOrEqualToThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "QueueName": "sample-portable-awsdev-events-default-dlq"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 1,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "ApproximateNumberOfMessagesVisible",
+          "metric_query": [],
+          "namespace": "AWS/SQS",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Maximum",
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 1,
+          "threshold_metric_id": null,
+          "treat_missing_data": "notBreaching",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dlq_not_empty",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sns_topic.this[\"events\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "application_failure_feedback_role_arn": null,
+          "application_success_feedback_role_arn": null,
+          "application_success_feedback_sample_rate": null,
+          "archive_policy": null,
+          "arn": "DiuzCLXTQqBiCB",
+          "beginning_archive_time": "xIDGjTz9",
+          "content_based_deduplication": null,
+          "delivery_policy": null,
+          "display_name": null,
+          "fifo_throughput_scope": "uRISrQh",
+          "fifo_topic": null,
+          "firehose_failure_feedback_role_arn": null,
+          "firehose_success_feedback_role_arn": null,
+          "firehose_success_feedback_sample_rate": null,
+          "http_failure_feedback_role_arn": null,
+          "http_success_feedback_role_arn": null,
+          "http_success_feedback_sample_rate": null,
+          "id": "7Vd5AKEdmlN1",
+          "kms_master_key_id": "alias/aws/sns",
+          "lambda_failure_feedback_role_arn": null,
+          "lambda_success_feedback_role_arn": null,
+          "lambda_success_feedback_sample_rate": null,
+          "maximum_message_size": 0,
+          "name": "sample-portable-awsdev-events",
+          "name_prefix": "GPoyT0eKM",
+          "owner": "UGochinqar2aDO",
+          "policy": "gObO1EhNh",
+          "region": "XNolDZ4QPI5R",
+          "signature_version": 0,
+          "sqs_failure_feedback_role_arn": null,
+          "sqs_success_feedback_role_arn": null,
+          "sqs_success_feedback_sample_rate": null,
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tracing_config": "amf0uLkFC"
+        },
+        "after_unknown": {}
+      },
+      "index": "events",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "aws_sns_topic"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sns_topic_policy.this[\"events\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-events",
+          "id": "uuq8lhoh",
+          "owner": "MC7BxOHM8Xmy",
+          "policy": "{\"Statement\":[{\"Action\":[\"sns:GetTopicAttributes\",\"sns:SetTopicAttributes\",\"sns:AddPermission\",\"sns:RemovePermission\",\"sns:DeleteTopic\",\"sns:Subscribe\",\"sns:ListSubscriptionsByTopic\",\"sns:Publish\"],\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:root\"},\"Resource\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-events\",\"Sid\":\"AccountOwnerManage\"},{\"Action\":\"sns:Publish\",\"Condition\":{\"Bool\":{\"aws:SecureTransport\":\"false\"}},\"Effect\":\"Deny\",\"Principal\":\"*\",\"Resource\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-events\",\"Sid\":\"DenyInsecureTransport\"}],\"Version\":\"2012-10-17\"}",
+          "region": "iNW6"
+        },
+        "after_unknown": {}
+      },
+      "index": "events",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "aws_sns_topic_policy"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sns_topic_subscription.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "wBSDg",
+          "confirmation_timeout_in_minutes": null,
+          "confirmation_was_authenticated": false,
+          "delivery_policy": null,
+          "endpoint": "arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default",
+          "endpoint_auto_confirms": null,
+          "filter_policy": null,
+          "filter_policy_scope": "98By8yj",
+          "id": "M3t5sBOu",
+          "owner_id": "4jOel1Hp",
+          "pending_confirmation": false,
+          "protocol": "sqs",
+          "raw_message_delivery": true,
+          "redrive_policy": null,
+          "region": "UQiO3J9iv",
+          "replay_policy": null,
+          "subscription_role_arn": null,
+          "topic_arn": "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-events"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "aws_sns_topic_subscription"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sqs_queue.dlq[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "JSoIGMs",
+          "content_based_deduplication": null,
+          "deduplication_scope": "zmXHCoYqC3J",
+          "delay_seconds": null,
+          "fifo_queue": null,
+          "fifo_throughput_limit": "WtiB",
+          "id": "JAL9PFkPG",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": null,
+          "message_retention_seconds": 1209600,
+          "name": "sample-portable-awsdev-events-default-dlq",
+          "name_prefix": "4mhw8",
+          "policy": "bFz5SMJXsOg2",
+          "receive_wait_time_seconds": null,
+          "redrive_allow_policy": "EqA7gxVO",
+          "redrive_policy": "lYXwPxpua8WY",
+          "region": "QZ15oG8m8",
+          "sqs_managed_sse_enabled": true,
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "url": "hiXodUNo",
+          "visibility_timeout_seconds": null
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dlq",
+      "type": "aws_sqs_queue"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sqs_queue.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "JSoIGMs",
+          "content_based_deduplication": null,
+          "deduplication_scope": "zmXHCoYqC3J",
+          "delay_seconds": null,
+          "fifo_queue": null,
+          "fifo_throughput_limit": "WtiB",
+          "id": "JAL9PFkPG",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": null,
+          "message_retention_seconds": 604800,
+          "name": "sample-portable-awsdev-events-default",
+          "name_prefix": "4mhw8",
+          "policy": "bFz5SMJXsOg2",
+          "receive_wait_time_seconds": 20,
+          "redrive_allow_policy": "EqA7gxVO",
+          "redrive_policy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default-dlq\",\"maxReceiveCount\":5}",
+          "region": "lYXwPxpua8WY",
+          "sqs_managed_sse_enabled": true,
+          "tags": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "messaging",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "url": "QZ15oG8m8",
+          "visibility_timeout_seconds": 30
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "aws_sqs_queue"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sqs_queue_policy.this[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "0VDztqtcXHZK",
+          "policy": "{\"Statement\":[{\"Action\":\"sqs:SendMessage\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-events\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Resource\":\"arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default\",\"Sid\":\"AllowSubscribedTopicOnly\"},{\"Action\":\"sqs:*\",\"Condition\":{\"Bool\":{\"aws:SecureTransport\":\"false\"}},\"Effect\":\"Deny\",\"Principal\":\"*\",\"Resource\":\"arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default\",\"Sid\":\"DenyInsecureTransport\"}],\"Version\":\"2012-10-17\"}",
+          "queue_url": "JAL9PFkPG",
+          "region": "AOR7gRx"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "this",
+      "type": "aws_sqs_queue_policy"
+    },
+    {
+      "address": "module.platform.module.messaging.aws_sqs_queue_redrive_allow_policy.dlq[\"events-default\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "OvYMykQo0B",
+          "queue_url": "JAL9PFkPG",
+          "redrive_allow_policy": "{\"redrivePermission\":\"byQueue\",\"sourceQueueArns\":[\"arn:aws:sqs:eu-north-1:123456789012:sample-portable-awsdev-events-default\"]}",
+          "region": "aLaw1S1R42Pf"
+        },
+        "after_unknown": {}
+      },
+      "index": "events-default",
+      "mode": "managed",
+      "module_address": "module.platform.module.messaging",
+      "name": "dlq",
+      "type": "aws_sqs_queue_redrive_allow_policy"
+    },
+    {
+      "address": "module.platform.module.network.aws_cloudwatch_log_group.flow_logs[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "edehvl3K5w",
+          "deletion_protection_enabled": false,
+          "id": "AhCXs",
+          "kms_key_id": null,
+          "log_group_class": "EPJcua",
+          "name": "/hermes/sample-portable/awsdev/vpc-flow-logs",
+          "name_prefix": "cxAAyBvfPreN",
+          "region": "o4IW0cCnW",
+          "retention_in_days": 30,
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "flow_logs",
+      "type": "aws_cloudwatch_log_group"
+    },
+    {
+      "address": "module.platform.module.network.aws_default_security_group.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "J4Dz44fZ",
+          "description": "MgEBHd",
+          "egress": [],
+          "id": "17wnnfT10BoxM",
+          "ingress": [],
+          "name": "UiGX",
+          "name_prefix": "NqF9GB7NnaPwf",
+          "owner_id": "kj6xXJG",
+          "region": "rpSCBkV",
+          "revoke_rules_on_delete": null,
+          "tags": {
+            "Name": "sample-portable-awsdev-default-deny",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-default-deny",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "aws_default_security_group"
+    },
+    {
+      "address": "module.platform.module.network.aws_eip.nat[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "address": null,
+          "allocation_id": "nOUuJ",
+          "arn": "abii7LIyl65j",
+          "associate_with_private_ip": null,
+          "association_id": "RfvafTGLnBTDEv",
+          "carrier_ip": "Yu6rVACOx3se9sU",
+          "customer_owned_ip": "k9Cjo",
+          "customer_owned_ipv4_pool": null,
+          "domain": "vpc",
+          "id": "yAJOM3ndzUuE",
+          "instance": "N8Rran3kPK",
+          "ipam_pool_id": "is3K7CMG",
+          "network_border_group": "9TpmPVrdFUl1C",
+          "network_interface": "tmXXsHTJBo",
+          "private_dns": "L6riU",
+          "private_ip": "pAZP789aUdcjI",
+          "ptr_record": "rvQBzq2sF8RC",
+          "public_dns": "XyQm5fxU",
+          "public_ip": "5cwAZKIsnXB",
+          "public_ipv4_pool": "L9iOQtpSiVH6l9",
+          "region": "5gc9SbSjlOfK",
+          "tags": {
+            "Name": "sample-portable-awsdev-nat-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-nat-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "nat",
+      "type": "aws_eip"
+    },
+    {
+      "address": "module.platform.module.network.aws_flow_log.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "MW3Xyj4vEk",
+          "deliver_cross_account_role": null,
+          "destination_options": [],
+          "eni_id": null,
+          "iam_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-vpc-flow-logs",
+          "id": "DbGfZ4dFks",
+          "log_destination": "arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/vpc-flow-logs",
+          "log_destination_type": "cloud-watch-logs",
+          "log_format": "RCmkc7N65h",
+          "max_aggregation_interval": null,
+          "region": "5lWG25Nrz1",
+          "regional_nat_gateway_id": null,
+          "subnet_id": null,
+          "tag_field_specification": [],
+          "tags": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "traffic_type": "ALL",
+          "transit_gateway_attachment_id": null,
+          "transit_gateway_id": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "aws_flow_log"
+    },
+    {
+      "address": "module.platform.module.network.aws_iam_role.flow_logs[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:ec2:eu-north-1:123456789012:vpc-flow-log/*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"vpc-flow-logs.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": null,
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-vpc-flow-logs",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "flow_logs",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.network.aws_iam_role_policy.flow_logs[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "PnS1QNTP",
+          "name": "flow-log-delivery",
+          "name_prefix": "ngjHmua9AqfQM",
+          "policy": "{\"Statement\":[{\"Action\":[\"logs:CreateLogStream\",\"logs:PutLogEvents\",\"logs:DescribeLogStreams\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/vpc-flow-logs\",\"arn:aws:logs:eu-north-1:123456789012:log-group:/hermes/sample-portable/awsdev/vpc-flow-logs:*\"],\"Sid\":\"WriteFlowLogGroup\"},{\"Action\":[\"logs:DescribeLogGroups\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:logs:eu-north-1:123456789012:log-group:*\",\"Sid\":\"DescribeLogGroups\"}],\"Version\":\"2012-10-17\"}",
+          "role": "MQDM"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "flow_logs",
+      "type": "aws_iam_role_policy"
+    },
+    {
+      "address": "module.platform.module.network.aws_internet_gateway.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "UdVrXNN7wX2Rzu",
+          "id": "1p9sDcua",
+          "owner_id": "ksu6",
+          "region": "fFV13hcWJ",
+          "tags": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "aws_internet_gateway"
+    },
+    {
+      "address": "module.platform.module.network.aws_nat_gateway.this[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "allocation_id": "yAJOM3ndzUuE",
+          "association_id": "Ls9PRorGeN3",
+          "auto_provision_zones": "815daNwDDIN",
+          "auto_scaling_ips": "mAMeJNcPfUOj1",
+          "availability_mode": "H07u",
+          "availability_zone_address": [],
+          "connectivity_type": null,
+          "id": "8KnyP1J1a90",
+          "network_interface_id": "wM3Ogu",
+          "private_ip": "KbtTNH2bN",
+          "public_ip": "brJWQin7rtcH",
+          "region": "ynNdB8",
+          "regional_nat_gateway_address": [],
+          "regional_nat_gateway_auto_mode": "D7DhxL2i3E",
+          "route_table_id": "MuqOR9WE7nCT",
+          "secondary_allocation_ids": [],
+          "secondary_private_ip_address_count": 0,
+          "secondary_private_ip_addresses": [],
+          "subnet_id": "GcX0E6TRLUkLq1j",
+          "tags": {
+            "Name": "sample-portable-awsdev-nat-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-nat-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "YU6ma9Ycso"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "aws_nat_gateway"
+    },
+    {
+      "address": "module.platform.module.network.aws_route.private_nat[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "carrier_gateway_id": null,
+          "core_network_arn": null,
+          "destination_cidr_block": "0.0.0.0/0",
+          "destination_ipv6_cidr_block": null,
+          "destination_prefix_list_id": null,
+          "egress_only_gateway_id": null,
+          "gateway_id": null,
+          "id": "Q1Snf",
+          "instance_id": "2fnKezYD",
+          "instance_owner_id": "J2QkwuvU2ITZw",
+          "local_gateway_id": null,
+          "nat_gateway_id": "8KnyP1J1a90",
+          "network_interface_id": "TDvrQJd6bpZ46o",
+          "odb_network_arn": null,
+          "origin": "3Q5fcKmb7lS",
+          "region": "tc66zkDVWIfSrib",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "state": "jlXZ1O00Al",
+          "timeouts": null,
+          "transit_gateway_id": null,
+          "vpc_endpoint_id": null,
+          "vpc_peering_connection_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private_nat",
+      "type": "aws_route"
+    },
+    {
+      "address": "module.platform.module.network.aws_route.private_nat[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "carrier_gateway_id": null,
+          "core_network_arn": null,
+          "destination_cidr_block": "0.0.0.0/0",
+          "destination_ipv6_cidr_block": null,
+          "destination_prefix_list_id": null,
+          "egress_only_gateway_id": null,
+          "gateway_id": null,
+          "id": "Q1Snf",
+          "instance_id": "2fnKezYD",
+          "instance_owner_id": "J2QkwuvU2ITZw",
+          "local_gateway_id": null,
+          "nat_gateway_id": "8KnyP1J1a90",
+          "network_interface_id": "TDvrQJd6bpZ46o",
+          "odb_network_arn": null,
+          "origin": "3Q5fcKmb7lS",
+          "region": "tc66zkDVWIfSrib",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "state": "jlXZ1O00Al",
+          "timeouts": null,
+          "transit_gateway_id": null,
+          "vpc_endpoint_id": null,
+          "vpc_peering_connection_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private_nat",
+      "type": "aws_route"
+    },
+    {
+      "address": "module.platform.module.network.aws_route.public_internet",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "carrier_gateway_id": null,
+          "core_network_arn": null,
+          "destination_cidr_block": "0.0.0.0/0",
+          "destination_ipv6_cidr_block": null,
+          "destination_prefix_list_id": null,
+          "egress_only_gateway_id": null,
+          "gateway_id": "1p9sDcua",
+          "id": "Q1Snf",
+          "instance_id": "2fnKezYD",
+          "instance_owner_id": "J2QkwuvU2ITZw",
+          "local_gateway_id": null,
+          "nat_gateway_id": null,
+          "network_interface_id": "TDvrQJd6bpZ46o",
+          "odb_network_arn": null,
+          "origin": "3Q5fcKmb7lS",
+          "region": "tc66zkDVWIfSrib",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "state": "jlXZ1O00Al",
+          "timeouts": null,
+          "transit_gateway_id": null,
+          "vpc_endpoint_id": null,
+          "vpc_peering_connection_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public_internet",
+      "type": "aws_route"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table.private[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "DHDQ2HIRL",
+          "id": "qUXBBZuh8cXp7",
+          "owner_id": "dHQyg3zx4jS6IKR",
+          "propagating_vgws": [],
+          "region": "ZXHgFgBZ8QCA",
+          "route": [],
+          "tags": {
+            "Name": "sample-portable-awsdev-private-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-private-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_route_table"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table.private[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "DHDQ2HIRL",
+          "id": "qUXBBZuh8cXp7",
+          "owner_id": "dHQyg3zx4jS6IKR",
+          "propagating_vgws": [],
+          "region": "ZXHgFgBZ8QCA",
+          "route": [],
+          "tags": {
+            "Name": "sample-portable-awsdev-private-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-private-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_route_table"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table.public",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "DHDQ2HIRL",
+          "id": "qUXBBZuh8cXp7",
+          "owner_id": "dHQyg3zx4jS6IKR",
+          "propagating_vgws": [],
+          "region": "ZXHgFgBZ8QCA",
+          "route": [],
+          "tags": {
+            "Name": "sample-portable-awsdev-public",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-public",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public",
+      "type": "aws_route_table"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table_association.private[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "gateway_id": null,
+          "id": "UMKYUD8U",
+          "region": "yKUmq",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "subnet_id": "GcX0E6TRLUkLq1j",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_route_table_association"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table_association.private[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "gateway_id": null,
+          "id": "UMKYUD8U",
+          "region": "yKUmq",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "subnet_id": "GcX0E6TRLUkLq1j",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_route_table_association"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table_association.public[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "gateway_id": null,
+          "id": "UMKYUD8U",
+          "region": "yKUmq",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "subnet_id": "GcX0E6TRLUkLq1j",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public",
+      "type": "aws_route_table_association"
+    },
+    {
+      "address": "module.platform.module.network.aws_route_table_association.public[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "gateway_id": null,
+          "id": "UMKYUD8U",
+          "region": "yKUmq",
+          "route_table_id": "qUXBBZuh8cXp7",
+          "subnet_id": "GcX0E6TRLUkLq1j",
+          "timeouts": null
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public",
+      "type": "aws_route_table_association"
+    },
+    {
+      "address": "module.platform.module.network.aws_subnet.private[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "RXHrqO",
+          "assign_ipv6_address_on_creation": null,
+          "availability_zone": "eu-north-1a",
+          "availability_zone_id": "j40V",
+          "cidr_block": "10.20.0.0/18",
+          "customer_owned_ipv4_pool": null,
+          "enable_dns64": null,
+          "enable_lni_at_device_index": null,
+          "enable_resource_name_dns_a_record_on_launch": null,
+          "enable_resource_name_dns_aaaa_record_on_launch": null,
+          "id": "GcX0E6TRLUkLq1j",
+          "ipv4_ipam_pool_id": null,
+          "ipv4_netmask_length": null,
+          "ipv6_cidr_block": "ZtHXUZDLYAO04xr",
+          "ipv6_cidr_block_association_id": "Q3UK",
+          "ipv6_ipam_pool_id": null,
+          "ipv6_native": null,
+          "ipv6_netmask_length": null,
+          "map_customer_owned_ip_on_launch": null,
+          "map_public_ip_on_launch": null,
+          "outpost_arn": null,
+          "owner_id": "WEk03CbPSp4VH",
+          "private_dns_hostname_type_on_launch": "8uAqT4",
+          "region": "mnd1VoWPb",
+          "tags": {
+            "Name": "sample-portable-awsdev-private-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "private"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-private-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "private"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_subnet"
+    },
+    {
+      "address": "module.platform.module.network.aws_subnet.private[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "RXHrqO",
+          "assign_ipv6_address_on_creation": null,
+          "availability_zone": "eu-north-1b",
+          "availability_zone_id": "j40V",
+          "cidr_block": "10.20.64.0/18",
+          "customer_owned_ipv4_pool": null,
+          "enable_dns64": null,
+          "enable_lni_at_device_index": null,
+          "enable_resource_name_dns_a_record_on_launch": null,
+          "enable_resource_name_dns_aaaa_record_on_launch": null,
+          "id": "GcX0E6TRLUkLq1j",
+          "ipv4_ipam_pool_id": null,
+          "ipv4_netmask_length": null,
+          "ipv6_cidr_block": "ZtHXUZDLYAO04xr",
+          "ipv6_cidr_block_association_id": "Q3UK",
+          "ipv6_ipam_pool_id": null,
+          "ipv6_native": null,
+          "ipv6_netmask_length": null,
+          "map_customer_owned_ip_on_launch": null,
+          "map_public_ip_on_launch": null,
+          "outpost_arn": null,
+          "owner_id": "WEk03CbPSp4VH",
+          "private_dns_hostname_type_on_launch": "8uAqT4",
+          "region": "mnd1VoWPb",
+          "tags": {
+            "Name": "sample-portable-awsdev-private-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "private"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-private-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "private"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "private",
+      "type": "aws_subnet"
+    },
+    {
+      "address": "module.platform.module.network.aws_subnet.public[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "RXHrqO",
+          "assign_ipv6_address_on_creation": null,
+          "availability_zone": "eu-north-1a",
+          "availability_zone_id": "j40V",
+          "cidr_block": "10.20.192.0/21",
+          "customer_owned_ipv4_pool": null,
+          "enable_dns64": null,
+          "enable_lni_at_device_index": null,
+          "enable_resource_name_dns_a_record_on_launch": null,
+          "enable_resource_name_dns_aaaa_record_on_launch": null,
+          "id": "GcX0E6TRLUkLq1j",
+          "ipv4_ipam_pool_id": null,
+          "ipv4_netmask_length": null,
+          "ipv6_cidr_block": "ZtHXUZDLYAO04xr",
+          "ipv6_cidr_block_association_id": "Q3UK",
+          "ipv6_ipam_pool_id": null,
+          "ipv6_native": null,
+          "ipv6_netmask_length": null,
+          "map_customer_owned_ip_on_launch": null,
+          "map_public_ip_on_launch": false,
+          "outpost_arn": null,
+          "owner_id": "WEk03CbPSp4VH",
+          "private_dns_hostname_type_on_launch": "8uAqT4",
+          "region": "mnd1VoWPb",
+          "tags": {
+            "Name": "sample-portable-awsdev-public-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "public"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-public-eu-north-1a",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "public"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public",
+      "type": "aws_subnet"
+    },
+    {
+      "address": "module.platform.module.network.aws_subnet.public[1]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "RXHrqO",
+          "assign_ipv6_address_on_creation": null,
+          "availability_zone": "eu-north-1b",
+          "availability_zone_id": "j40V",
+          "cidr_block": "10.20.200.0/21",
+          "customer_owned_ipv4_pool": null,
+          "enable_dns64": null,
+          "enable_lni_at_device_index": null,
+          "enable_resource_name_dns_a_record_on_launch": null,
+          "enable_resource_name_dns_aaaa_record_on_launch": null,
+          "id": "GcX0E6TRLUkLq1j",
+          "ipv4_ipam_pool_id": null,
+          "ipv4_netmask_length": null,
+          "ipv6_cidr_block": "ZtHXUZDLYAO04xr",
+          "ipv6_cidr_block_association_id": "Q3UK",
+          "ipv6_ipam_pool_id": null,
+          "ipv6_native": null,
+          "ipv6_netmask_length": null,
+          "map_customer_owned_ip_on_launch": null,
+          "map_public_ip_on_launch": false,
+          "outpost_arn": null,
+          "owner_id": "WEk03CbPSp4VH",
+          "private_dns_hostname_type_on_launch": "8uAqT4",
+          "region": "mnd1VoWPb",
+          "tags": {
+            "Name": "sample-portable-awsdev-public-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "public"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-public-eu-north-1b",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable",
+            "hermes-subnet-tier": "public"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": 1,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "public",
+      "type": "aws_subnet"
+    },
+    {
+      "address": "module.platform.module.network.aws_vpc.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "Iz8zat8n",
+          "assign_generated_ipv6_cidr_block": null,
+          "cidr_block": "10.20.0.0/16",
+          "default_network_acl_id": "683nX",
+          "default_route_table_id": "Ciu9yh",
+          "default_security_group_id": "WQfK03",
+          "dhcp_options_id": "jXso1sa8x2FSB",
+          "enable_dns_hostnames": true,
+          "enable_dns_support": true,
+          "enable_network_address_usage_metrics": false,
+          "id": "ryyXLP0q",
+          "instance_tenancy": null,
+          "ipv4_ipam_pool_id": null,
+          "ipv4_netmask_length": null,
+          "ipv6_association_id": "Os2VEE",
+          "ipv6_cidr_block": "BMuOewfy7bbGP",
+          "ipv6_cidr_block_network_border_group": "fUt3qgVTqHXLrW",
+          "ipv6_ipam_pool_id": null,
+          "ipv6_netmask_length": null,
+          "main_route_table_id": "yC0UTvuvO20xd",
+          "owner_id": "ClD5o5dUxNlyif",
+          "region": "VvW8055FGGhVS",
+          "tags": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "this",
+      "type": "aws_vpc"
+    },
+    {
+      "address": "module.platform.module.network.aws_vpc_endpoint.s3",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "moj8aVdxp",
+          "auto_accept": null,
+          "cidr_blocks": [],
+          "dns_entry": [],
+          "dns_options": [],
+          "id": "gqUQta8EWmRNezQ",
+          "ip_address_type": "aWHQrds",
+          "network_interface_ids": [],
+          "owner_id": "u4UKPN5beWl",
+          "policy": "1whEmKV9ZIG7C2N",
+          "prefix_list_id": "W1nUF",
+          "private_dns_enabled": false,
+          "region": "1PXPwVJQCL3G",
+          "requester_managed": false,
+          "resource_configuration_arn": null,
+          "route_table_ids": [
+            "qUXBBZuh8cXp7"
+          ],
+          "security_group_ids": [],
+          "service_name": "com.amazonaws.eu-north-1.s3",
+          "service_network_arn": null,
+          "service_region": "4dmiy5YRkZAye",
+          "state": "jVaNxoMSbnGh",
+          "subnet_configuration": [],
+          "subnet_ids": [],
+          "tags": {
+            "Name": "sample-portable-awsdev-s3",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-s3",
+            "hermes-component": "network",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_endpoint_type": "Gateway",
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.network",
+      "name": "s3",
+      "type": "aws_vpc_endpoint"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "acceleration_status": "fJGD6H8mi9Tig",
+          "acl": "VNKypILCkV",
+          "arn": "OciJ",
+          "bucket_domain_name": "20LTUs7p",
+          "bucket_namespace": "yqFnKsIxA6E",
+          "bucket_prefix": "MoJtJnIJF9z",
+          "bucket_region": "Pc9e2psTPjRl",
+          "bucket_regional_domain_name": "8PEVMrf4iYF9WF",
+          "cors_rule": [],
+          "force_destroy": false,
+          "grant": [],
+          "hosted_zone_id": "jAxR3MVOsZ0B1",
+          "id": "rJNrtZl",
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "object_lock_enabled": false,
+          "policy": "GSjFhgqPJtsWxyO",
+          "region": "NrZ1Bo",
+          "replication_configuration": [],
+          "request_payer": "azDk",
+          "server_side_encryption_configuration": [],
+          "tags": {
+            "hermes-component": "storage",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "storage",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "versioning": [],
+          "website": [],
+          "website_domain": "eZLFc561jHx",
+          "website_endpoint": "xVO6pQodQsjm9"
+        },
+        "after_unknown": {
+          "bucket": true,
+          "cors_rule": [],
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [],
+          "tags": {},
+          "tags_all": {},
+          "versioning": [],
+          "website": []
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_lifecycle_configuration.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bucket": "rJNrtZl",
+          "expected_bucket_owner": "F5jf6xnTKqB1",
+          "id": "YIjQpe4t24xyYIm",
+          "region": "wlH6",
+          "rule": [
+            {
+              "abort_incomplete_multipart_upload": [
+                {
+                  "days_after_initiation": 7
+                }
+              ],
+              "expiration": [],
+              "filter": [
+                {
+                  "and": [],
+                  "object_size_greater_than": 0,
+                  "object_size_less_than": 0,
+                  "prefix": "WEdpBE9oTFwTE0s",
+                  "tag": []
+                }
+              ],
+              "id": "abort-incomplete-multipart-uploads",
+              "noncurrent_version_expiration": [],
+              "noncurrent_version_transition": [],
+              "prefix": "ujI4tIxgC",
+              "status": "Enabled",
+              "transition": []
+            },
+            {
+              "abort_incomplete_multipart_upload": [],
+              "expiration": [],
+              "filter": [
+                {
+                  "and": [],
+                  "object_size_greater_than": 0,
+                  "object_size_less_than": 0,
+                  "prefix": "OpoQN",
+                  "tag": []
+                }
+              ],
+              "id": "expire-noncurrent-versions",
+              "noncurrent_version_expiration": [
+                {
+                  "newer_noncurrent_versions": null,
+                  "noncurrent_days": 30
+                }
+              ],
+              "noncurrent_version_transition": [],
+              "prefix": "puOxp",
+              "status": "Enabled",
+              "transition": []
+            }
+          ],
+          "timeouts": null,
+          "transition_default_minimum_object_size": "OVFwG6"
+        },
+        "after_unknown": {}
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket_lifecycle_configuration"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_ownership_controls.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bucket": "rJNrtZl",
+          "id": "TW9zNG3",
+          "region": "UY4qfHLeoxy",
+          "rule": [
+            {
+              "object_ownership": "BucketOwnerEnforced"
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket_ownership_controls"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_policy.tls_only[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bucket": "rJNrtZl",
+          "id": "WslamOQUY",
+          "region": "BjDPjyEqohTewU"
+        },
+        "after_unknown": {
+          "policy": true
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "tls_only",
+      "type": "aws_s3_bucket_policy"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_public_access_block.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "bucket": "rJNrtZl",
+          "id": "y9cEt1KJSgU5GG7",
+          "ignore_public_acls": true,
+          "region": "DWmsfr7Q5vSV",
+          "restrict_public_buckets": true,
+          "skip_destroy": null
+        },
+        "after_unknown": {}
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket_public_access_block"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_server_side_encryption_configuration.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bucket": "rJNrtZl",
+          "expected_bucket_owner": null,
+          "id": "HYrIxjZhcwcZ0",
+          "region": "MweV",
+          "rule": [
+            {
+              "apply_server_side_encryption_by_default": [
+                {
+                  "kms_master_key_id": "dt5fjAYwG",
+                  "sse_algorithm": "AES256"
+                }
+              ],
+              "blocked_encryption_types": [],
+              "bucket_key_enabled": false
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket_server_side_encryption_configuration"
+    },
+    {
+      "address": "module.platform.module.object_storage.aws_s3_bucket_versioning.this[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bucket": "rJNrtZl",
+          "expected_bucket_owner": null,
+          "id": "ojBjbGFLmYW",
+          "mfa": null,
+          "region": "N94Mi2",
+          "versioning_configuration": [
+            {
+              "mfa_delete": "KTIgW",
+              "status": "Enabled"
+            }
+          ]
+        },
+        "after_unknown": {}
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "this",
+      "type": "aws_s3_bucket_versioning"
+    },
+    {
+      "address": "module.platform.module.object_storage.random_id.suffix[\"assets\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "byte_length": 4,
+          "keepers": {
+            "base_name": "sample-portable-awsdev-assets"
+          },
+          "prefix": null
+        },
+        "after_unknown": {
+          "b64_std": true,
+          "b64_url": true,
+          "dec": true,
+          "hex": true,
+          "id": true,
+          "keepers": {}
+        }
+      },
+      "index": "assets",
+      "mode": "managed",
+      "module_address": "module.platform.module.object_storage",
+      "name": "suffix",
+      "type": "random_id"
+    },
+    {
+      "address": "module.platform.module.observability.aws_cloudwatch_log_group.service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "edehvl3K5w",
+          "deletion_protection_enabled": false,
+          "id": "AhCXs",
+          "kms_key_id": null,
+          "log_group_class": "EPJcua",
+          "name": "/hermes/sample-portable/awsdev/services/api",
+          "name_prefix": "cxAAyBvfPreN",
+          "region": "o4IW0cCnW",
+          "retention_in_days": 30,
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "service",
+      "type": "aws_cloudwatch_log_group"
+    },
+    {
+      "address": "module.platform.module.observability.aws_cloudwatch_log_group.service[\"consumer\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "edehvl3K5w",
+          "deletion_protection_enabled": false,
+          "id": "AhCXs",
+          "kms_key_id": null,
+          "log_group_class": "EPJcua",
+          "name": "/hermes/sample-portable/awsdev/services/consumer",
+          "name_prefix": "cxAAyBvfPreN",
+          "region": "o4IW0cCnW",
+          "retention_in_days": 30,
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "consumer",
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "service",
+      "type": "aws_cloudwatch_log_group"
+    },
+    {
+      "address": "module.platform.module.observability.aws_kms_key.alerts[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:kms:eu-north-1:123456789012:key/00000000-0000-4000-8000-000000000000",
+          "bypass_policy_lockout_safety_check": null,
+          "custom_key_store_id": null,
+          "customer_master_key_spec": null,
+          "deletion_window_in_days": 7,
+          "description": "Hermes alert topic sample-portable-awsdev-hermes-alerts: encryption at rest",
+          "enable_key_rotation": true,
+          "id": "PBXTRB",
+          "is_enabled": null,
+          "key_id": "00000000-0000-4000-8000-000000000000",
+          "key_usage": null,
+          "multi_region": false,
+          "policy": "{\"Statement\":[{\"Action\":\"kms:*\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:root\"},\"Resource\":\"*\",\"Sid\":\"EnableAccountIamPolicies\"},{\"Action\":[\"kms:GenerateDataKey*\",\"kms:Decrypt\"],\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:cloudwatch:eu-north-1:123456789012:alarm:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudwatch.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowCloudWatchAlarmsToAlertTopic\"},{\"Action\":[\"kms:GenerateDataKey*\",\"kms:Decrypt\"],\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Resource\":\"*\",\"Sid\":\"AllowSnsForAlertTopic\"}],\"Version\":\"2012-10-17\"}",
+          "region": "pI0c3WVjM9wri",
+          "rotation_period_in_days": 0,
+          "tags": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "xks_key_id": null
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "alerts",
+      "type": "aws_kms_key"
+    },
+    {
+      "address": "module.platform.module.observability.aws_sns_topic.alerts[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "application_failure_feedback_role_arn": null,
+          "application_success_feedback_role_arn": null,
+          "application_success_feedback_sample_rate": null,
+          "archive_policy": null,
+          "arn": "DiuzCLXTQqBiCB",
+          "beginning_archive_time": "xIDGjTz9",
+          "content_based_deduplication": null,
+          "delivery_policy": null,
+          "display_name": null,
+          "fifo_throughput_scope": "uRISrQh",
+          "fifo_topic": null,
+          "firehose_failure_feedback_role_arn": null,
+          "firehose_success_feedback_role_arn": null,
+          "firehose_success_feedback_sample_rate": null,
+          "http_failure_feedback_role_arn": null,
+          "http_success_feedback_role_arn": null,
+          "http_success_feedback_sample_rate": null,
+          "id": "7Vd5AKEdmlN1",
+          "kms_master_key_id": "arn:aws:kms:eu-north-1:123456789012:key/00000000-0000-4000-8000-000000000000",
+          "lambda_failure_feedback_role_arn": null,
+          "lambda_success_feedback_role_arn": null,
+          "lambda_success_feedback_sample_rate": null,
+          "maximum_message_size": 0,
+          "name": "sample-portable-awsdev-hermes-alerts",
+          "name_prefix": "GPoyT0eKM",
+          "owner": "UGochinqar2aDO",
+          "policy": "gObO1EhNh",
+          "region": "XNolDZ4QPI5R",
+          "signature_version": 0,
+          "sqs_failure_feedback_role_arn": null,
+          "sqs_success_feedback_role_arn": null,
+          "sqs_success_feedback_sample_rate": null,
+          "tags": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "observability",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tracing_config": "amf0uLkFC"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "alerts",
+      "type": "aws_sns_topic"
+    },
+    {
+      "address": "module.platform.module.observability.aws_sns_topic_policy.alerts[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts",
+          "id": "uuq8lhoh",
+          "owner": "MC7BxOHM8Xmy",
+          "policy": "{\"Statement\":[{\"Action\":[\"sns:GetTopicAttributes\",\"sns:SetTopicAttributes\",\"sns:AddPermission\",\"sns:RemovePermission\",\"sns:DeleteTopic\",\"sns:Subscribe\",\"sns:ListSubscriptionsByTopic\",\"sns:Publish\"],\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:root\"},\"Resource\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts\",\"Sid\":\"AccountOwnerManage\"},{\"Action\":\"sns:Publish\",\"Condition\":{\"ArnLike\":{\"aws:SourceArn\":\"arn:aws:cloudwatch:eu-north-1:123456789012:alarm:*\"},\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudwatch.amazonaws.com\"},\"Resource\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts\",\"Sid\":\"CloudWatchAlarmsInThisAccount\"},{\"Action\":\"sns:Publish\",\"Condition\":{\"Bool\":{\"aws:SecureTransport\":\"false\"}},\"Effect\":\"Deny\",\"Principal\":\"*\",\"Resource\":\"arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts\",\"Sid\":\"DenyInsecureTransport\"}],\"Version\":\"2012-10-17\"}",
+          "region": "iNW6"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.observability",
+      "name": "alerts",
+      "type": "aws_sns_topic_policy"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_cloudwatch_log_group.exports[\"postgresql\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "edehvl3K5w",
+          "deletion_protection_enabled": false,
+          "id": "AhCXs",
+          "kms_key_id": null,
+          "log_group_class": "EPJcua",
+          "name": "/aws/rds/instance/sample-portable-awsdev-db/postgresql",
+          "name_prefix": "cxAAyBvfPreN",
+          "region": "o4IW0cCnW",
+          "retention_in_days": 30,
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "postgresql",
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "exports",
+      "type": "aws_cloudwatch_log_group"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_cloudwatch_log_group.exports[\"upgrade\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "edehvl3K5w",
+          "deletion_protection_enabled": false,
+          "id": "AhCXs",
+          "kms_key_id": null,
+          "log_group_class": "EPJcua",
+          "name": "/aws/rds/instance/sample-portable-awsdev-db/upgrade",
+          "name_prefix": "cxAAyBvfPreN",
+          "region": "o4IW0cCnW",
+          "retention_in_days": 30,
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": "upgrade",
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "exports",
+      "type": "aws_cloudwatch_log_group"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_cloudwatch_metric_alarm.cpu_high[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Database CPU above 80% for 15 minutes.",
+          "alarm_name": "sample-portable-awsdev-db-cpu-high",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "GreaterThanThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "DBInstanceIdentifier": "sample-portable-awsdev-db"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 3,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "CPUUtilization",
+          "metric_query": [],
+          "namespace": "AWS/RDS",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Average",
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 80,
+          "threshold_metric_id": null,
+          "treat_missing_data": "missing",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "cpu_high",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_cloudwatch_metric_alarm.free_storage_low[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "actions_enabled": null,
+          "alarm_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "alarm_description": "Free storage below 10% of the initial allocation (20 GiB).",
+          "alarm_name": "sample-portable-awsdev-db-free-storage-low",
+          "arn": "4v8aqy8ZV",
+          "comparison_operator": "LessThanThreshold",
+          "datapoints_to_alarm": null,
+          "dimensions": {
+            "DBInstanceIdentifier": "sample-portable-awsdev-db"
+          },
+          "evaluate_low_sample_count_percentiles": "ftpmcCTESL",
+          "evaluation_criteria": [],
+          "evaluation_interval": null,
+          "evaluation_periods": 1,
+          "evaluation_window": [],
+          "extended_statistic": null,
+          "id": "rww11J47ygB",
+          "insufficient_data_actions": null,
+          "metric_name": "FreeStorageSpace",
+          "metric_query": [],
+          "namespace": "AWS/RDS",
+          "ok_actions": [
+            "arn:aws:sns:eu-north-1:123456789012:sample-portable-awsdev-hermes-alerts"
+          ],
+          "period": 300,
+          "region": "4M6nOqZL",
+          "statistic": "Minimum",
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "threshold": 2147483648,
+          "threshold_metric_id": null,
+          "treat_missing_data": "missing",
+          "unit": null,
+          "warm_up_configuration": []
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "free_storage_low",
+      "type": "aws_cloudwatch_metric_alarm"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_db_instance.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "address": "mock-db.abcdefghijkl.eu-north-1.rds.amazonaws.com",
+          "allocated_storage": 20,
+          "allow_major_version_upgrade": true,
+          "apply_immediately": true,
+          "arn": "3lzr",
+          "auto_minor_version_upgrade": true,
+          "availability_zone": "9ByYFvzKtnHLJ9P",
+          "backup_retention_period": 7,
+          "backup_target": "cGdeBaGxvdtf",
+          "backup_window": "c4nKPmeUssU4ks2",
+          "blue_green_update": [],
+          "ca_cert_identifier": "Bw2ohH75omuFzu2",
+          "character_set_name": "YBAmDpP0",
+          "copy_tags_to_snapshot": true,
+          "custom_iam_instance_profile": null,
+          "customer_owned_ip_enabled": null,
+          "database_insights_mode": "fkQkjBj4304WfA",
+          "db_name": "app",
+          "db_subnet_group_name": "sample-portable-awsdev-db",
+          "dedicated_log_volume": null,
+          "delete_automated_backups": true,
+          "deletion_protection": false,
+          "domain": null,
+          "domain_auth_secret_arn": null,
+          "domain_dns_ips": null,
+          "domain_fqdn": "JjP7fVT6a",
+          "domain_iam_role_name": null,
+          "domain_ou": null,
+          "enabled_cloudwatch_logs_exports": [
+            "postgresql",
+            "upgrade"
+          ],
+          "endpoint": "l1OCwpBB3wrl6F",
+          "engine": "postgres",
+          "engine_lifecycle_support": "vyqzDrLXQC",
+          "engine_version": "16",
+          "engine_version_actual": "imrY",
+          "final_snapshot_identifier": null,
+          "hosted_zone_id": "wwv3uppbMppNwN",
+          "iam_database_authentication_enabled": true,
+          "id": "5gRF",
+          "identifier": "sample-portable-awsdev-db",
+          "identifier_prefix": "ucJa",
+          "instance_class": "db.t4g.small",
+          "iops": 0,
+          "kms_key_id": "U7UpQ",
+          "latest_restorable_time": "g2jpb",
+          "license_model": "65Ri0vtUB",
+          "listener_endpoint": [],
+          "maintenance_window": "5qkWbn",
+          "manage_master_user_password": true,
+          "master_user_secret": [
+            {
+              "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/00000000-0000-4000-8000-000000000000",
+              "secret_arn": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-00000000-0000-4000-8000-000000000000-AbCdEf",
+              "secret_status": "active"
+            }
+          ],
+          "master_user_secret_kms_key_id": "KCiKqAdhJDX",
+          "max_allocated_storage": 100,
+          "monitoring_interval": 60,
+          "monitoring_role_arn": "arn:aws:iam::123456789012:role/sample-portable-awsdev-rds-monitoring",
+          "multi_az": false,
+          "multi_tenant": false,
+          "nchar_character_set_name": "nohKN",
+          "network_type": "xGVR39tPLEbrgX",
+          "option_group_name": "KL5pAGYeFrOa7Mb",
+          "parameter_group_name": "sample-portable-awsdev-db-pg16",
+          "password": null,
+          "password_wo": null,
+          "password_wo_version": null,
+          "performance_insights_enabled": true,
+          "performance_insights_kms_key_id": "bxQ2mKqJq",
+          "performance_insights_retention_period": 7,
+          "port": 5432,
+          "publicly_accessible": false,
+          "region": "nFfmYw",
+          "replica_mode": "8CeScH9mc",
+          "replicas": [],
+          "replicate_source_db": null,
+          "resource_id": "db-ABCDEFGHIJKLMNOPQRSTUVWXY",
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "skip_final_snapshot": true,
+          "snapshot_identifier": "gXpnAb4J9",
+          "status": "XbYitNTWvWko",
+          "storage_encrypted": true,
+          "storage_throughput": 0,
+          "storage_type": "gp3",
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "timezone": "rKAcX7eY97kkClC",
+          "upgrade_rollout_order": "yvtzWqt4Ev",
+          "upgrade_storage_config": null,
+          "username": "hermes_admin",
+          "vpc_security_group_ids": [
+            "HJTg"
+          ],
+          "warning_event_categories": null
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "aws_db_instance"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_db_parameter_group.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "jTnEKZxjolcCUA",
+          "description": "Hermes parameters for sample-portable-awsdev-db (TLS enforced)",
+          "family": "postgres16",
+          "id": "aFPmphWcLx7",
+          "name": "sample-portable-awsdev-db-pg16",
+          "name_prefix": "Gumge",
+          "parameter": [
+            {
+              "apply_method": "pending-reboot",
+              "name": "rds.force_ssl",
+              "value": "1"
+            }
+          ],
+          "region": "DkY9RSYm",
+          "skip_destroy": null,
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          }
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "aws_db_parameter_group"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_db_subnet_group.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "i51G1aKHoHvFSGE",
+          "description": "Private subnets for sample-portable-awsdev-db",
+          "id": "tkSIQmvW",
+          "name": "sample-portable-awsdev-db",
+          "name_prefix": "rD4cQNYSJk0",
+          "region": "F93Dlc",
+          "subnet_ids": [
+            "GcX0E6TRLUkLq1j"
+          ],
+          "supported_network_types": [],
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "vpc_id": "AYxAGMwZyiZyX"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "aws_db_subnet_group"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_iam_role.monitoring[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "zBCL1RRid0rp0Gq",
+          "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Condition\":{\"StringEquals\":{\"aws:SourceAccount\":\"123456789012\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"monitoring.rds.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "create_date": "MD610hxEDrXKow",
+          "description": null,
+          "force_detach_policies": null,
+          "id": "MQDM",
+          "inline_policy": [],
+          "managed_policy_arns": [],
+          "max_session_duration": null,
+          "name": "sample-portable-awsdev-rds-monitoring",
+          "name_prefix": "xf7ioXyMj",
+          "path": null,
+          "permissions_boundary": null,
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "unique_id": "MpRkKlffLAjzvu"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "monitoring",
+      "type": "aws_iam_role"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_iam_role_policy_attachment.monitoring[0]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "id": "THipllTx5U9G",
+          "policy_arn": "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole",
+          "role": "sample-portable-awsdev-rds-monitoring"
+        },
+        "after_unknown": {}
+      },
+      "index": 0,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "monitoring",
+      "type": "aws_iam_role_policy_attachment"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_security_group.this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "UuxOvk",
+          "description": "PostgreSQL sample-portable-awsdev-db: 5432 only from services with database access",
+          "egress": [],
+          "id": "HJTg",
+          "ingress": [],
+          "name": "sample-portable-awsdev-db",
+          "name_prefix": "HdNvRrVsMW",
+          "owner_id": "O6prSzyl9FG9gSH",
+          "region": "FH5Ip",
+          "revoke_rules_on_delete": null,
+          "tags": {
+            "Name": "sample-portable-awsdev-db",
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "Name": "sample-portable-awsdev-db",
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "timeouts": null,
+          "vpc_id": "ryyXLP0q"
+        },
+        "after_unknown": {}
+      },
+      "index": null,
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "this",
+      "type": "aws_security_group"
+    },
+    {
+      "address": "module.platform.module.postgres[0].aws_vpc_security_group_ingress_rule.from_service[\"api\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "VqZaQKYXn",
+          "cidr_ipv4": null,
+          "cidr_ipv6": null,
+          "description": "PostgreSQL from service api",
+          "from_port": 5432,
+          "id": "EMWQo",
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": "HJTg",
+          "region": "IS4V7vT9",
+          "security_group_id": "HJTg",
+          "security_group_rule_id": "NkPIGu6LsyxWf",
+          "tags": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "database",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "to_port": 5432
+        },
+        "after_unknown": {}
+      },
+      "index": "api",
+      "mode": "managed",
+      "module_address": "module.platform.module.postgres[0]",
+      "name": "from_service",
+      "type": "aws_vpc_security_group_ingress_rule"
+    },
+    {
+      "address": "module.platform.module.secrets.aws_secretsmanager_secret.this[\"signing-key\"]",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "arn": "GR6KIaPB00o2eFc",
+          "description": "Hermes secret \"signing-key\". The value is set out-of-band; Hermes never manages it.",
+          "force_overwrite_replica_secret": null,
+          "id": "QPkeaW",
+          "kms_key_id": null,
+          "name": "sample-portable-awsdev-signing-key",
+          "name_prefix": "TAaqKuoudEfZwxa",
+          "policy": "hk60QZxx",
+          "recovery_window_in_days": 7,
+          "region": "fPqTvdOVK6",
+          "replica": [],
+          "tags": {
+            "hermes-component": "secrets",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "tags_all": {
+            "hermes-component": "secrets",
+            "hermes-environment": "awsdev",
+            "hermes-managed-by": "hermes",
+            "hermes-project": "sample-portable"
+          },
+          "type": null
+        },
+        "after_unknown": {}
+      },
+      "index": "signing-key",
+      "mode": "managed",
+      "module_address": "module.platform.module.secrets",
+      "name": "this",
+      "type": "aws_secretsmanager_secret"
+    }
+  ]
+}
