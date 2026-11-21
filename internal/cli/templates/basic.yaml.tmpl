@@ -1,0 +1,32 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+project:
+  name: {{.Name}}
+  environment: dev
+
+cloud:
+  provider: {{.Provider}}
+  region: {{.Region}}
+{{- if .Account}}
+  account: "{{.Account}}"
+{{- else}}
+  # account: ""                      # {{.AccountHint}}; required for protected environments
+{{- end}}
+
+state:
+  bucket: {{.Bucket}}   # create it with `hermes state bootstrap`
+
+workloads:
+  compute:
+    services:
+      - name: web
+        image: ghcr.io/example/web:1.0.0   # REPLACE-ME: your image, pinned tag or @sha256 digest
+        public: true
+  observability:
+    enabled: true
+
+environments:
+  dev: {}
+  production: {}
+{{.Extensions}}

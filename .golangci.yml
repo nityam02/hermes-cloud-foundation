@@ -1,0 +1,40 @@
+# golangci-lint v2 configuration.
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - bodyclose
+    - errorlint
+    - gosec
+    - misspell
+    - nolintlint
+    - unconvert
+  settings:
+    gosec:
+      excludes:
+        # Hermes deliberately executes the engine binary (tofu/terraform), conftest and user-declared
+        # migration hooks given as argv lists (never through a shell); see internal/execution and
+        # internal/migration. Each call site validates its inputs.
+        - G204
+        # Reading files named by the user (specs, inventories, plans) is the CLI's purpose.
+        - G304
+  exclusions:
+    rules:
+      # Tests write fixtures inside t.TempDir(); permission and taint findings there are not actionable.
+      - path: _test\.go
+        linters: [gosec]
+    presets:
+      - std-error-handling # unchecked fmt.Fprint*/Close on writers to stdout/stderr
+      - common-false-positives
+    paths:
+      - .hermes
+      - examples/migration/aws-discovery-demo/.venv
+
+formatters:
+  enable:
+    - gofmt

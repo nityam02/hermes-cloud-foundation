@@ -1,0 +1,313 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nityam02/hermes-cloud-foundation/schemas/platform/v1alpha1.schema.json",
+  "title": "Hermes Platform specification (hermes/v1alpha1)",
+  "description": "Cloud-independent platform specification (hermes.yaml). Source of truth: docs/architecture/data-contracts.md section 1. Semantic rules that JSON Schema cannot express (cross-references, protected environments, provider-specific checks) are enforced by the hermes CLI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "cloud"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1", "description": "Optional; defaults to hermes/v1alpha1 with a warning."},
+    "kind": {"const": "Platform", "description": "Optional; defaults to Platform."},
+    "project": {"allOf": [{"$ref": "#/$defs/project"}, {"required": ["name"]}]},
+    "cloud": {"allOf": [{"$ref": "#/$defs/cloud"}, {"required": ["provider", "region"]}]},
+    "engine": {"$ref": "#/$defs/engine"},
+    "state": {"$ref": "#/$defs/state"},
+    "network": {"$ref": "#/$defs/network"},
+    "security": {"$ref": "#/$defs/security"},
+    "workloads": {"$ref": "#/$defs/workloads"},
+    "environments": {
+      "type": "object",
+      "description": "Per-environment overlays, deep-merged onto the base (maps merge, lists replace).",
+      "propertyNames": {"$ref": "#/$defs/environmentName"},
+      "additionalProperties": {"$ref": "#/$defs/overlay"}
+    },
+    "extensions": {"$ref": "#/$defs/extensions"}
+  },
+  "$defs": {
+    "environmentName": {"type": "string", "pattern": "^[a-z][a-z0-9]{1,11}$"},
+    "resourceName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,18}[a-z0-9]$",
+      "description": "Service, bucket, topic and subscription names: 2-20 chars, lowercase letters, digits, hyphens."
+    },
+    "secretName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,38}[a-z0-9]$",
+      "description": "Secret container name: 2-40 chars, lowercase letters, digits, hyphens."
+    },
+    "envVarName": {"type": "string", "pattern": "^[A-Z_][A-Z0-9_]*$"},
+    "labels": {
+      "type": "object",
+      "propertyNames": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$"},
+      "additionalProperties": {"type": "string", "pattern": "^[a-z0-9_-]{0,63}$"}
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,28}[a-z0-9]$"},
+        "environment": {"$ref": "#/$defs/environmentName"},
+        "owner": {"type": "string", "maxLength": 128},
+        "labels": {"$ref": "#/$defs/labels"},
+        "protected_environments": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/environmentName"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "overlayProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Overlays may change owner and labels only: name, environment and protected_environments are fixed by the base spec.",
+      "properties": {
+        "owner": {"type": "string", "maxLength": 128},
+        "labels": {"$ref": "#/$defs/labels"}
+      }
+    },
+    "cloud": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {"enum": ["aws", "gcp", "alibaba"]},
+        "region": {"type": "string", "pattern": "^[a-z][a-z0-9-]{2,31}$"},
+        "account": {"type": "string", "pattern": "^$|^[A-Za-z0-9][A-Za-z0-9-]{0,62}$"}
+      }
+    },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "binary": {"enum": ["auto", "tofu", "terraform"]}
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {"enum": ["auto", "s3", "gcs", "oss", "local"]},
+        "bucket": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"},
+        "prefix": {"type": "string", "pattern": "^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*$", "maxLength": 128},
+        "region": {"type": "string", "pattern": "^[a-z][a-z0-9-]{2,31}$"},
+        "lock_table": {"type": "string", "pattern": "^$|^[A-Za-z0-9_.-]{3,255}$"},
+        "encryption": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "client_side": {"type": "boolean"},
+            "kms_key": {"type": "string", "maxLength": 512}
+          }
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cidr": {
+          "type": "string",
+          "pattern": "^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}/([0-9]|[12][0-9]|3[0-2])$"
+        },
+        "zones": {"enum": [2, 3]},
+        "nat": {"type": "boolean"}
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer_managed_keys": {"type": ["boolean", "null"]}
+      }
+    },
+    "workloads": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "compute": {"$ref": "#/$defs/compute"},
+        "database": {"$ref": "#/$defs/database"},
+        "storage": {"$ref": "#/$defs/storage"},
+        "messaging": {"$ref": "#/$defs/messaging"},
+        "secrets": {"$ref": "#/$defs/secrets"},
+        "observability": {"$ref": "#/$defs/observability"},
+        "dns": {"$ref": "#/$defs/dns"}
+      }
+    },
+    "compute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {"enum": ["containerized", "kubernetes", "none"], "description": "kubernetes is reserved in v1alpha1 (rejected: not implemented)."},
+        "services": {"type": "array", "items": {"$ref": "#/$defs/service"}}
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "image"],
+      "properties": {
+        "name": {"$ref": "#/$defs/resourceName"},
+        "image": {"type": "string", "minLength": 1, "maxLength": 512, "pattern": "^[^\\s]+$"},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "cpu": {"enum": [0.25, 0.5, 1, 2, 4]},
+        "memory_mb": {"type": "integer", "minimum": 512, "maximum": 16384},
+        "min_instances": {"type": "integer", "minimum": 0, "maximum": 100},
+        "max_instances": {"type": "integer", "minimum": 1, "maximum": 100},
+        "public": {"type": "boolean"},
+        "health_check_path": {"type": "string", "pattern": "^/[^\\s]*$", "maxLength": 256},
+        "command": {"type": "array", "items": {"type": "string"}},
+        "env": {
+          "type": "object",
+          "propertyNames": {"$ref": "#/$defs/envVarName"},
+          "additionalProperties": {"type": "string"}
+        },
+        "secret_env": {
+          "type": "object",
+          "propertyNames": {"$ref": "#/$defs/envVarName"},
+          "additionalProperties": {"$ref": "#/$defs/secretName"}
+        },
+        "access": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "buckets": {
+              "type": "object",
+              "propertyNames": {"$ref": "#/$defs/resourceName"},
+              "additionalProperties": {"enum": ["read", "read-write"]}
+            },
+            "publish": {"type": "array", "items": {"$ref": "#/$defs/resourceName"}, "uniqueItems": true},
+            "consume": {"type": "array", "items": {"$ref": "#/$defs/resourceName"}, "uniqueItems": true},
+            "database": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "engine": {"enum": ["postgresql", "mysql"], "description": "mysql is reserved in v1alpha1 (rejected: not implemented)."},
+        "version": {"type": "string", "pattern": "^[0-9]{1,2}$"},
+        "size": {"enum": ["small", "medium", "large", "xlarge"]},
+        "storage_gb": {"type": "integer", "minimum": 10, "maximum": 65536},
+        "max_storage_gb": {"type": "integer", "minimum": 10, "maximum": 65536},
+        "high_availability": {"type": "boolean"},
+        "backup_retention_days": {"type": "integer", "minimum": 1, "maximum": 35},
+        "point_in_time_recovery": {"type": "boolean"},
+        "deletion_protection": {"type": ["boolean", "null"]},
+        "extensions": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": {"$ref": "#/$defs/resourceName"},
+              "versioning": {"type": "boolean"},
+              "retention_days": {"type": "integer", "minimum": 0, "maximum": 36500}
+            }
+          }
+        }
+      }
+    },
+    "messaging": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": {"$ref": "#/$defs/resourceName"},
+              "retention_hours": {"type": "integer", "minimum": 1, "maximum": 168},
+              "subscriptions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name"],
+                  "properties": {
+                    "name": {"$ref": "#/$defs/resourceName"},
+                    "ack_deadline_seconds": {"type": "integer", "minimum": 10, "maximum": 600},
+                    "max_delivery_attempts": {
+                      "type": "integer",
+                      "anyOf": [{"const": 0}, {"minimum": 5, "maximum": 100}],
+                      "description": "0 = no dead-letter; otherwise 5-100 (Pub/Sub bounds)."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "names": {"type": "array", "items": {"$ref": "#/$defs/secretName"}, "uniqueItems": true}
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "log_retention_days": {"type": "integer", "minimum": 1, "maximum": 3650},
+        "metrics": {"type": "boolean"},
+        "tracing": {"type": "boolean"},
+        "alert_email": {"type": "string", "pattern": "^$|^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", "maxLength": 254}
+      }
+    },
+    "dns": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean", "description": "Reserved in v1alpha1: true is rejected (not implemented)."}
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Provider-specific escape hatches; each object is read only by that provider adapter, which validates its keys.",
+      "properties": {
+        "aws": {"type": "object"},
+        "gcp": {"type": "object"},
+        "alibaba": {"type": "object"}
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "project": {"$ref": "#/$defs/overlayProject"},
+        "cloud": {"$ref": "#/$defs/cloud"},
+        "engine": {"$ref": "#/$defs/engine"},
+        "state": {"$ref": "#/$defs/state"},
+        "network": {"$ref": "#/$defs/network"},
+        "security": {"$ref": "#/$defs/security"},
+        "workloads": {"$ref": "#/$defs/workloads"},
+        "extensions": {"$ref": "#/$defs/extensions"}
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+# One spec, three clouds. Each environment overrides cloud.provider/region and the state
+# bucket, so every cloud gets its own isolated state:
+#   <prefix>/<project>/<environment>/<provider>/terraform.tfstate (GCS: <...>/<provider>/default.tfstate)
+project:
+  name: sample-portable
+  environment: awsdev
+
+cloud:
+  provider: aws
+  region: eu-north-1
+  account: "123456789012"
+
+state:
+  bucket: example-hermes-state-aws
+
+workloads:
+  compute:
+    services:
+      - name: api
+        image: ghcr.io/example/portable-api:3.1.0
+        cpu: 1                       # a size every provider supports exactly
+        memory_mb: 2048
+        min_instances: 1
+        max_instances: 3
+        public: true
+        secret_env: {SIGNING_KEY: signing-key}
+        access:
+          buckets: {assets: read-write}
+          publish: [events]
+          database: true
+      - name: consumer
+        image: ghcr.io/example/portable-consumer:3.1.0
+        cpu: 1
+        memory_mb: 2048
+        min_instances: 1
+        max_instances: 2
+        access:
+          consume: [events-default]
+  database: {size: small}
+  storage:
+    buckets: [{name: assets}]
+  messaging: {enabled: true}         # default topic "events" with subscription "events-default"
+  secrets:
+    names: [signing-key]
+
+environments:
+  awsdev: {}
+  gcpdev:
+    cloud: {provider: gcp, region: europe-north1, account: example-project-1234}
+    state: {bucket: example-hermes-state-gcp}
+  alidev:
+    cloud: {provider: alibaba, region: eu-central-1, account: "5000000000000001"}
+    state: {bucket: example-hermes-state-ali}
+
+extensions:
+  alibaba:
+    kms_instance_id: kst-example-placeholder   # KMS 3.0 instance; Alibaba secrets live inside it
+    state_tablestore_endpoint: https://example-hermes-lock.eu-central-1.ots.aliyuncs.com
+    state_tablestore_table: hermes_state_lock

@@ -1,0 +1,48 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+project:
+  name: sample-geo
+  environment: dev
+  owner: data-team
+
+cloud:
+  provider: alibaba
+  region: eu-central-1
+
+state:
+  bucket: example-hermes-state-geo
+
+workloads:
+  compute:
+    services:
+      - name: geo-api
+        image: ghcr.io/example/geo-api:2.0.1
+        cpu: 1
+        memory_mb: 2048
+        min_instances: 1
+        max_instances: 3
+        access: {database: true}
+  database:
+    engine: postgresql
+    version: "16"
+    size: small
+    storage_gb: 50
+    max_storage_gb: 200
+    backup_retention_days: 14
+    point_in_time_recovery: true
+    extensions: [postgis, pg_trgm]
+  observability:
+    log_retention_days: 30
+
+environments:
+  dev: {}
+  production:
+    workloads:
+      database: {size: medium, high_availability: true, backup_retention_days: 35}
+
+extensions:
+  alibaba:
+    # Printed by `hermes state bootstrap`; enables OSS backend state locking. Placeholders.
+    state_tablestore_endpoint: https://example-hermes-lock.eu-central-1.ots.aliyuncs.com
+    state_tablestore_table: hermes_state_lock

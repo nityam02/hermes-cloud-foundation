@@ -1,0 +1,51 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+project:
+  name: {{.Name}}
+  environment: dev
+
+cloud:
+  provider: {{.Provider}}
+  region: {{.Region}}
+{{- if .Account}}
+  account: "{{.Account}}"
+{{- else}}
+  # account: ""                      # {{.AccountHint}}; required for protected environments
+{{- end}}
+
+state:
+  bucket: {{.Bucket}}   # create it with `hermes state bootstrap`
+
+workloads:
+  compute:
+    services:
+      - name: api
+        image: ghcr.io/example/api:1.0.0      # REPLACE-ME
+        cpu: 1
+        memory_mb: 2048
+        public: true
+        env: {LOG_LEVEL: info}
+        secret_env: {API_TOKEN: api-token}
+        access: {buckets: {uploads: read-write}, publish: [jobs]}
+      - name: worker
+        image: ghcr.io/example/worker:1.0.0   # REPLACE-ME
+        cpu: 1
+        memory_mb: 2048
+        access: {buckets: {uploads: read}, consume: [jobs-worker]}
+  storage:
+    buckets: [{name: uploads, retention_days: 90}]
+  messaging:
+    topics:
+      - name: jobs
+        subscriptions: [{name: jobs-worker, max_delivery_attempts: 5}]
+  secrets:
+    names: [api-token]
+  observability: {log_retention_days: 30, tracing: true}
+
+environments:
+  dev: {}
+  production:
+    workloads:
+      observability: {log_retention_days: 90}
+{{.Extensions}}

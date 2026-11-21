@@ -1,0 +1,68 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+project:
+  name: sample-shop
+  environment: dev
+  owner: platform-team
+  labels: {cost-center: demo}
+
+cloud:
+  provider: aws
+  region: eu-north-1
+  account: "123456789012"            # placeholder account ID
+
+state:
+  bucket: example-hermes-state       # create with `hermes state bootstrap`
+
+workloads:
+  compute:
+    type: containerized
+    services:
+      - name: api
+        image: ghcr.io/example/shop-api:1.4.2
+        port: 8080
+        cpu: 0.5
+        memory_mb: 1024
+        min_instances: 1
+        max_instances: 4
+        public: true
+        env: {LOG_LEVEL: info}
+        secret_env: {PAYMENT_API_KEY: payment-api-key}
+        access:
+          buckets: {uploads: read-write}
+          publish: [orders]
+      - name: worker
+        image: ghcr.io/example/shop-worker:1.4.2
+        cpu: 0.25
+        memory_mb: 512
+        min_instances: 1
+        max_instances: 2
+        access:
+          buckets: {uploads: read}
+          consume: [orders-fulfilment]
+  storage:
+    buckets:
+      - {name: uploads, versioning: true, retention_days: 90}
+  messaging:
+    topics:
+      - name: orders
+        retention_hours: 72
+        subscriptions:
+          - {name: orders-fulfilment, ack_deadline_seconds: 60, max_delivery_attempts: 5}
+  secrets:
+    names: [payment-api-key]
+  observability:
+    log_retention_days: 14
+    tracing: true
+
+environments:
+  dev: {}
+  production:
+    workloads:
+      observability: {log_retention_days: 90, alert_email: oncall@example.com}
+
+extensions:
+  aws:
+    # Required for public services in protected environments (HTTPS). Placeholder ARN.
+    acm_certificate_arn: arn:aws:acm:eu-north-1:123456789012:certificate/00000000-0000-0000-0000-000000000000

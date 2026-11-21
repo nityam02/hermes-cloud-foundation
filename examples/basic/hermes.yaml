@@ -1,0 +1,9 @@
+project: {name: sample-logistics-platform, environment: production}
+cloud: {provider: gcp, region: europe-north1}
+workloads:
+  compute: {type: containerized}
+  database: {engine: postgresql, high_availability: true}
+  storage: {enabled: true}
+  messaging: {enabled: true}
+  secrets: {enabled: true}
+  observability: {enabled: true}

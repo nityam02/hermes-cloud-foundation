@@ -1,0 +1,41 @@
+apiVersion: hermes/v1alpha1
+kind: Platform
+
+project:
+  name: {{.Name}}
+  environment: dev
+
+cloud:
+  provider: {{.Provider}}
+  region: {{.Region}}
+{{- if .Account}}
+  account: "{{.Account}}"
+{{- else}}
+  # account: ""                      # {{.AccountHint}}; required for protected environments
+{{- end}}
+
+state:
+  bucket: {{.Bucket}}   # create it with `hermes state bootstrap`
+
+workloads:
+  compute:
+    services:
+      - name: app
+        image: ghcr.io/example/app:1.0.0      # REPLACE-ME
+        cpu: 1
+        memory_mb: 2048
+        access: {database: true}
+  database:
+    engine: postgresql
+    version: "16"
+    size: small
+    storage_gb: 20
+    point_in_time_recovery: true
+    extensions: [postgis]              # run CREATE EXTENSION postgis; after provisioning
+
+environments:
+  dev: {}
+  production:
+    workloads:
+      database: {high_availability: true, size: medium, backup_retention_days: 35}
+{{.Extensions}}
