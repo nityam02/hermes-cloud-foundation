@@ -1,0 +1,50 @@
+# Hermes working directory (rendered roots, saved plans, history, migration state)
+.hermes/
+bin/
+dist/
+coverage.out
+coverage.html
+
+# OpenTofu / Terraform
+**/.terraform/*
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfstate.lock.info
+.terraformrc
+terraform.rc
+
+# Credentials must never be committed
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+!.env.example
+credentials.json
+*-credentials.json
+*.credentials
+.aws/
+.config/gcloud/
+
+# Private, non-publishable research (never commit)
+.private-research/
+research-private/
+
+# Local tooling
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+*.swp
