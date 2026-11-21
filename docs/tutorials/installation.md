@@ -8,7 +8,7 @@ and apply, and it optionally uses scanners and cost tools. Nothing here needs cl
 
 | Tool | Minimum | Tested with | Why this minimum |
 |---|---|---|---|
-| Go | 1.24 (`go.mod`) | 1.27.4 | Builds the CLI |
+| Go | 1.26 (`go.mod`) | 1.27.4 | Builds the CLI |
 | OpenTofu (default engine) | 1.10 | 1.13.9 | S3 native state locking (`use_lockfile`) needs 1.10. `hermes doctor` warns below 1.12, the oldest line still receiving security fixes ([research §10 C1](../research/open-source-landscape.md#10-where-the-evidence-contradicts-or-strains-the-current-architecture)) |
 | **or** Terraform | 1.11 | 1.15.6 | `use_lockfile` is GA from 1.11. Client-side state encryption is OpenTofu-only |
 

@@ -55,7 +55,7 @@ Layers:
 
 ## Conventions
 
-- Go ≥ 1.24, module `github.com/nityam02/hermes-cloud-foundation`. CLI framework: cobra.
+- Go ≥ 1.26, module `github.com/nityam02/hermes-cloud-foundation`. CLI framework: cobra.
   Standard library first; dependencies must be justified. `gofmt`, `go vet`, `golangci-lint`.
 - Errors: wrap with context (`fmt.Errorf("render: %w", err)`); user-facing diagnostics carry a
   code (`HCF1xx` config, `HCF2xx` provider, `HCF3xx` execution, `HCF4xx` migration, `HCF5xx` safety).
