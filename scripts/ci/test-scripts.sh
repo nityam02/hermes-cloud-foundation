@@ -136,5 +136,31 @@ absent "--only excludes others" "$out" "gitleaks-dir"
 
 out="$(PATH="$base_path" bash "$scan_script" --bogus 2>&1)"; check "unknown argument -> exit 2" 2 $?
 
+# ---------------------------------------------------------------- install-tools.sh
+# Regression test: the installer once defined a shell function named `install`, which shadowed the
+# install(1) command and recursed into itself ("curl: Protocol http not supported"). It runs only on
+# Linux x86_64, so uname, curl and sha256sum are stubbed here; tar and install are the real tools.
+inst="$here/scripts/ci/install-tools.sh"
+shims="$tmp/install-shims"
+fixture="$tmp/install-fixture"
+mkdir -p "$shims" "$fixture/src"
+printf '#!/bin/sh\necho "fake tool 1.0"\n' >"$fixture/src/conftest"
+chmod +x "$fixture/src/conftest"
+tar -czf "$fixture/conftest.tgz" -C "$fixture/src" conftest
+printf '#!/bin/sh\ncase "$1" in -s) echo Linux ;; -m) echo x86_64 ;; *) echo Linux ;; esac\n' >"$shims/uname"
+# curl stub: record the URL, then copy the fixture archive to the -o target.
+printf '#!/bin/sh\nout=""; url=""\nwhile [ $# -gt 0 ]; do case "$1" in -o) out="$2"; shift ;; http*) url="$1" ;; esac; shift; done\necho "$url" >>"%s/urls"\ncp "%s/conftest.tgz" "$out"\n' "$fixture" "$fixture" >"$shims/curl"
+printf '#!/bin/sh\ncat >/dev/null\nexit 0\n' >"$shims/sha256sum"
+chmod +x "$shims/uname" "$shims/curl" "$shims/sha256sum"
+
+out="$(PATH="$shims:$PATH" bash "$inst" "$tmp/install-dest" conftest 2>&1)"; rc=$?
+check "install-tools installs a pinned tool (stubbed network)" 0 "$rc"
+contains "install-tools downloads over https from the release" "$(cat "$fixture/urls" 2>/dev/null)" "https://github.com/open-policy-agent/conftest/releases/download/"
+check "installed binary is executable" 0 "$([ -x "$tmp/install-dest/conftest" ] && echo 0 || echo 1)"
+absent "install-tools never recurses into itself" "$out" "Protocol"
+
+out="$(PATH="$shims:$PATH" bash "$inst" "$tmp/install-dest" nosuchtool 2>&1)"; rc=$?
+check "install-tools rejects unknown tools" 2 "$rc"
+
 echo "test-scripts: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
