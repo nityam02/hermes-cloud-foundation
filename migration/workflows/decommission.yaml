@@ -1,0 +1,149 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: decommission
+  title: "Staged, approved decommissioning of the source"
+  applies_to: [other]
+spec:
+  steps:
+    - id: confirm-preconditions
+      phase: decommission
+      title: "Confirm preconditions"
+      description: >-
+        Rollback window closed and signed off, no residual traffic or connections, no active
+        replication/transfer jobs, and the dependency graph shows no remaining consumers.
+        Decommissioning is never automatic.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "Undiscovered consumers (inventory gaps) break when resources disappear"
+      validation:
+        - "Usage metrics near zero for every resource in the batch for the observation period"
+      source_impact: none
+
+    - id: retention-review
+      phase: decommission
+      title: "Review retention obligations"
+      description: >-
+        Identify backups, snapshots, audit trails (CloudTrail), logs and Object Lock data that must
+        be retained. Recovery points in AWS Backup do not migrate; keep them in AWS until their
+        retention ends, or export them to the target where possible.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "Deleting audit or backup data that is legally required"
+      validation:
+        - "Retention decision recorded per data set"
+      source_impact: none
+
+    - id: final-exports
+      phase: decommission
+      title: "Take final snapshots and exports"
+      description: "Final database snapshots, configuration exports and archive copies; verify restorability."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "Restore test of each final snapshot passed"
+      source_impact: modifies-source-config
+
+    - id: remove-migration-artefacts
+      phase: decommission
+      title: "Remove migration artefacts"
+      description: >-
+        Delete replication jobs and slots, pglogical, streams enabled for CDC, transfer roles and
+        access keys, HMAC keys, VPN connections and temporary security group rules.
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Recreate from the relevant workflow if a new migration is needed."
+      risks:
+        - "Leftover replication slots fill source disks; leftover keys are a breach risk"
+      validation:
+        - "No migration roles, keys, slots or tunnels remain"
+      source_impact: modifies-source-config
+
+    - id: scream-test
+      phase: decommission
+      title: "Stop or scale to zero before deleting"
+      description: "Stop instances and scale services to zero for an agreed period before deletion, so missed dependencies surface while recovery is still quick."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Start instances / restore desired counts."
+      risks: []
+      validation:
+        - "No incidents attributed to stopped resources during the period"
+      source_impact: modifies-source-config
+
+    - id: delete-resources
+      phase: decommission
+      title: "Delete resources through the tool that manages them"
+      description: >-
+        Delete CloudFormation stacks, run the owning OpenTofu/Terraform destroy with approval, or
+        delete unmanaged resources manually; remove deletion protection explicitly per resource.
+        Hermes never deletes source resources.
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Restore from final snapshots/exports; configuration from the inventory."
+      risks:
+        - "Stack deletion removes resources that were adopted by other stacks or used outside the migration scope"
+      validation:
+        - "Inventory re-run shows only retained resources"
+      source_impact: modifies-source-config
+
+    - id: schedule-key-deletion
+      phase: decommission
+      title: "Schedule KMS key deletion last"
+      description: >-
+        Only after every object, snapshot and backup encrypted with a key is deleted or no longer
+        required, schedule key deletion (7-30 day waiting period). Disable the key first and
+        watch for errors.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Cancel the scheduled deletion during the waiting period."
+      risks:
+        - "Retained snapshots or backups become unrecoverable once their key is deleted"
+      validation:
+        - "No KMS Decrypt calls with the key while disabled (CloudTrail)"
+      source_impact: modifies-source-config
+
+    - id: billing-verification
+      phase: monitor
+      title: "Verify billing and claim exit credits"
+      description: >-
+        Confirm residual charges are expected (retained backups, logs) for at least one full
+        billing cycle. AWS has announced free data transfer out to the internet for customers
+        moving off AWS, granted on request through AWS Support under conditions; check current
+        terms before the bulk transfer, not after.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "Exit credits typically require a request and completion within a time window"
+      validation:
+        - "Billing shows only retained-resource charges"
+      source_impact: none
+
+    - id: close-accounts
+      phase: decommission
+      title: "Close or minimize source accounts"
+      description: "Close accounts that hold nothing retained, or reduce them to retained data with strict access; remove them from consolidated billing last."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Reopen within the provider's post-closure period, if offered."
+      risks:
+        - "Account closure deletes remaining resources after the post-closure period"
+      validation:
+        - "Account status recorded"
+      source_impact: modifies-source-config

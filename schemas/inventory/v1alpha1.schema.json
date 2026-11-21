@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes.example.com/schemas/inventory/v1alpha1.schema.json",
+  "title": "Hermes Inventory (v1alpha1)",
+  "description": "Read-only discovery output (data-contracts section 3). Secret values are never present; environment variables appear as names only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "resources", "relationships", "gaps", "summary"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1"},
+    "kind": {"const": "Inventory"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "collector", "account_id", "regions", "read_only"],
+      "properties": {
+        "provider": {"enum": ["aws", "gcp", "alibaba"]},
+        "generated_at": {"type": "string"},
+        "generator": {"type": "string"},
+        "collector": {"enum": ["aws-api", "aws-config", "resource-explorer", "fixture"]},
+        "account_id": {"type": "string"},
+        "regions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "read_only": {"const": true},
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["principal_arn", "external_id_used"],
+          "properties": {
+            "principal_arn": {"type": "string"},
+            "role_arn": {"type": "string"},
+            "external_id_used": {"type": "boolean"}
+          }
+        },
+        "services": {"type": "array", "items": {"type": "string"}},
+        "redacted": {"type": "boolean"},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "resources": {"type": "array", "items": {"$ref": "#/$defs/resource"}},
+    "relationships": {"type": "array", "items": {"$ref": "#/$defs/relationship"}},
+    "gaps": {"type": "array", "items": {"$ref": "#/$defs/gap"}},
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource_count", "by_type", "gap_count"],
+      "properties": {
+        "resource_count": {"type": "integer", "minimum": 0},
+        "by_type": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "by_completeness": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "gap_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "$defs": {
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name", "region", "managed_by", "completeness"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "pattern": "^[A-Za-z0-9]+::[A-Za-z0-9]+::[A-Za-z0-9]+$"},
+        "name": {"type": "string"},
+        "region": {"type": "string"},
+        "tags": {"type": "object", "additionalProperties": {"type": "string"}},
+        "managed_by": {"enum": ["unmanaged", "terraform", "cloudformation", "unknown"]},
+        "managed_by_evidence": {"type": "string"},
+        "completeness": {"enum": ["full", "partial", "identifier-only"]},
+        "attributes": {"type": "object"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type", "evidence"],
+      "properties": {
+        "from": {"type": "string", "minLength": 1},
+        "to": {"type": "string", "minLength": 1},
+        "type": {"enum": ["in-vpc", "in-subnet", "uses-security-group", "allows-ingress-from", "routes-to", "encrypted-by", "assumes-role", "uses-secret", "publishes-to", "subscribes-to", "targets", "reads-from", "writes-to", "attached-to", "depends-on"]},
+        "evidence": {"enum": ["api", "inferred"]}
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service", "region", "operation", "reason", "message", "impact"],
+      "properties": {
+        "service": {"type": "string"},
+        "region": {"type": "string"},
+        "operation": {"type": "string"},
+        "reason": {"enum": ["access-denied", "not-enabled", "opt-in-region-disabled", "throttled", "unsupported", "error"]},
+        "message": {"type": "string"},
+        "impact": {"type": "string"},
+        "resource_id": {"type": "string"}
+      }
+    }
+  }
+}

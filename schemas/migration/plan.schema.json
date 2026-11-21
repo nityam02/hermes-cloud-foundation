@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes.example.com/schemas/migration/plan.schema.json",
+  "title": "Hermes MigrationPlan (v1alpha1)",
+  "description": "Ordered phases and steps instantiated from workflows (data-contracts section 7). plan_id is the sha256 of the canonical plan body (without plan_id and generated_at). Never contains credentials.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "summary", "phases", "coverage", "notes"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1"},
+    "kind": {"const": "MigrationPlan"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "generated_at", "generator", "source", "target", "inventory_digest", "assessment_digest", "workflows_digest"],
+      "properties": {
+        "plan_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "generated_at": {"type": "string"},
+        "generator": {"type": "string"},
+        "source": {"$ref": "#/$defs/endpoint"},
+        "target": {"$ref": "#/$defs/endpoint"},
+        "inventory_digest": {"type": "string"},
+        "assessment_digest": {"type": "string"},
+        "workflows_digest": {"type": "string"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phases", "steps", "approval_gates", "validation_gates", "source_impacting_steps", "manual_steps"],
+      "properties": {
+        "phases": {"type": "integer"}, "steps": {"type": "integer"}, "approval_gates": {"type": "integer"},
+        "validation_gates": {"type": "integer"}, "source_impacting_steps": {"type": "integer"}, "manual_steps": {"type": "integer"}
+      }
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "order", "steps"],
+        "properties": {
+          "id": {"enum": ["foundation", "prepare", "provision", "synchronize", "validate", "cutover", "monitor", "decommission"]},
+          "order": {"type": "integer", "minimum": 1},
+          "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}}
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "source_type", "kind", "name"],
+        "properties": {
+          "source_id": {"type": "string"}, "source_type": {"type": "string"},
+          "kind": {"enum": ["network", "database", "bucket", "topic", "subscription", "secret", "service", "block"]},
+          "name": {"type": "string"}
+        }
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {"provider": {"enum": ["aws", "gcp", "alibaba"]}, "account_id": {"type": "string"}, "regions": {"type": "array", "items": {"type": "string"}}, "environment": {"type": "string"}}
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "workflow", "workflow_step", "title", "description", "phase", "wave", "automation", "gate", "source_impact", "reversible", "rollback", "validation", "risks", "resource_refs", "depends_on"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "workflow": {"type": "string"},
+        "workflow_step": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "phase": {"enum": ["foundation", "prepare", "provision", "synchronize", "validate", "cutover", "monitor", "decommission"]},
+        "wave": {"type": "integer", "minimum": 0},
+        "automation": {"enum": ["manual", "hermes", "provider-tool"]},
+        "gate": {"enum": ["none", "approval", "validation"]},
+        "source_impact": {"enum": ["none", "read-only-load", "modifies-source-config", "modifies-source-data"]},
+        "reversible": {"type": "boolean"},
+        "rollback": {"type": "string"},
+        "validation": {"type": "array", "items": {"type": "string"}},
+        "risks": {"type": "array", "items": {"type": "string"}},
+        "resource_refs": {"type": "array", "items": {"type": "string"}},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "allOf": [
+        {"if": {"properties": {"source_impact": {"enum": ["modifies-source-config", "modifies-source-data"]}}}, "then": {"properties": {"gate": {"const": "approval"}}}},
+        {"if": {"properties": {"phase": {"enum": ["cutover", "decommission"]}}}, "then": {"properties": {"gate": {"const": "approval"}}}},
+        {"if": {"properties": {"phase": {"const": "decommission"}}}, "then": {"properties": {"automation": {"const": "manual"}}}}
+      ]
+    }
+  }
+}

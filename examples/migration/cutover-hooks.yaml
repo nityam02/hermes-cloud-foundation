@@ -1,0 +1,13 @@
+# CutoverHooks example for `hermes migrate cutover --hooks cutover-hooks.yaml`.
+# Hermes has no built-in action that touches DNS, databases or source resources: --execute only runs the
+# argv you declare here for a plan step id (copy ids from `hermes migrate cutover` dry-run output).
+# Steps that modify the source additionally need --approve-source-step <id>. --execute and --rollback
+# need --approve-hooks <prefix of this file's sha256, printed by the dry-run>; the scripts named below
+# are NOT hashed, so review them too. Decommission steps cannot have hooks. Each hook receives HERMES_PLAN_ID, HERMES_STEP_ID and HERMES_ACTION (run|rollback).
+apiVersion: hermes/v1alpha1
+kind: CutoverHooks
+hooks:
+  traffic-cutover.weighted-shift:
+    run: ["./hooks/set-dns-weight.sh", "target=10"]
+    rollback: ["./hooks/set-dns-weight.sh", "target=0"]
+    timeout_seconds: 300

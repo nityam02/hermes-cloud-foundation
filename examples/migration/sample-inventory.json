@@ -1,0 +1,2096 @@
+{
+  "apiVersion": "hermes/v1alpha1",
+  "kind": "Inventory",
+  "metadata": {
+    "provider": "aws",
+    "generated_at": "2026-11-18T10:00:00Z",
+    "generator": "hermes/0.1.0",
+    "collector": "fixture",
+    "account_id": "123456789012",
+    "regions": [
+      "eu-north-1"
+    ],
+    "read_only": true,
+    "identity": {
+      "principal_arn": "arn:aws:sts::123456789012:assumed-role/HermesDiscoveryReadOnly/hermes-discovery",
+      "role_arn": "arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly",
+      "external_id_used": true
+    },
+    "notes": [
+      "Hand-built sample of a manually created (no Terraform, no CloudFormation) AWS environment; all identifiers are fictitious.",
+      "AWS::IoT::* and AWS::Timestream::Database were collected with the Cloud Control fallback (--cloudcontrol-types)."
+    ]
+  },
+  "resources": [
+    {
+      "id": "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+      "type": "AWS::CertificateManager::Certificate",
+      "name": "example.com",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "domain_name": "example.com",
+        "type": "AMAZON_ISSUED",
+        "status": "ISSUED",
+        "key_algorithm": "RSA_2048",
+        "subject_alternative_names": [
+          "*.example.com",
+          "example.com"
+        ],
+        "renewal_eligibility": "ELIGIBLE",
+        "not_after": "2027-08-01",
+        "export": "DISABLED"
+      }
+    },
+    {
+      "id": "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+      "type": "AWS::CloudFront::Distribution",
+      "name": "d111111abcdef8.cloudfront.net",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "distribution_id": "E1EXAMPLE00001",
+        "domain_name": "d111111abcdef8.cloudfront.net",
+        "enabled": true,
+        "price_class": "PriceClass_100",
+        "http_version": "http2",
+        "status": "Deployed",
+        "aliases": [
+          "www.example.com"
+        ],
+        "origins": [
+          {
+            "id": "static-site",
+            "domain_name": "fleet-static-site-example.s3.eu-north-1.amazonaws.com",
+            "type": "s3"
+          }
+        ],
+        "acm_certificate_arn": "arn:aws:acm:us-east-1:123456789012:certificate/1b2c3d4e-0000-4000-8000-000000000009"
+      }
+    },
+    {
+      "id": "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+      "type": "AWS::DynamoDB::Table",
+      "name": "device-state",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "fleet"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "table_name": "device-state",
+        "table_status": "ACTIVE",
+        "billing_mode": "PAY_PER_REQUEST",
+        "key_schema": [
+          {
+            "name": "device_id",
+            "key_type": "HASH"
+          }
+        ],
+        "item_count": 18450,
+        "gsi_count": 1,
+        "lsi_count": 0,
+        "stream_enabled": false,
+        "deletion_protection": true,
+        "table_class": "STANDARD",
+        "pitr_enabled": true
+      },
+      "size_bytes": 8000000000
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "type": "AWS::EC2::Instance",
+      "name": "telemetry-worker-1",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "telemetry-worker-1",
+        "role": "docker-host",
+        "runtime": "docker-compose",
+        "config": "ansible"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "i-0a00000000000001",
+        "instance_type": "m6i.large",
+        "image_id": "ami-0123456789abcdef0",
+        "platform_details": "Linux/UNIX",
+        "architecture": "x86_64",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "subnet_id": "subnet-0privatea0001",
+        "private_ip": "10.0.10.21",
+        "has_public_ip": false,
+        "ebs_optimized": true,
+        "root_device_type": "ebs",
+        "source_dest_check": true,
+        "state": "running",
+        "availability_zone": "eu-north-1a",
+        "monitoring": "disabled",
+        "security_group_ids": [
+          "sg-0a1b000000000002"
+        ],
+        "workload_hints": [
+          "config-management:ansible",
+          "docker"
+        ],
+        "container_host": true,
+        "iam_instance_profile_arn": "arn:aws:iam::123456789012:instance-profile/fleet-app-host"
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "type": "AWS::EC2::Instance",
+      "name": "telemetry-worker-2",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "telemetry-worker-2",
+        "role": "docker-host",
+        "runtime": "docker-compose",
+        "config": "ansible"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "i-0a00000000000002",
+        "instance_type": "m6i.large",
+        "image_id": "ami-0123456789abcdef0",
+        "platform_details": "Linux/UNIX",
+        "architecture": "x86_64",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "subnet_id": "subnet-0privateb0001",
+        "private_ip": "10.0.11.21",
+        "has_public_ip": false,
+        "ebs_optimized": true,
+        "root_device_type": "ebs",
+        "source_dest_check": true,
+        "state": "running",
+        "availability_zone": "eu-north-1a",
+        "monitoring": "disabled",
+        "security_group_ids": [
+          "sg-0a1b000000000002"
+        ],
+        "workload_hints": [
+          "config-management:ansible",
+          "docker"
+        ],
+        "container_host": true,
+        "iam_instance_profile_arn": "arn:aws:iam::123456789012:instance-profile/fleet-app-host"
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "type": "AWS::EC2::Instance",
+      "name": "vpn-relay",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "vpn-relay",
+        "role": "wireguard-relay",
+        "purpose": "device-connectivity"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "i-0a00000000000003",
+        "instance_type": "t3.small",
+        "image_id": "ami-0123456789abcdef0",
+        "platform_details": "Linux/UNIX",
+        "architecture": "x86_64",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "subnet_id": "subnet-0publica0001",
+        "private_ip": "10.0.0.10",
+        "has_public_ip": true,
+        "ebs_optimized": true,
+        "root_device_type": "ebs",
+        "source_dest_check": false,
+        "state": "running",
+        "availability_zone": "eu-north-1a",
+        "monitoring": "disabled",
+        "security_group_ids": [
+          "sg-0a1b000000000004"
+        ],
+        "workload_hints": [
+          "vpn"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+      "type": "AWS::EC2::InternetGateway",
+      "name": "fleet-igw",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "fleet-igw"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "igw-0f00000000000001",
+        "attached_vpc_ids": [
+          "vpc-0a1b2c3d4e5f60001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "type": "AWS::EC2::NatGateway",
+      "name": "fleet-nat-a",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "fleet-nat-a"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "nat-0e00000000000001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "subnet_id": "subnet-0publica0001",
+        "connectivity_type": "public",
+        "state": "available"
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "type": "AWS::EC2::RouteTable",
+      "name": "public",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "public"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "rtb-0a00000000000001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "main": false,
+        "routes": [
+          {
+            "destination": "10.0.0.0/16",
+            "target_type": "local",
+            "target_id": "local",
+            "state": "active"
+          },
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "internet-gateway",
+            "target_id": "igw-0f00000000000001",
+            "state": "active"
+          }
+        ],
+        "associated_subnet_ids": [
+          "subnet-0publica0001",
+          "subnet-0publicb0001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "type": "AWS::EC2::RouteTable",
+      "name": "private",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "private"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "rtb-0a00000000000002",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "main": true,
+        "routes": [
+          {
+            "destination": "10.0.0.0/16",
+            "target_type": "local",
+            "target_id": "local",
+            "state": "active"
+          },
+          {
+            "destination": "0.0.0.0/0",
+            "target_type": "nat-gateway",
+            "target_id": "nat-0e00000000000001",
+            "state": "active"
+          },
+          {
+            "destination": "192.168.50.0/24",
+            "target_type": "vpn-gateway",
+            "target_id": "vgw-0d00000000000001",
+            "state": "active"
+          }
+        ],
+        "associated_subnet_ids": [
+          "subnet-0privatea0001",
+          "subnet-0privateb0001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "alb",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "sg-0a1b000000000001",
+        "group_name": "alb",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "description": "alb",
+        "ingress_rules": [
+          {
+            "protocol": "tcp",
+            "from_port": 443,
+            "to_port": 443,
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          }
+        ],
+        "egress_rules": [
+          {
+            "protocol": "all",
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          }
+        ],
+        "ingress_rule_count": 1,
+        "egress_rule_count": 1,
+        "ingress_open_to_world": true,
+        "world_open_ports": [
+          "tcp/443-443"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "app",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "sg-0a1b000000000002",
+        "group_name": "app",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "description": "app",
+        "ingress_rules": [
+          {
+            "protocol": "tcp",
+            "from_port": 8080,
+            "to_port": 8080,
+            "source_security_groups": [
+              "sg-0a1b000000000001"
+            ]
+          }
+        ],
+        "egress_rules": [
+          {
+            "protocol": "all",
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          }
+        ],
+        "ingress_rule_count": 1,
+        "egress_rule_count": 1,
+        "ingress_open_to_world": false
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "database",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "sg-0a1b000000000003",
+        "group_name": "database",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "description": "database",
+        "ingress_rules": [
+          {
+            "protocol": "tcp",
+            "from_port": 5432,
+            "to_port": 5432,
+            "source_security_groups": [
+              "sg-0a1b000000000002"
+            ]
+          }
+        ],
+        "egress_rules": [
+          {
+            "protocol": "all",
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          }
+        ],
+        "ingress_rule_count": 1,
+        "egress_rule_count": 1,
+        "ingress_open_to_world": false
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "vpn-relay",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "sg-0a1b000000000004",
+        "group_name": "vpn-relay",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "description": "vpn-relay",
+        "ingress_rules": [
+          {
+            "protocol": "udp",
+            "from_port": 51820,
+            "to_port": 51820,
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          },
+          {
+            "protocol": "tcp",
+            "from_port": 22,
+            "to_port": 22,
+            "cidrs": [
+              "203.0.113.0/24"
+            ]
+          }
+        ],
+        "egress_rules": [
+          {
+            "protocol": "all",
+            "cidrs": [
+              "0.0.0.0/0"
+            ]
+          }
+        ],
+        "ingress_rule_count": 2,
+        "egress_rule_count": 1,
+        "ingress_open_to_world": true,
+        "world_open_ports": [
+          "udp/51820-51820"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "private-a",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "private-a"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "subnet-0privatea0001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "cidr_block": "10.0.10.0/24",
+        "availability_zone": "eu-north-1a",
+        "map_public_ip_on_launch": false
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "private-b",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "private-b"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "subnet-0privateb0001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "cidr_block": "10.0.11.0/24",
+        "availability_zone": "eu-north-1b",
+        "map_public_ip_on_launch": false
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "public-a",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "public-a"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "subnet-0publica0001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "cidr_block": "10.0.0.0/24",
+        "availability_zone": "eu-north-1a",
+        "map_public_ip_on_launch": true
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "public-b",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "public-b"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "subnet-0publicb0001",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "cidr_block": "10.0.1.0/24",
+        "availability_zone": "eu-north-1b",
+        "map_public_ip_on_launch": true
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+      "type": "AWS::EC2::Volume",
+      "name": "vol-0b00000000000001",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vol-0b00000000000001",
+        "size_gb": 100,
+        "volume_type": "gp3",
+        "iops": 3000,
+        "encrypted": true,
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+        "availability_zone": "eu-north-1a",
+        "state": "in-use",
+        "size_basis": "provisioned",
+        "attached_instance_ids": [
+          "i-0a00000000000001"
+        ]
+      },
+      "size_bytes": 107374182400
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+      "type": "AWS::EC2::Volume",
+      "name": "vol-0b00000000000002",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vol-0b00000000000002",
+        "size_gb": 20,
+        "volume_type": "gp3",
+        "iops": 3000,
+        "encrypted": true,
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+        "availability_zone": "eu-north-1a",
+        "state": "in-use",
+        "size_basis": "provisioned",
+        "attached_instance_ids": [
+          "i-0a00000000000003"
+        ]
+      },
+      "size_bytes": 21474836480
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpc-endpoint/vpce-0900000000000001",
+      "type": "AWS::EC2::VPCEndpoint",
+      "name": "com.amazonaws.eu-north-1.s3",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vpce-0900000000000001",
+        "service_name": "com.amazonaws.eu-north-1.s3",
+        "endpoint_type": "Gateway",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "state": "available",
+        "route_table_ids": [
+          "rtb-0a00000000000002"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "AWS::EC2::VPC",
+      "name": "fleet-main",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "fleet-main",
+        "team": "platform"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vpc-0a1b2c3d4e5f60001",
+        "cidr_block": "10.0.0.0/16",
+        "is_default": false,
+        "instance_tenancy": "default",
+        "state": "available"
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpn-connection/vpn-0c00000000000001",
+      "type": "AWS::EC2::VPNConnection",
+      "name": "depot-site-to-site",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "depot-site-to-site"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vpn-0c00000000000001",
+        "state": "available",
+        "type": "ipsec.1",
+        "customer_gateway_id": "cgw-0b00000000000001",
+        "vpn_gateway_id": "vgw-0d00000000000001",
+        "static_routes_only": true,
+        "tunnel_count": 2
+      }
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "type": "AWS::EC2::VPNGateway",
+      "name": "depot-vgw",
+      "region": "eu-north-1",
+      "tags": {
+        "Name": "depot-vgw"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "resource_id": "vgw-0d00000000000001",
+        "state": "available",
+        "type": "ipsec.1",
+        "amazon_side_asn": 64512,
+        "attached_vpc_ids": [
+          "vpc-0a1b2c3d4e5f60001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+      "type": "AWS::ECR::Repository",
+      "name": "fleet/api",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "repository_name": "fleet/api",
+        "repository_uri": "123456789012.dkr.ecr.eu-north-1.amazonaws.com/fleet/api",
+        "image_tag_mutability": "IMMUTABLE",
+        "scan_on_push": true,
+        "encryption_type": "AES256"
+      }
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+      "type": "AWS::ECS::Cluster",
+      "name": "fleet",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "cluster_name": "fleet",
+        "status": "ACTIVE",
+        "running_tasks": 2,
+        "active_services": 1,
+        "capacity_providers": [
+          "FARGATE"
+        ],
+        "container_insights": "enabled"
+      }
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "type": "AWS::ECS::Service",
+      "name": "fleet-api",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "fleet"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "service_name": "fleet-api",
+        "cluster_arn": "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+        "cluster_name": "fleet",
+        "launch_type": "FARGATE",
+        "desired_count": 2,
+        "running_count": 2,
+        "task_definition": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+        "scheduling_strategy": "REPLICA",
+        "platform_version": "LATEST",
+        "subnet_ids": [
+          "subnet-0privatea0001",
+          "subnet-0privateb0001"
+        ],
+        "security_group_ids": [
+          "sg-0a1b000000000002"
+        ],
+        "assign_public_ip": "DISABLED",
+        "load_balancers": [
+          {
+            "container_name": "api",
+            "container_port": 8080,
+            "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef"
+          }
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "type": "AWS::ECS::TaskDefinition",
+      "name": "fleet-api:12",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "family": "fleet-api",
+        "revision": 12,
+        "cpu": "512",
+        "memory": "1024",
+        "network_mode": "awsvpc",
+        "task_role_arn": "arn:aws:iam::123456789012:role/ecs-task-api",
+        "execution_role_arn": "arn:aws:iam::123456789012:role/ecs-task-execution",
+        "requires_compatibilities": [
+          "FARGATE"
+        ],
+        "containers": [
+          {
+            "name": "api",
+            "image": "123456789012.dkr.ecr.eu-north-1.amazonaws.com/fleet/api:2.8.1",
+            "cpu": 0,
+            "essential": true,
+            "port_mappings": [
+              {
+                "container_port": 8080,
+                "protocol": "tcp"
+              }
+            ],
+            "environment_names": [
+              "LOG_LEVEL",
+              "MAP_TILE_URL"
+            ],
+            "secrets": [
+              {
+                "name": "DATABASE_PASSWORD",
+                "value_from": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password"
+              },
+              {
+                "name": "MAPS_API_KEY",
+                "value_from": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh"
+              }
+            ],
+            "log_driver": "awslogs",
+            "log_group": "/ecs/fleet-api"
+          }
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "type": "AWS::ElasticLoadBalancingV2::Listener",
+      "name": "fleet-public:443",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "port": 443,
+        "protocol": "HTTPS",
+        "load_balancer_arn": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+        "certificate_arns": [
+          "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001"
+        ],
+        "default_action_types": [
+          "forward"
+        ],
+        "target_group_arns": [
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "name": "fleet-public",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "type": "application",
+        "scheme": "internet-facing",
+        "dns_name": "fleet-public-123456789.eu-north-1.elb.amazonaws.com",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "ip_address_type": "ipv4",
+        "security_group_ids": [
+          "sg-0a1b000000000001"
+        ],
+        "state": "active",
+        "subnet_ids": [
+          "subnet-0publica0001",
+          "subnet-0publicb0001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "name": "fleet-api",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "protocol": "HTTP",
+        "port": 8080,
+        "target_type": "ip",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "health_check_path": "/healthz",
+        "load_balancer_arns": [
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "name": "telemetry-workers",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "protocol": "HTTP",
+        "port": 8080,
+        "target_type": "instance",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "health_check_path": "/health",
+        "load_balancer_arns": [
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188"
+        ],
+        "registered_targets": [
+          "i-0a00000000000001",
+          "i-0a00000000000002"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ci-deploy",
+      "type": "AWS::IAM::Role",
+      "name": "ci-deploy",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "partial",
+      "attributes": {
+        "role_name": "ci-deploy",
+        "path": "/",
+        "max_session_duration": 3600,
+        "trust_services": [],
+        "trust_wildcard_principal": false,
+        "trust_requires_external_id": true,
+        "trust_cross_account": true,
+        "trust_aws_principals": [
+          "arn:aws:iam::210987654321:root"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ecs-task-api",
+      "type": "AWS::IAM::Role",
+      "name": "ecs-task-api",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "role_name": "ecs-task-api",
+        "path": "/",
+        "max_session_duration": 3600,
+        "trust_services": [
+          "ecs-tasks.amazonaws.com"
+        ],
+        "trust_wildcard_principal": false,
+        "trust_requires_external_id": false,
+        "trust_cross_account": false,
+        "attached_policy_names": [
+          "fleet-api-data-access"
+        ],
+        "inline_policy_names": []
+      }
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ecs-task-execution",
+      "type": "AWS::IAM::Role",
+      "name": "ecs-task-execution",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "role_name": "ecs-task-execution",
+        "path": "/",
+        "max_session_duration": 3600,
+        "trust_services": [
+          "ecs-tasks.amazonaws.com"
+        ],
+        "trust_wildcard_principal": false,
+        "trust_requires_external_id": false,
+        "trust_cross_account": false,
+        "attached_policy_names": [
+          "AmazonECSTaskExecutionRolePolicy"
+        ],
+        "inline_policy_names": []
+      }
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/fleet-app-host",
+      "type": "AWS::IAM::Role",
+      "name": "fleet-app-host",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "role_name": "fleet-app-host",
+        "path": "/",
+        "max_session_duration": 3600,
+        "trust_services": [
+          "ec2.amazonaws.com"
+        ],
+        "trust_wildcard_principal": false,
+        "trust_requires_external_id": false,
+        "trust_cross_account": false,
+        "attached_policy_names": [
+          "AmazonSSMManagedInstanceCore",
+          "CloudWatchAgentServerPolicy"
+        ],
+        "inline_policy_names": []
+      }
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/telemetry-archiver",
+      "type": "AWS::IAM::Role",
+      "name": "telemetry-archiver",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "role_name": "telemetry-archiver",
+        "path": "/",
+        "max_session_duration": 3600,
+        "trust_services": [
+          "lambda.amazonaws.com"
+        ],
+        "trust_wildcard_principal": false,
+        "trust_requires_external_id": false,
+        "trust_cross_account": false,
+        "attached_policy_names": [
+          "AWSLambdaBasicExecutionRole",
+          "AWSLambdaSQSQueueExecutionRole"
+        ],
+        "inline_policy_names": []
+      }
+    },
+    {
+      "id": "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+      "type": "AWS::IoT::TopicRule",
+      "name": "telemetry_to_sns",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "cloudcontrol_identifier": "telemetry_to_sns",
+        "rule_name": "telemetry_to_sns",
+        "topic_rule_payload": {
+          "Sql": "SELECT * FROM 'devices/+/telemetry'",
+          "RuleDisabled": false
+        }
+      }
+    },
+    {
+      "id": "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+      "type": "AWS::IoT::Thing",
+      "name": "tracker-fleet-template",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "cloudcontrol_identifier": "tracker-fleet-template",
+        "thing_name": "tracker-fleet-template",
+        "attribute_payload": {
+          "Attributes": {
+            "fleet": "standard"
+          }
+        }
+      }
+    },
+    {
+      "id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "AWS::KMS::Key",
+      "name": "fleet-data",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "platform"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "key_id": "1a2b3c4d-0000-4000-8000-000000000001",
+        "key_state": "Enabled",
+        "key_usage": "ENCRYPT_DECRYPT",
+        "key_spec": "SYMMETRIC_DEFAULT",
+        "origin": "AWS_KMS",
+        "multi_region": false,
+        "enabled": true,
+        "key_manager": "CUSTOMER",
+        "aliases": [
+          "alias/fleet-data"
+        ],
+        "alias_arns": [
+          "arn:aws:kms:eu-north-1:123456789012:alias/fleet-data"
+        ],
+        "rotation_enabled": true
+      }
+    },
+    {
+      "id": "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+      "type": "AWS::Lambda::EventSourceMapping",
+      "name": "0d0e0f00-1111-4222-8333-944444444444",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "uuid": "0d0e0f00-1111-4222-8333-944444444444",
+        "event_source_arn": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+        "function_arn": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+        "state": "Enabled",
+        "batch_size": 10
+      }
+    },
+    {
+      "id": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+      "type": "AWS::Lambda::Function",
+      "name": "telemetry-archiver",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "function_name": "telemetry-archiver",
+        "runtime": "python3.12",
+        "handler": "app.handler",
+        "memory_mb": 512,
+        "timeout_seconds": 60,
+        "package_type": "Zip",
+        "role_arn": "arn:aws:iam::123456789012:role/telemetry-archiver",
+        "architectures": [
+          "arm64"
+        ],
+        "environment_names": [
+          "ARCHIVE_BUCKET",
+          "LOG_LEVEL"
+        ],
+        "tracing_mode": "PassThrough",
+        "ephemeral_storage_mb": 512
+      }
+    },
+    {
+      "id": "arn:aws:logs:eu-north-1:123456789012:log-group:/aws/lambda/telemetry-archiver",
+      "type": "AWS::Logs::LogGroup",
+      "name": "/aws/lambda/telemetry-archiver",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "log_group_name": "/aws/lambda/telemetry-archiver",
+        "retention_days": 14,
+        "stored_bytes": 900000000,
+        "log_group_class": "STANDARD",
+        "metric_filter_count": 0
+      }
+    },
+    {
+      "id": "arn:aws:logs:eu-north-1:123456789012:log-group:/ecs/fleet-api",
+      "type": "AWS::Logs::LogGroup",
+      "name": "/ecs/fleet-api",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "log_group_name": "/ecs/fleet-api",
+        "retention_days": 30,
+        "stored_bytes": 12000000000,
+        "log_group_class": "STANDARD",
+        "metric_filter_count": 1
+      }
+    },
+    {
+      "id": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "type": "AWS::RDS::DBInstance",
+      "name": "fleet-db",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "fleet",
+        "data-classification": "confidential"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "identifier": "fleet-db",
+        "engine": "postgres",
+        "engine_version": "15.5",
+        "instance_class": "db.m6g.large",
+        "multi_az": true,
+        "allocated_storage_gb": 200,
+        "max_allocated_storage_gb": 500,
+        "storage_type": "gp3",
+        "storage_encrypted": true,
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+        "publicly_accessible": false,
+        "backup_retention_days": 7,
+        "iam_database_authentication_enabled": false,
+        "deletion_protection": true,
+        "parameter_groups": [
+          "fleet-pg15-postgis"
+        ],
+        "option_groups": [
+          "default:postgres-15"
+        ],
+        "security_group_ids": [
+          "sg-0a1b000000000003"
+        ],
+        "db_subnet_group": "fleet-db-subnets",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "endpoint_address": "fleet-db.c0example.eu-north-1.rds.amazonaws.com",
+        "port": 5432,
+        "status": "available",
+        "size_basis": "provisioned",
+        "master_user_secret_managed": true
+      },
+      "size_bytes": 214748364800
+    },
+    {
+      "id": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "type": "AWS::RDS::DBSubnetGroup",
+      "name": "fleet-db-subnets",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "identifier": "fleet-db-subnets",
+        "vpc_id": "vpc-0a1b2c3d4e5f60001",
+        "subnet_ids": [
+          "subnet-0privatea0001",
+          "subnet-0privateb0001"
+        ]
+      }
+    },
+    {
+      "id": "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+      "type": "AWS::Route53::HostedZone",
+      "name": "example.com",
+      "region": "global",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "zone_id": "Z0EXAMPLE00001",
+        "domain_name": "example.com",
+        "record_count": 42,
+        "private_zone": false
+      }
+    },
+    {
+      "id": "arn:aws:s3:::fleet-alb-access-logs-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-alb-access-logs-example",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "partial",
+      "attributes": {
+        "bucket_name": "fleet-alb-access-logs-example",
+        "versioning": "Disabled",
+        "mfa_delete": false,
+        "sse_algorithm": "aws:kms",
+        "public_access_block_configured": true,
+        "public_access_fully_blocked": true,
+        "object_ownership": "BucketOwnerEnforced",
+        "lifecycle_rule_count": 1,
+        "replication_enabled": false,
+        "policy_is_public": false,
+        "object_count": 910000,
+        "size_source": "cloudwatch-daily-average",
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001"
+      },
+      "size_bytes": 50000000000
+    },
+    {
+      "id": "arn:aws:s3:::fleet-flight-logs-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-flight-logs-example",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "fleet",
+        "data-classification": "internal"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "bucket_name": "fleet-flight-logs-example",
+        "versioning": "Enabled",
+        "mfa_delete": false,
+        "sse_algorithm": "aws:kms",
+        "public_access_block_configured": true,
+        "public_access_fully_blocked": true,
+        "object_ownership": "BucketOwnerEnforced",
+        "lifecycle_rule_count": 2,
+        "replication_enabled": false,
+        "policy_is_public": false,
+        "object_count": 48200000,
+        "size_source": "cloudwatch-daily-average",
+        "has_bucket_policy": false,
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001"
+      },
+      "size_bytes": 1200000000000
+    },
+    {
+      "id": "arn:aws:s3:::fleet-mission-images-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-mission-images-example",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "bucket_name": "fleet-mission-images-example",
+        "versioning": "Enabled",
+        "mfa_delete": false,
+        "sse_algorithm": "aws:kms",
+        "public_access_block_configured": true,
+        "public_access_fully_blocked": true,
+        "object_ownership": "BucketOwnerEnforced",
+        "lifecycle_rule_count": 1,
+        "replication_enabled": false,
+        "policy_is_public": false,
+        "object_count": 2100000,
+        "size_source": "cloudwatch-daily-average",
+        "has_bucket_policy": false,
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001"
+      },
+      "size_bytes": 350000000000
+    },
+    {
+      "id": "arn:aws:s3:::fleet-static-site-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-static-site-example",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "bucket_name": "fleet-static-site-example",
+        "versioning": "Disabled",
+        "mfa_delete": false,
+        "sse_algorithm": "AES256",
+        "public_access_block_configured": true,
+        "public_access_fully_blocked": true,
+        "object_ownership": "BucketOwnerEnforced",
+        "lifecycle_rule_count": 0,
+        "replication_enabled": false,
+        "policy_is_public": false,
+        "object_count": 1840,
+        "size_source": "cloudwatch-daily-average",
+        "has_bucket_policy": true,
+        "policy_allows_wildcard_principal": false,
+        "policy_denies_insecure_transport": true,
+        "policy_cross_account_principal_count": 0
+      },
+      "size_bytes": 2000000000
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "fleet/db-password",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "secret_name": "fleet/db-password",
+        "kms_key_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+        "rotation_enabled": false,
+        "last_changed": "2026-09-01"
+      }
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "fleet/maps-api-key",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "secret_name": "fleet/maps-api-key",
+        "rotation_enabled": false,
+        "last_changed": "2026-06-12"
+      }
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "rds!db-0f1e2d3c-1111-2222-3333-444444444444",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "secret_name": "rds!db-0f1e2d3c-1111-2222-3333-444444444444",
+        "owning_service": "rds",
+        "rotation_enabled": true,
+        "rotation_days": 7
+      }
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "AWS::SNS::Topic",
+      "name": "telemetry",
+      "region": "eu-north-1",
+      "tags": {
+        "team": "fleet"
+      },
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "fifo_topic": false,
+        "has_topic_policy": true,
+        "subscriptions_confirmed": 2,
+        "subscriptions_pending": 0
+      }
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-archive-sub-0000",
+      "type": "AWS::SNS::Subscription",
+      "name": "telemetry->telemetry-archive",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "protocol": "sqs",
+        "topic_arn": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+        "endpoint": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+        "raw_message_delivery": true,
+        "has_filter_policy": true
+      }
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-ingest-sub-0000",
+      "type": "AWS::SNS::Subscription",
+      "name": "telemetry->telemetry-ingest",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "protocol": "sqs",
+        "topic_arn": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+        "endpoint": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+        "raw_message_delivery": true,
+        "has_filter_policy": false
+      }
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:dispatch-commands.fifo",
+      "type": "AWS::SQS::Queue",
+      "name": "dispatch-commands.fifo",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "queue_url": "https://sqs.eu-north-1.amazonaws.com/123456789012/dispatch-commands.fifo",
+        "fifo_queue": true,
+        "sqs_managed_sse_enabled": true,
+        "has_queue_policy": false,
+        "visibility_timeout_seconds": 30,
+        "message_retention_seconds": 345600,
+        "delay_seconds": 0,
+        "max_message_size_bytes": 262144,
+        "receive_wait_time_seconds": 20,
+        "approximate_number_of_messages": 0,
+        "content_based_deduplication": true
+      }
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-archive",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "queue_url": "https://sqs.eu-north-1.amazonaws.com/123456789012/telemetry-archive",
+        "fifo_queue": false,
+        "sqs_managed_sse_enabled": true,
+        "has_queue_policy": true,
+        "visibility_timeout_seconds": 120,
+        "message_retention_seconds": 1209600,
+        "delay_seconds": 0,
+        "max_message_size_bytes": 262144,
+        "receive_wait_time_seconds": 20,
+        "approximate_number_of_messages": 0
+      }
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-ingest",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "queue_url": "https://sqs.eu-north-1.amazonaws.com/123456789012/telemetry-ingest",
+        "fifo_queue": false,
+        "sqs_managed_sse_enabled": true,
+        "has_queue_policy": true,
+        "visibility_timeout_seconds": 60,
+        "message_retention_seconds": 345600,
+        "delay_seconds": 0,
+        "max_message_size_bytes": 262144,
+        "receive_wait_time_seconds": 20,
+        "approximate_number_of_messages": 120,
+        "redrive_policy": {
+          "dead_letter_target_arn": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+          "max_receive_count": 5
+        }
+      }
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-ingest-dlq",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "full",
+      "attributes": {
+        "queue_url": "https://sqs.eu-north-1.amazonaws.com/123456789012/telemetry-ingest-dlq",
+        "fifo_queue": false,
+        "sqs_managed_sse_enabled": true,
+        "has_queue_policy": true,
+        "visibility_timeout_seconds": 30,
+        "message_retention_seconds": 1209600,
+        "delay_seconds": 0,
+        "max_message_size_bytes": 262144,
+        "receive_wait_time_seconds": 20,
+        "approximate_number_of_messages": 0
+      }
+    },
+    {
+      "id": "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics",
+      "type": "AWS::Timestream::Database",
+      "name": "fleet-metrics",
+      "region": "eu-north-1",
+      "managed_by": "unmanaged",
+      "completeness": "partial",
+      "attributes": {
+        "cloudcontrol_identifier": "fleet-metrics",
+        "database_name": "fleet-metrics"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "from": "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+      "to": "arn:aws:acm:us-east-1:123456789012:certificate/1b2c3d4e-0000-4000-8000-000000000009",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+      "to": "arn:aws:s3:::fleet-static-site-example",
+      "type": "reads-from",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "to": "arn:aws:iam::123456789012:role/fleet-app-host",
+      "type": "assumes-role",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "to": "arn:aws:iam::123456789012:role/fleet-app-host",
+      "type": "assumes-role",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+      "type": "routes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "type": "routes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "type": "routes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "type": "allows-ingress-from",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "allows-ingress-from",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:vpc-endpoint/vpce-0900000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:vpn-connection/vpn-0c00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "to": "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "to": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "to": "arn:aws:iam::123456789012:role/ecs-task-api",
+      "type": "assumes-role",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "to": "arn:aws:iam::123456789012:role/ecs-task-execution",
+      "type": "assumes-role",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "to": "arn:aws:logs:eu-north-1:123456789012:log-group:/ecs/fleet-api",
+      "type": "writes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "to": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+      "type": "uses-secret",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "to": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+      "type": "uses-secret",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "to": "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "to": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "type": "attached-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "to": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "type": "targets",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "to": "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "to": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "type": "targets",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "type": "targets",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "type": "targets",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+      "to": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "publishes-to",
+      "evidence": "inferred"
+    },
+    {
+      "from": "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+      "to": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+      "type": "targets",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+      "to": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+      "type": "reads-from",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+      "to": "arn:aws:iam::123456789012:role/telemetry-archiver",
+      "type": "assumes-role",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "type": "uses-security-group",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "to": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "type": "depends-on",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "to": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl",
+      "type": "uses-secret",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "in-subnet",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "to": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "in-vpc",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:s3:::fleet-alb-access-logs-example",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:s3:::fleet-flight-logs-example",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:s3:::fleet-mission-images-example",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+      "to": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "encrypted-by",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-archive-sub-0000",
+      "to": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "subscribes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-ingest-sub-0000",
+      "to": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "subscribes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+      "to": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "subscribes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+      "to": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "subscribes-to",
+      "evidence": "api"
+    },
+    {
+      "from": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+      "to": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+      "type": "depends-on",
+      "evidence": "api"
+    }
+  ],
+  "gaps": [
+    {
+      "service": "cloudcontrol",
+      "region": "eu-north-1",
+      "operation": "ListResources",
+      "reason": "access-denied",
+      "message": "api error AccessDeniedException: not authorized to perform timestream:ListDatabases",
+      "impact": "AWS::Timestream::Database resources were not inventoried",
+      "resource_id": "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+    },
+    {
+      "service": "iam",
+      "region": "us-east-1",
+      "operation": "ListRolePolicies",
+      "reason": "access-denied",
+      "message": "api error AccessDenied: not authorized to perform iam:ListRolePolicies on role ci-deploy (permissions boundary)",
+      "impact": "Inline policy names unknown",
+      "resource_id": "arn:aws:iam::123456789012:role/ci-deploy"
+    },
+    {
+      "service": "kinesis",
+      "region": "eu-north-1",
+      "operation": "ListStreams",
+      "reason": "access-denied",
+      "message": "operation error Kinesis: ListStreams, https response error StatusCode: 400, api error AccessDeniedException: User: arn:aws:sts::123456789012:assumed-role/HermesDiscoveryReadOnly/hermes-discovery is not authorized to perform: kinesis:ListStreams",
+      "impact": "Kinesis data streams were not inventoried"
+    },
+    {
+      "service": "s3",
+      "region": "eu-north-1",
+      "operation": "GetBucketPolicy",
+      "reason": "access-denied",
+      "message": "api error AccessDenied: Access Denied (bucket policy denies all principals outside the log delivery role)",
+      "impact": "Bucket policy flags unknown",
+      "resource_id": "arn:aws:s3:::fleet-alb-access-logs-example"
+    }
+  ],
+  "summary": {
+    "resource_count": 62,
+    "by_type": {
+      "AWS::CertificateManager::Certificate": 1,
+      "AWS::CloudFront::Distribution": 1,
+      "AWS::DynamoDB::Table": 1,
+      "AWS::EC2::Instance": 3,
+      "AWS::EC2::InternetGateway": 1,
+      "AWS::EC2::NatGateway": 1,
+      "AWS::EC2::RouteTable": 2,
+      "AWS::EC2::SecurityGroup": 4,
+      "AWS::EC2::Subnet": 4,
+      "AWS::EC2::VPC": 1,
+      "AWS::EC2::VPCEndpoint": 1,
+      "AWS::EC2::VPNConnection": 1,
+      "AWS::EC2::VPNGateway": 1,
+      "AWS::EC2::Volume": 2,
+      "AWS::ECR::Repository": 1,
+      "AWS::ECS::Cluster": 1,
+      "AWS::ECS::Service": 1,
+      "AWS::ECS::TaskDefinition": 1,
+      "AWS::ElasticLoadBalancingV2::Listener": 1,
+      "AWS::ElasticLoadBalancingV2::LoadBalancer": 1,
+      "AWS::ElasticLoadBalancingV2::TargetGroup": 2,
+      "AWS::IAM::Role": 5,
+      "AWS::IoT::Thing": 1,
+      "AWS::IoT::TopicRule": 1,
+      "AWS::KMS::Key": 1,
+      "AWS::Lambda::EventSourceMapping": 1,
+      "AWS::Lambda::Function": 1,
+      "AWS::Logs::LogGroup": 2,
+      "AWS::RDS::DBInstance": 1,
+      "AWS::RDS::DBSubnetGroup": 1,
+      "AWS::Route53::HostedZone": 1,
+      "AWS::S3::Bucket": 4,
+      "AWS::SNS::Subscription": 2,
+      "AWS::SNS::Topic": 1,
+      "AWS::SQS::Queue": 4,
+      "AWS::SecretsManager::Secret": 3,
+      "AWS::Timestream::Database": 1
+    },
+    "by_completeness": {
+      "full": 59,
+      "partial": 3
+    },
+    "gap_count": 4
+  }
+}

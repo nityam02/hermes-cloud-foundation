@@ -1,0 +1,117 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: stateless-rebuild
+  title: "Rebuild configuration-only resources on the target"
+  applies_to: [cache, monitoring, logging, tracing, compute, load-balancing, networking]
+spec:
+  steps:
+    - id: extract-configuration
+      phase: prepare
+      title: "Extract the source configuration from the inventory"
+      description: >-
+        Use the inventory attributes (non-secret configuration) and the catalog differences to
+        write down what must be reproduced: sizing, parameters, retention, thresholds, routing.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Inventory completeness: partial resources may be missing settings"
+      validation:
+        - "Each resource in scope has a target configuration recorded"
+      source_impact: none
+
+    - id: provision-target
+      phase: provision
+      title: "Provision the target resource"
+      description: >-
+        Use Hermes where the capability is implemented (hermes plan, then apply the saved plan
+        with approval); otherwise use the provider's IaC or console, preferably in the same
+        OpenTofu/Terraform codebase.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> (or delete the manually created resource)."
+      risks:
+        - "Manually created resources drift from IaC"
+      validation:
+        - "Resource exists with the recorded configuration"
+      source_impact: none
+
+    - id: reproduce-behaviour
+      phase: provision
+      title: "Re-author provider-specific configuration"
+      description: >-
+        Metric names, log formats and alert semantics differ between providers, so alarms and
+        dashboards are re-authored against target metrics rather than translated. Caches get
+        eviction policy, memory, persistence and TLS settings set explicitly.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Delete the re-authored configuration."
+      risks:
+        - "Alerts that never fire because they reference metrics that do not exist on the target"
+      validation:
+        - "Each alert is triggered once in a test and reaches its notification channel"
+      source_impact: none
+
+    - id: warm-up
+      phase: synchronize
+      title: "Warm caches and baselines"
+      description: >-
+        Caches start empty. Warm them by lazy loading under controlled traffic or by replaying a
+        read workload, and expect extra load on the database behind them during the first hours.
+        Monitoring baselines (anomaly detection) also need time to learn.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "A cold cache at cutover can overload the database (thundering herd)"
+      validation:
+        - "Cache hit ratio on the target approaches the source ratio before full cutover"
+      source_impact: none
+
+    - id: validate-parity
+      phase: validate
+      title: "Validate configuration parity"
+      description: "Compare the recorded configuration with the target and run synthetic checks."
+      automation: hermes
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; validation is read-only."
+      risks: []
+      validation:
+        - "hermes migrate validate report has no failed checks for these resources"
+      source_impact: none
+
+    - id: switch-consumers
+      phase: cutover
+      title: "Switch consumers to the target resource"
+      description: >-
+        Consumers pick up the target through the Hermes binding contract (HERMES_* environment
+        variables) when they are deployed on the target, or through the traffic-cutover workflow
+        for externally reachable endpoints.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Point consumers back to the source resource; it remains running until decommission."
+      risks: []
+      validation:
+        - "No consumer still references the source endpoint (connection metrics on the source near zero)"
+      source_impact: none
+
+    - id: retire-source
+      phase: decommission
+      title: "Retire the source resource"
+      description: "Delete the source resource after the rollback window, through the decommission workflow."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Recreate from the recorded configuration."
+      risks:
+        - "Deleting before every consumer has moved causes outages"
+      validation:
+        - "Source resource shows no usage for the agreed observation period"
+      source_impact: modifies-source-config

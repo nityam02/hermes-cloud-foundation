@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes.example.com/schemas/migration/pricing.schema.json",
+  "title": "Hermes PricingAssumptions (v1alpha1)",
+  "description": "Indicative list prices used for transfer cost ranges (data-contracts section 6). Never facts or quotes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "rates"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1"},
+    "kind": {"const": "PricingAssumptions"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retrieved_at", "disclaimer"],
+      "properties": {"retrieved_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "disclaimer": {"type": "string", "minLength": 1}}
+    },
+    "rates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "provider", "kind", "usd_per_gb", "applies_to", "source"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+          "provider": {"enum": ["aws", "gcp", "alibaba"]},
+          "kind": {"enum": ["egress-internet", "egress-inter-region", "transfer-service", "replication-service"]},
+          "usd_per_gb": {"type": "number", "minimum": 0},
+          "applies_to": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "pattern": "^https://"}
+        }
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

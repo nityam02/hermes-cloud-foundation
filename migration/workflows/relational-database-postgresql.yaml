@@ -1,0 +1,366 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: relational-database-postgresql
+  title: "PostgreSQL migration with continuous replication"
+  applies_to: [relational-database]
+spec:
+  steps:
+    - id: assess-source
+      phase: prepare
+      title: "Assess the source database"
+      description: >-
+        Record major version (target major must be >= source), database list and sizes, installed
+        extensions and versions (compare with the target's supported list), tables without a
+        primary key, large objects (pg_largeobject), UNLOGGED/TEMPORARY tables, materialized
+        views, custom tablespaces, C-language functions, pg_cron jobs, roles, and AWS-specific
+        extensions (aws_s3, aws_lambda, aws_commons and Aurora-specific functions) that have no
+        target equivalent. Queries run against system catalogs only.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; read-only queries."
+      risks:
+        - "AWS-only extensions used by the application become blockers late"
+      validation:
+        - "List of tables without primary key produced (SELECT on information_schema / pg_index)"
+        - "Extension compatibility matrix reviewed"
+      source_impact: read-only-load
+
+    - id: choose-method
+      phase: prepare
+      title: "Choose the replication method and downtime budget"
+      description: >-
+        GCP: Google Database Migration Service (continuous, pglogical-based) into Cloud SQL or
+        AlloyDB. Alibaba Cloud: Data Transmission Service (schema + full + incremental) into
+        ApsaraDB RDS for PostgreSQL. Alibaba's published DTS guide for an Aurora PostgreSQL source
+        covers full migration; confirm incremental support for that source before relying on it.
+        Alternatives: native PostgreSQL publication/subscription, or pg_dump/pg_restore with a
+        downtime window for small databases.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; decision only."
+      risks:
+        - "Replication tools do not replicate DDL, large objects or (during CDC) sequence state"
+      validation:
+        - "Method and acceptable write-freeze duration recorded in docs/decisions"
+      source_impact: none
+
+    - id: remediate-schema
+      phase: prepare
+      title: "Remediate schema blockers on the source"
+      description: >-
+        Add primary keys to tables that lack them (with Google DMS standard migrations only the
+        snapshot and INSERTs replicate for such tables; UPDATE/DELETE are lost), or set REPLICA
+        IDENTITY FULL where the tool supports it. Build unique indexes CONCURRENTLY and attach
+        them as constraints to avoid long locks. Convert large objects to bytea or move them to
+        object storage.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Drop the added constraints/indexes; restore REPLICA IDENTITY DEFAULT."
+      risks:
+        - "Adding constraints on large tables takes locks and I/O on production"
+        - "REPLICA IDENTITY FULL increases WAL volume"
+      validation:
+        - "No table in scope lacks a primary key or suitable replica identity"
+      source_impact: modifies-source-config
+
+    - id: configure-source-parameters
+      phase: prepare
+      title: "Enable logical replication on the source"
+      description: >-
+        Amazon RDS: a custom DB parameter group with rds.logical_replication = 1; for Google DMS
+        also shared_preload_libraries including pglogical, wal_sender_timeout = 0, and
+        max_replication_slots, max_wal_senders and max_worker_processes sized for databases x
+        jobs. Aurora: the same settings in a custom DB cluster parameter group. A reboot (cluster
+        restart for Aurora) is required.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Revert the parameter group change and reboot."
+      risks:
+        - "Parameter change requires a reboot of the source instance (downtime or Multi-AZ failover)"
+        - "Logical replication increases WAL generation"
+      validation:
+        - "SHOW rds.logical_replication returns on; SHOW shared_preload_libraries includes pglogical (Google DMS)"
+      source_impact: modifies-source-config
+
+    - id: create-migration-user
+      phase: prepare
+      title: "Create the migration user and extensions"
+      description: >-
+        Create a dedicated user and GRANT rds_replication to it (Amazon RDS and Aurora). For
+        Google DMS run CREATE EXTENSION IF NOT EXISTS pglogical in every database to migrate
+        (excluding template0, template1 and rdsadmin) and grant USAGE on schemas, USAGE on schema
+        pglogical, and SELECT on application tables, sequences and pglogical tables. For DTS
+        follow the account permissions in its source-preparation guide. Store the password in a
+        secret store, never in files.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "DROP the migration user and the pglogical extension after migration."
+      risks:
+        - "The replication role can read all replicated data; restrict network access to the replication service"
+      validation:
+        - "Connection test from the migration service succeeds with TLS"
+      source_impact: modifies-source-config
+
+    - id: open-network-path
+      phase: prepare
+      title: "Open the network path from the replication service"
+      description: >-
+        Prefer private connectivity (hybrid-connectivity workflow). If public, require TLS and
+        allow inbound 5432 only from the replication service's published egress IPs. Alibaba DTS
+        guides for Amazon RDS sources assume public access or a VPN/Express Connect path.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the security group rule or make the instance private again."
+      risks:
+        - "Making a database publicly accessible widens its attack surface"
+      validation:
+        - "Port 5432 reachable only from the listed ranges"
+      source_impact: modifies-source-config
+
+    - id: provision-target
+      phase: provision
+      title: "Provision the target database"
+      description: >-
+        Provision with Hermes (workloads.database). When Google DMS migrates into an existing
+        (Hermes-provisioned) Cloud SQL instance, the instance must hold no user data, is demoted
+        during the migration, and accepts one job per destination. Install required extensions
+        and create roles; users and roles are not migrated by Google DMS.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> before any production writes reach the target."
+      risks:
+        - "Destination automated backups and PITR are suspended by Google DMS until promotion"
+      validation:
+        - "Target version >= source version; extensions installed; roles created"
+      source_impact: none
+
+    - id: start-replication
+      phase: synchronize
+      title: "Start the initial load and continuous replication"
+      description: >-
+        Create the source connection profile (Google DMS) or source endpoint (DTS) with TLS and the
+        migration user, run the tool's connectivity test, then start a continuous migration job
+        (initial dump plus CDC). The tool creates replication slots on the source and runs a long
+        snapshot. Alarm on source FreeStorageSpace and on replication slot lag
+        (OldestReplicationSlotLag / TransactionLogsDiskUsage on Amazon RDS) because a stalled
+        consumer makes the source retain WAL until its disk fills. Consider max_slot_wal_keep_size
+        to cap retention (a slot that exceeds it is invalidated and the migration restarts).
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Stop and delete the job; drop its replication slots on the source (SELECT pg_drop_replication_slot(...))."
+      risks:
+        - "Retained WAL from an inactive slot can fill the source disk and stop production writes"
+        - "Initial snapshot adds read I/O and a long-running transaction on the source"
+      validation:
+        - "Job in CDC phase; replication lag stable or decreasing"
+      source_impact: modifies-source-config
+
+    - id: ddl-freeze-and-monitor
+      phase: synchronize
+      title: "Freeze DDL and monitor replication"
+      description: >-
+        DDL is not replicated. Freeze schema changes, or apply them on both sides (Google DMS:
+        pglogical.replicate_ddl_command); new tables must be added to the replication set.
+        Monitor lag, errors and source WAL retention daily.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "A release that runs migrations during replication breaks the job or silently diverges the schema"
+      validation:
+        - "No DDL executed on the source since the job started (pg_stat_statements / migration tool history)"
+      source_impact: read-only-load
+
+    - id: validate-data
+      phase: validate
+      title: "Validate data and performance on the target"
+      description: >-
+        Compare exact row counts per table, checksums over primary-key ranges for large tables,
+        constraint and index presence, extension versions and sequence definitions. Run ANALYZE
+        on the target after the load, refresh materialized views (only their definitions are
+        migrated), and run read-only application tests against the target. Encode the checks in
+        a ValidationChecks file and run `hermes migrate validate`.
+      automation: hermes
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; read-only."
+      risks:
+        - "Planner statistics are missing after a bulk load, so the first queries run slowly"
+      validation:
+        - "Row counts and range checksums match for every table in scope"
+        - "Top queries meet latency targets on the target"
+      source_impact: read-only-load
+
+    - id: rehearse-cutover
+      phase: validate
+      title: "Rehearse the cutover end to end"
+      description: "Rehearse on a non-production copy with production-like volume; measure the write-freeze duration and the rollback procedure."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable; rehearsal."
+      risks: []
+      validation:
+        - "Measured freeze duration within the agreed budget"
+        - "Rollback rehearsed successfully"
+      source_impact: none
+
+    - id: freeze-writes
+      phase: cutover
+      title: "Stop writes on the source"
+      description: >-
+        Put the application in maintenance mode or scale writers to zero, then revoke write
+        privileges from application roles on the source so nothing can write.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Re-grant write privileges and resume writers on the source."
+      risks:
+        - "Background jobs or other applications with their own credentials keep writing"
+      validation:
+        - "pg_stat_activity shows no write transactions from application roles"
+      source_impact: modifies-source-config
+
+    - id: drain-and-fix-sequences
+      phase: cutover
+      title: "Drain replication and synchronize sequences"
+      description: >-
+        Wait for replication lag to reach zero. Google DMS synchronizes sequence state during
+        promotion. With DTS or native logical replication (before PostgreSQL 19 on both sides),
+        set every sequence on the target with setval() to at least the source value plus a margin.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable before promotion; source is unchanged."
+      risks:
+        - "Unsynchronized sequences cause duplicate-key errors on the first inserts after cutover"
+      validation:
+        - "For every sequence: target last_value >= source last_value"
+      source_impact: read-only-load
+
+    - id: promote-target
+      phase: cutover
+      title: "Promote the target"
+      description: >-
+        Promote (Google DMS) or complete the DTS task so the target becomes a standalone primary.
+        Enable high availability, automated backups and point-in-time recovery if they were
+        deferred, and confirm deletion protection.
+      automation: provider-tool
+      gate: approval
+      reversible: false
+      rollback: >-
+        Point the application back to the source (consistent up to the write freeze). Writes made
+        on the target after promotion must be replicated back (reverse-replication step) or
+        reconciled manually.
+      risks:
+        - "After promotion the forward replication cannot be resumed; a fresh migration is needed"
+      validation:
+        - "Target accepts writes; backups and PITR enabled; HA enabled where specified"
+      source_impact: none
+
+    - id: switch-application
+      phase: cutover
+      title: "Switch applications to the target database"
+      description: "Apply the Platform spec so HERMES_DB_* bindings point at the target, restart services, and leave maintenance mode."
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "Re-apply the previous bindings to the source database (only while no target-only writes exist, or after reverse replication)."
+      risks:
+        - "Connection pools in long-running processes keep old endpoints until restarted"
+      validation:
+        - "No application connections remain on the source (pg_stat_activity)"
+      source_impact: none
+
+    - id: reverse-replication
+      phase: monitor
+      title: "Optional: replicate target changes back to the source for rollback"
+      description: >-
+        For the rollback window, publish changes on the target and subscribe from the source with
+        native logical replication, keeping the source current. This traffic is billed as target
+        egress. Limits: it carries DML only (no DDL, sequences or large objects), needs primary keys
+        or replica identity on every table, requires a publication-capable target and network path
+        back to AWS, and must be created before the first target write or the gap must be backfilled.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Drop the subscription on the source and the publication on the target."
+      risks:
+        - "Source must be kept write-protected for applications while it is a subscriber"
+      validation:
+        - "Reverse replication lag near zero"
+      source_impact: modifies-source-config
+
+    - id: keep-source-read-only
+      phase: monitor
+      title: "Keep the source read-only and intact for the rollback window"
+      description: >-
+        Do not delete or modify the source during the rollback window. Keep application write
+        privileges revoked (optionally default_transaction_read_only = on for application roles),
+        keep backups running, and record the LSN/time of the write freeze as the rollback baseline.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable; this step preserves the rollback path."
+      risks:
+        - "Without reverse replication, the source falls behind from the first target write and rollback loses those writes"
+      validation:
+        - "No write transactions on the source since the freeze (pg_stat_database xact counters for application databases)"
+      source_impact: modifies-source-config
+
+    - id: monitor-target
+      phase: monitor
+      title: "Monitor the target after cutover"
+      description: >-
+        Watch errors, latency, connection counts and storage. Trigger a controlled HA failover in
+        a maintenance window and confirm applications reconnect.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "Applications without reconnect/retry logic fail during HA failover"
+      validation:
+        - "SLOs met for the observation period; failover test passed"
+      source_impact: none
+
+    - id: clean-up-source-replication
+      phase: decommission
+      title: "Remove replication artefacts from the source"
+      description: >-
+        Drop remaining replication slots and publications, drop the pglogical extension and the
+        migration user, and revert replication parameters. An inactive slot left behind retains
+        WAL indefinitely.
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Recreate slots and users only if a new migration is started."
+      risks:
+        - "Dropping a slot still used by reverse replication or another consumer breaks it"
+      validation:
+        - "SELECT slot_name, active FROM pg_replication_slots returns no migration slots"
+      source_impact: modifies-source-config
+
+    - id: retire-source-database
+      phase: decommission
+      title: "Final snapshot and deletion of the source database"
+      description: "Take a final snapshot kept for the retention period, then remove deletion protection and delete the instance through the decommission workflow."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Restore from the final snapshot (new endpoint)."
+      risks:
+        - "Snapshots encrypted with a KMS key become unrestorable once the key is deleted"
+      validation:
+        - "Final snapshot exists and its restore was tested"
+      source_impact: modifies-source-config

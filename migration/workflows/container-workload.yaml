@@ -1,0 +1,193 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: container-workload
+  title: "Containerized and serverless workloads to the target container runtime"
+  applies_to: [serverless-container, container-orchestration, kubernetes, container-registry, compute, serverless-function]
+spec:
+  steps:
+    - id: inventory-workloads
+      phase: prepare
+      title: "Record what each workload needs"
+      description: >-
+        From the inventory: image references, ports and protocols, CPU/memory, environment
+        variable names (values are not collected), secret references, task/pod IAM roles, health
+        checks, autoscaling, sidecars, volumes, schedules and event triggers. Flag workloads that
+        accept non-HTTP inbound traffic (raw TCP/UDP), which serverless HTTP runtimes do not serve.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Configuration injected at runtime from sources outside the task definition is invisible to discovery"
+      validation:
+        - "Each workload has protocol, resources, identity and dependencies recorded"
+      source_impact: none
+
+    - id: rehost-or-replatform
+      phase: prepare
+      title: "Decide rehost or re-platform for VM-hosted containers"
+      description: >-
+        Docker workloads on EC2 managed by configuration management (for example Ansible) can be
+        rehosted (Compute Engine / ECS VMs, same playbooks, fastest, keeps VM operations) or
+        re-platformed to the target container runtime (Cloud Run / SAE, same images, needs the
+        host-level settings — volumes, host networking, cron, log and monitoring agents, secrets on
+        disk — moved into the image, the platform or the Platform spec). Record the choice per
+        workload.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable; decision only."
+      risks:
+        - "Playbooks often configure state on the host (files, certificates) that a re-platform silently drops"
+      validation:
+        - "Every host-level dependency in the playbooks has a target equivalent"
+      source_impact: none
+
+    - id: portability-remediation
+      phase: prepare
+      title: "Remove provider coupling from the application"
+      description: >-
+        Read endpoints and names from the Hermes binding contract (HERMES_* variables), use
+        provider-neutral client libraries behind an interface where possible, emit telemetry with
+        OpenTelemetry over OTLP (the AWS X-Ray SDKs and daemon entered maintenance mode on
+        2026-02-25 with end of support on 2027-02-25, so this work is needed on AWS too), and use
+        CloudEvents for event payloads. Ship these changes while still on AWS.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Revert the application release."
+      risks:
+        - "Hidden SDK usage (S3 presigned URLs, SQS long polling, IAM auth tokens for RDS) surfaces late"
+      validation:
+        - "Application runs on AWS with configuration only from HERMES_* and OTEL_* variables"
+      source_impact: none
+
+    - id: copy-images
+      phase: synchronize
+      title: "Copy images to the target registry by digest"
+      description: >-
+        Copy each image referenced by a workload from ECR to Artifact Registry or Alibaba Cloud
+        Container Registry with an OCI copy tool (for example skopeo or crane), preserving the
+        digest, and pin digests in the Platform spec. Pulling images across clouds at runtime adds
+        egress cost, latency and a dependency on the source.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Delete the copied images from the target registry."
+      risks:
+        - "Signatures and attestations stored as separate artifacts are not copied unless the tool copies referrers"
+        - "Registry egress from AWS is billed as data transfer out"
+      validation:
+        - "Digest on the target equals the digest on the source for every image"
+      source_impact: read-only-load
+
+    - id: map-identity-and-secrets
+      phase: provision
+      title: "Map IAM task roles and secrets to the target model"
+      description: >-
+        Replace task/pod IAM roles with least-privilege grants expressed in the Platform spec
+        (`access.buckets`, `publish`, `consume`, `database`); Hermes creates a service account
+        (GCP) or RAM role (Alibaba Cloud) per service. Map `secret_env` to secret names created by
+        the secrets workflow.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "Revert the spec change and re-apply."
+      risks:
+        - "Broad AWS policies (for example s3:* on *) hide which grants are really needed"
+      validation:
+        - "Each service identity holds only the grants derived from its access block"
+      source_impact: none
+
+    - id: provision-runtime
+      phase: provision
+      title: "Provision services on the target"
+      description: >-
+        `hermes plan`, review, then `hermes apply --approve <plan-id-prefix>`. Start with
+        public: false and min_instances >= 1 so services are reachable only for testing.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> --confirm-environment <env>."
+      risks:
+        - "cpu/memory combinations valid on AWS Fargate may be invalid on the target runtime; the adapter rejects them"
+      validation:
+        - "Every service reports healthy on its health_check_path"
+      source_impact: none
+
+    - id: dependency-path
+      phase: provision
+      title: "Decide how target services reach dependencies still on AWS"
+      description: >-
+        During coexistence, services on the target may call databases or APIs that are still on
+        AWS. Route that traffic over hybrid connectivity, accept the latency, and budget for the
+        cross-cloud data transfer, or move dependencies first (dependency waves from the assessment).
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; design decision."
+      risks:
+        - "Chatty calls across clouds multiply latency and egress cost"
+      validation:
+        - "p95 latency of cross-cloud calls measured and accepted"
+      source_impact: none
+
+    - id: dark-launch-tests
+      phase: validate
+      title: "Smoke, integration and load tests without production traffic"
+      description: >-
+        Test functional behaviour, scaling (including cold starts when scaling from zero),
+        concurrency limits, request timeouts, graceful shutdown on SIGTERM, and log/trace output.
+      automation: manual
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; tests only."
+      risks:
+        - "Runtime request timeouts and maximum concurrency differ from ECS/EKS defaults"
+      validation:
+        - "Load test at expected peak passes SLOs"
+        - "Traces from the target appear in the target tracing backend"
+      source_impact: none
+
+    - id: shift-traffic
+      phase: cutover
+      title: "Shift traffic with the traffic-cutover workflow"
+      description: "Use weighted DNS (or an upstream proxy) to move traffic gradually; never all at once for production."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Shift weights back to the source; the source services keep running until decommission."
+      risks:
+        - "Sessions held in local memory are lost when users move between clouds"
+      validation:
+        - "Error rate and latency on the target within SLO at each weight step"
+      source_impact: none
+
+    - id: scale-down-source
+      phase: decommission
+      title: "Scale source services to zero"
+      description: "After the rollback window, set the desired count of ECS services (or replicas on EKS) to zero and keep definitions for a final observation period."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Restore the previous desired counts."
+      risks:
+        - "Scheduled tasks or event-triggered workloads restart unexpectedly if their triggers are not disabled"
+      validation:
+        - "No running tasks on the source for the observation period"
+      source_impact: modifies-source-config
+
+    - id: delete-source
+      phase: decommission
+      title: "Delete source services, clusters and repositories"
+      description: "Delete through the decommission workflow, after images are confirmed present on the target registry."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Redeploy from the recorded definitions and copied images."
+      risks:
+        - "Deleting ECR repositories deletes images that may be needed for rollback or audit"
+      validation:
+        - "Deletion recorded in the decommission log"
+      source_impact: modifies-source-config

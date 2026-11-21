@@ -1,0 +1,27 @@
+apiVersion: hermes/v1alpha1
+kind: ServiceCatalog
+metadata:
+  reviewed_at: "2026-11-18"
+  disclaimer: "Fixture catalog for tests."
+entries:
+  - id: fixture-queue-fifo
+    category: messaging-queue
+    capability: messaging
+    source: {provider: aws, service: "Amazon SQS (FIFO)", resource_types: ["AWS::SQS::Queue"], match: {fifo_queue: [true]}}
+    targets:
+      gcp: {service: "Pub/Sub with ordering keys", alternatives: [], compatibility: partial, complexity: medium, data_migration: optional, workflow: messaging, tooling: [], lock_in: medium, hermes_support: partial, differences: [], issues: [], references: []}
+      alibaba: {service: "SMQ queue", alternatives: [], compatibility: partial, complexity: high, data_migration: optional, workflow: messaging, tooling: [], lock_in: medium, hermes_support: partial, differences: [], issues: [], references: []}
+  - id: fixture-queue
+    category: messaging-queue
+    capability: messaging
+    source: {provider: aws, service: "Amazon SQS", resource_types: ["AWS::SQS::Queue"]}
+    targets:
+      gcp: {service: "Pub/Sub subscription", alternatives: [], compatibility: compatible, complexity: medium, data_migration: optional, workflow: messaging, tooling: [], lock_in: medium, hermes_support: implemented, differences: [], issues: [], references: []}
+      alibaba: {service: "SMQ queue", alternatives: [], compatibility: compatible, complexity: medium, data_migration: optional, workflow: messaging, tooling: [], lock_in: medium, hermes_support: implemented, differences: [], issues: [], references: []}
+  - id: fixture-bucket
+    category: object-storage
+    capability: storage
+    source: {provider: aws, service: "Amazon S3", resource_types: ["AWS::S3::Bucket"]}
+    targets:
+      gcp: {service: "Cloud Storage", alternatives: [], compatibility: compatible, complexity: low, data_migration: required, workflow: object-storage, tooling: [], lock_in: low, hermes_support: implemented, differences: [], issues: [], references: []}
+      alibaba: {service: "OSS", alternatives: [], compatibility: compatible, complexity: low, data_migration: required, workflow: object-storage, tooling: [], lock_in: low, hermes_support: implemented, differences: [], issues: [], references: []}

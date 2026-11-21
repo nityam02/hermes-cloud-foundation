@@ -1,0 +1,157 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: nosql-database
+  title: "NoSQL and persistent in-memory data stores (re-design, bulk load, CDC or dual write)"
+  applies_to: [nosql-database, cache, analytics, time-series]
+spec:
+  steps:
+    - id: access-pattern-analysis
+      phase: prepare
+      title: "Document access patterns"
+      description: >-
+        For each table/collection: keys, secondary indexes, item sizes, read/write rates,
+        consistency requirements, TTL, transactions, conditional writes and streams. Access
+        patterns, not schemas, decide the target (document store, wide-column store, relational).
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Proprietary APIs (DynamoDB, DocumentDB subsets of MongoDB) hide behaviour applications depend on"
+      validation:
+        - "Every query pattern listed with expected latency and volume"
+      source_impact: none
+
+    - id: target-design
+      phase: prepare
+      title: "Design the target data model"
+      description: "Choose the target and record the decision (docs/decisions), including consistency semantics, indexing limits and cost model differences."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable; decision only."
+      risks:
+        - "Consistency differs: eventual by default on some sources, strong on some targets, and region/cluster dependent"
+      validation:
+        - "Design reviewed against every access pattern"
+      source_impact: none
+
+    - id: data-access-layer
+      phase: prepare
+      title: "Introduce a data access layer with dual-write support"
+      description: "Put reads and writes behind an interface with feature flags for read-from and write-to per backend."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Revert the application release."
+      risks: []
+      validation:
+        - "Flags switch backends in a test environment"
+      source_impact: none
+
+    - id: provision-target
+      phase: provision
+      title: "Provision the target store"
+      description: "Hermes v1alpha1 does not provision NoSQL stores; use the provider tool or your own IaC."
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Delete the target store before it holds authoritative data."
+      risks: []
+      validation:
+        - "Target reachable from the application identities only"
+      source_impact: none
+
+    - id: enable-export-and-cdc
+      phase: prepare
+      title: "Enable export and change capture on the source"
+      description: >-
+        DynamoDB: enable point-in-time recovery (needed for export to S3) and a stream with
+        NEW_AND_OLD_IMAGES. DocumentDB/MongoDB-compatible: enable change streams. Redis-compatible
+        stores: plan snapshot export (replication commands are restricted on managed services).
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Disable the stream / PITR after migration."
+      risks:
+        - "PITR and streams add cost on the source"
+      validation:
+        - "Stream enabled and readable by the CDC consumer"
+      source_impact: modifies-source-config
+
+    - id: bulk-load
+      phase: synchronize
+      title: "Export, transform and bulk load"
+      description: >-
+        Export to S3 (DynamoDB table export does not consume table read capacity), move files with
+        the object-storage workflow, transform to the target model and load. Record the export
+        time so CDC can resume from it.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Truncate the target and repeat."
+      risks:
+        - "Transformation bugs silently drop attributes"
+      validation:
+        - "Loaded item counts match the export manifest"
+      source_impact: read-only-load
+
+    - id: cdc-or-dual-write
+      phase: synchronize
+      title: "Apply changes continuously (CDC) or dual-write"
+      description: >-
+        Run a stream consumer that applies changes to the target idempotently with version
+        checks, or enable dual-write in the data access layer. DynamoDB Streams retain records
+        for 24 hours, so a consumer that falls behind longer must restart from a new export.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Stop the consumer / disable dual-write; the source stays authoritative."
+      risks:
+        - "Out-of-order application of changes without version checks corrupts data"
+      validation:
+        - "CDC lag below the agreed threshold"
+      source_impact: modifies-source-config
+
+    - id: validate-data
+      phase: validate
+      title: "Validate data and behaviour"
+      description: >-
+        Compare per-key-range hashes from full scans (DynamoDB ItemCount is approximate and
+        refreshed only periodically), and run shadow reads comparing results from both stores.
+      automation: manual
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; read-only."
+      risks: []
+      validation:
+        - "Shadow-read mismatch rate below the agreed threshold, every mismatch explained"
+      source_impact: read-only-load
+
+    - id: switch-reads-writes
+      phase: cutover
+      title: "Switch reads, then writes, to the target"
+      description: "Flip reads first, then make the target authoritative for writes while dual-writing back to the source for the rollback window."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Flip flags back; the source is current while dual-write is active."
+      risks:
+        - "Dual-write failures need a reconciliation job"
+      validation:
+        - "Error rates within SLO after each flip"
+      source_impact: modifies-source-config
+
+    - id: retire-source
+      phase: decommission
+      title: "Stop dual-write and retire the source"
+      description: "After the rollback window: stop dual-write, disable streams, delete exports, then delete tables through the decommission workflow (deletion protection must be removed explicitly)."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Restore from a retained backup/export."
+      risks: []
+      validation:
+        - "No reads or writes on source tables for the observation period"
+      source_impact: modifies-source-config

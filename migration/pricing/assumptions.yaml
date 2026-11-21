@@ -1,0 +1,171 @@
+# Hermes PricingAssumptions (data-contracts.md section 6).
+# Indicative list prices used by `hermes migrate assess` for transfer cost ranges. Never facts.
+# Override with your own file (negotiated rates, other regions). Evidence labels in applies_to:
+#   [V] read on the provider's own page during the review, [S] secondary source or search summary of the
+#   provider page, [U] unverified/prior knowledge. Notes explain what is NOT modelled.
+apiVersion: hermes/v1alpha1
+kind: PricingAssumptions
+metadata:
+  retrieved_at: "2026-11-18"
+  disclaimer: "Indicative list prices for estimation only; verify with the provider's current pricing and your agreements."
+rates:
+  # --- AWS (source side: what leaving AWS costs) ---------------------------------------------
+  - id: aws-internet-egress-tier1
+    provider: aws
+    kind: egress-internet
+    usd_per_gb: 0.09
+    applies_to: "Data transfer out to the internet, first 10 TB/month after the 100 GB/month free allowance; US and most EU regions [S]"
+    source: "https://aws.amazon.com/ec2/pricing/on-demand/"
+  - id: aws-internet-egress-tier2
+    provider: aws
+    kind: egress-internet
+    usd_per_gb: 0.085
+    applies_to: "Data transfer out to the internet, next 40 TB/month; US and most EU regions [S]"
+    source: "https://aws.amazon.com/ec2/pricing/on-demand/"
+  - id: aws-internet-egress-tier3
+    provider: aws
+    kind: egress-internet
+    usd_per_gb: 0.07
+    applies_to: "Data transfer out to the internet, next 100 TB/month; US and most EU regions [S]"
+    source: "https://aws.amazon.com/ec2/pricing/on-demand/"
+  - id: aws-internet-egress-tier4
+    provider: aws
+    kind: egress-internet
+    usd_per_gb: 0.05
+    applies_to: "Data transfer out to the internet, above 150 TB/month; US and most EU regions [S]"
+    source: "https://aws.amazon.com/ec2/pricing/on-demand/"
+  - id: aws-inter-region-typical
+    provider: aws
+    kind: egress-inter-region
+    usd_per_gb: 0.02
+    applies_to: "Data transfer to another AWS region from most US/EU source regions (some pairs lower, some higher); used only when data is staged in another region first [S]"
+    source: "https://aws.amazon.com/ec2/pricing/on-demand/"
+
+  # --- GCP (target side; egress matters for rollback and reverse replication) ------------------
+  - id: gcp-sts-agentless
+    provider: gcp
+    kind: transfer-service
+    usd_per_gb: 0.0
+    applies_to: "Storage Transfer Service agentless transfer from Amazon S3 over the internet: no service fee; AWS data transfer out applies on the AWS bill [S]"
+    source: "https://cloud.google.com/storage-transfer/pricing"
+  - id: gcp-sts-agent-based
+    provider: gcp
+    kind: transfer-service
+    usd_per_gb: 0.0125
+    applies_to: "Storage Transfer Service agent-based transfers (file systems such as EFS/NFS), per GB successfully written; agent-based S3-compatible and HDFS sources are listed as free [S]"
+    source: "https://cloud.google.com/storage-transfer/pricing"
+  - id: gcp-sts-managed-private-network-na
+    provider: gcp
+    kind: transfer-service
+    usd_per_gb: 0.03
+    applies_to: "Storage Transfer Service from supported S3 regions over the Google-managed private network, within North America, per GiB; AWS egress is not charged for these jobs [S]"
+    source: "https://cloud.google.com/storage-transfer/pricing"
+  - id: gcp-sts-managed-private-network-eu
+    provider: gcp
+    kind: transfer-service
+    usd_per_gb: 0.04
+    applies_to: "As above, within the EU, per GiB [S]"
+    source: "https://cloud.google.com/storage-transfer/pricing"
+  - id: gcp-sts-managed-private-network-apac
+    provider: gcp
+    kind: transfer-service
+    usd_per_gb: 0.08
+    applies_to: "As above, within APAC, per GiB (an April 2025 report listed 0.09) [S]"
+    source: "https://cloud.google.com/storage-transfer/pricing"
+  - id: gcp-dms-homogeneous
+    provider: gcp
+    kind: replication-service
+    usd_per_gb: 0.0
+    applies_to: "Google Database Migration Service, homogeneous MySQL/PostgreSQL/SQL Server migrations to Cloud SQL or AlloyDB: no additional charge; target instances and cross-region network charges apply [S]"
+    source: "https://cloud.google.com/database-migration/pricing"
+  - id: gcp-internet-egress-premium-tier1
+    provider: gcp
+    kind: egress-internet
+    usd_per_gb: 0.12
+    applies_to: "Premium Tier internet egress to North America/Europe destinations, 0-1 TiB/month, per GiB [S, 2024 announcement table]"
+    source: "https://cloud.google.com/vpc/network-pricing"
+  - id: gcp-internet-egress-premium-tier2
+    provider: gcp
+    kind: egress-internet
+    usd_per_gb: 0.11
+    applies_to: "Premium Tier internet egress to North America/Europe destinations, 1-10 TiB/month, per GiB [S, 2024 announcement table]"
+    source: "https://cloud.google.com/vpc/network-pricing"
+  - id: gcp-internet-egress-premium-tier3
+    provider: gcp
+    kind: egress-internet
+    usd_per_gb: 0.085
+    applies_to: "Premium Tier internet egress to North America/Europe destinations, above 10 TiB/month, per GiB (some secondary sources say 0.08) [S, 2024 announcement table]"
+    source: "https://cloud.google.com/vpc/network-pricing"
+
+  # --- Alibaba Cloud (target side) -------------------------------------------------------------
+  - id: alibaba-dts-schema-full
+    provider: alibaba
+    kind: replication-service
+    usd_per_gb: 0.0
+    applies_to: "Data Transmission Service schema and full data migration: free; incremental migration is billed per hour by instance class while it runs (not per GB, so not modelled here) [S]"
+    source: "https://help.aliyun.com/en/dts/product-overview/billable-items"
+  - id: alibaba-data-online-migration
+    provider: alibaba
+    kind: transfer-service
+    usd_per_gb: 0.0
+    applies_to: "Data Online Migration (Amazon S3 to OSS) service fee, reported free during public preview; OSS request fees on the destination and AWS egress on the source still apply [U]"
+    source: "https://help.aliyun.com/en/data-online-migration/product-overview/billing-1"
+  - id: alibaba-internet-egress-eu-na-tier1
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.074
+    applies_to: "CDT BGP (Multi-ISP) internet data transfer, Europe and North America regions, 0-10 TB/month, after the 200 GB/month free quota outside the Chinese mainland [V, page updated 2026-08-05]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-eu-na-tier2
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.065
+    applies_to: "As above, 10-50 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-eu-na-tier3
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.06
+    applies_to: "As above, 50-150 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-eu-na-tier4
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.04
+    applies_to: "As above, above 150 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-apac-tier1
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.1
+    applies_to: "CDT BGP (Multi-ISP) internet data transfer, Asia-Pacific regions outside the Chinese mainland, 0-10 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-apac-tier2
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.07
+    applies_to: "As above, 10-50 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-apac-tier3
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.065
+    applies_to: "As above, 50-150 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+  - id: alibaba-internet-egress-apac-tier4
+    provider: alibaba
+    kind: egress-internet
+    usd_per_gb: 0.055
+    applies_to: "As above, above 150 TB/month [V]"
+    source: "https://www.alibabacloud.com/help/en/cdt/product-overview/internet-data-transfers"
+notes:
+  - "Ingress is not charged by GCP or Alibaba Cloud (CDT bills outbound traffic only). The cost of moving data from AWS is therefore AWS data transfer out plus any target transfer-service fee."
+  - "Transfer cost range (designed for hermes migrate assess): low = cheapest viable path (for GCP, the managed-private-network rate for the region when the S3 region is supported; otherwise tiered AWS egress), high = tiered AWS internet egress with no waiver. Report the rate ids used."
+  - "GCP publishes per-GiB rates. They are stored unchanged in usd_per_gb; applying them per GB overstates cost by about 7%, which keeps estimates conservative."
+  - "Free allowances: AWS 100 GB/month to the internet aggregated across services and regions (except China and GovCloud) [V]; Alibaba CDT 200 GB/month outside the Chinese mainland and 20 GB inside, BGP (Multi-ISP) only [V]; GCP free tier not modelled [U]."
+  - "Exit programme, AWS: free data transfer out to the internet for customers moving off AWS may apply; it requires a request to and approval by AWS Support before the move, covers moving all data (from all eligible accounts, or all data of a particular service), and must complete within a window (180 days for non-EU customers per the 2026-10-08 update; EU customers follow the AWS EU Data Act addendum). Earlier coverage listed CloudFront, Direct Connect, Snow Family and Global Accelerator transfers as excluded. Verify current terms: https://aws.amazon.com/blogs/aws/free-data-transfer-out-to-internet-when-moving-out-of-aws/ [V for the blog terms, S for exclusions]."
+  - "Exit programme, GCP (relevant only when leaving GCP, for example a rollback after cutover): free data transfer for customers exiting Google Cloud may apply; it requires an Exit Notice before the agreement ends, migration within an initiation period, a Completion Notice and a full exit of the service; credit appears on the final invoice; internet transfers only. Verify: https://cloud.google.com/exit-cloud [S]."
+  - "Multicloud, GCP (EU and UK): Data Transfer Essentials (2025-09-10) may zero-rate qualifying egress between GCP and another provider for workloads of one organization running in parallel; opt-in, and traffic must be designated. Useful during coexistence, not for a one-time exit. Verify: https://cloud.google.com/blog/products/networking/new-for-the-uk-and-eu-no-cost-multicloud-data-transfer-essentials [S]."
+  - "Exit programme, Alibaba Cloud: no exit or switching waiver programme was found in this review [U]. The EU Data Act bans switching charges, including egress for switching, from 2027-01-12; it may apply to EU customers of any provider; verify with the provider [S]."
+  - "Not modelled: request/operation charges (S3 GET/LIST, OSS PUT), archive restore and retrieval fees, VPN hourly connection fees, interconnect port and bandwidth fees (AWS Interconnect - multicloud is priced by selected bandwidth and scope, with one free 500 Mbps local connection per region from May 2026 [V]), AWS DMS instance-hours, DTS incremental instance-hours, target compute/storage, and dual-running costs during coexistence."
+  - "Rollback and reverse replication send data out of the target, at the target's internet egress rates (GCP Premium Tier or Alibaba CDT above)."

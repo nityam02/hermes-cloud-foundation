@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes.example.com/schemas/migration/assessment.schema.json",
+  "title": "Hermes Assessment (v1alpha1)",
+  "description": "Output of hermes migrate assess (data-contracts section 7). Cost figures are indicative ranges; draft_spec always requires human review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "summary", "resources", "blockers", "gaps", "dependencies", "draft_spec", "spec_mapping", "unsupported"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1"},
+    "kind": {"const": "Assessment"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "generator", "source", "target", "inventory_digest", "catalog_digest", "pricing_digest", "disclaimer"],
+      "properties": {
+        "generated_at": {"type": "string"},
+        "generator": {"type": "string"},
+        "source": {"$ref": "#/$defs/endpoint"},
+        "target": {"$ref": "#/$defs/endpoint"},
+        "inventory_digest": {"$ref": "#/$defs/digest"},
+        "inventory_collector": {"type": "string"},
+        "catalog_digest": {"$ref": "#/$defs/digest"},
+        "pricing_digest": {"$ref": "#/$defs/digest"},
+        "disclaimer": {"type": "string"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource_count", "by_compatibility", "by_complexity", "portability_score", "portability_method", "data_volume", "transfer_cost"],
+      "properties": {
+        "resource_count": {"type": "integer", "minimum": 0},
+        "by_compatibility": {"$ref": "#/$defs/counts"},
+        "by_complexity": {"$ref": "#/$defs/counts"},
+        "by_category": {"$ref": "#/$defs/counts"},
+        "by_hermes_support": {"$ref": "#/$defs/counts"},
+        "portability_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "portability_method": {"type": "string"},
+        "data_volume": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required_bytes", "optional_bytes", "unknown_size_resources", "basis"],
+          "properties": {
+            "required_bytes": {"type": "integer", "minimum": 0},
+            "optional_bytes": {"type": "integer", "minimum": 0},
+            "by_category_bytes": {"type": "object", "additionalProperties": {"type": "integer"}},
+            "unknown_size_resources": {"type": "array", "items": {"type": "string"}},
+            "basis": {"type": "string"}
+          }
+        },
+        "transfer_cost": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["currency", "low_usd", "high_usd", "method", "rates_used", "exit_programmes", "disclaimer"],
+          "properties": {
+            "currency": {"const": "USD"},
+            "low_usd": {"type": "number", "minimum": 0},
+            "high_usd": {"type": "number", "minimum": 0},
+            "method": {"type": "string"},
+            "rates_used": {"type": "array", "items": {"type": "object", "required": ["id", "provider", "kind", "usd_per_gb", "source"]}},
+            "exit_programmes": {"type": "array", "items": {"type": "string"}},
+            "disclaimer": {"type": "string"}
+          }
+        },
+        "blocker_count": {"type": "integer"},
+        "risk_count": {"type": "integer"},
+        "gap_count": {"type": "integer"},
+        "wave_count": {"type": "integer"}
+      }
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "category", "mapping_id", "compatibility", "complexity", "data_migration", "workflow", "hermes_support"],
+        "properties": {
+          "id": {"type": "string"}, "type": {"type": "string"}, "name": {"type": "string"}, "region": {"type": "string"},
+          "category": {"type": "string"}, "capability": {"type": "string"}, "mapping_id": {"type": "string"},
+          "target_service": {"type": "string"}, "alternatives": {"type": "array", "items": {"type": "string"}},
+          "compatibility": {"enum": ["equivalent", "compatible", "partial", "re-architect", "none", "unknown"]},
+          "complexity": {"enum": ["low", "medium", "high"]},
+          "data_migration": {"enum": ["required", "optional", "none"]},
+          "workflow": {"type": "string"},
+          "hermes_support": {"enum": ["implemented", "partial", "not-implemented"]},
+          "lock_in": {"enum": ["low", "medium", "high"]},
+          "completeness": {"enum": ["full", "partial", "identifier-only"]},
+          "managed_by": {"type": "string"},
+          "wave": {"type": "integer", "minimum": 0},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "notes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "severity", "message", "recommendation"],
+        "properties": {
+          "code": {"type": "string", "pattern": "^HCF4\\d\\d$"},
+          "severity": {"enum": ["blocker", "risk", "info"]},
+          "resource_ids": {"type": "array", "items": {"type": "string"}},
+          "message": {"type": "string"},
+          "recommendation": {"type": "string"}
+        }
+      }
+    },
+    "gaps": {"type": "array", "items": {"$ref": "../inventory/v1alpha1.schema.json#/$defs/gap"}},
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["waves", "external_references"],
+      "properties": {
+        "waves": {"type": "array", "items": {"type": "object", "required": ["index", "resources"], "properties": {"index": {"type": "integer"}, "resources": {"type": "array", "items": {"type": "string"}}, "cycles": {"type": "array"}}}},
+        "external_references": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "draft_spec": {
+      "type": "object",
+      "required": ["apiVersion", "kind", "project", "cloud"],
+      "properties": {"apiVersion": {"const": "hermes/v1alpha1"}, "kind": {"const": "Platform"}},
+      "description": "Draft Platform document; validate it with hermes validate after writing it out with hermes migrate generate."
+    },
+    "spec_mapping": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "source_type", "source_name", "target_kind", "target_path"],
+        "properties": {
+          "source_id": {"type": "string"}, "source_type": {"type": "string"}, "source_name": {"type": "string"},
+          "target_kind": {"enum": ["network", "database", "bucket", "topic", "subscription", "secret", "service", "absorbed"]},
+          "target_name": {"type": "string"}, "target_path": {"type": "string"}, "review": {"type": "boolean"}, "note": {"type": "string"}
+        }
+      }
+    },
+    "unsupported": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "source_type", "source_name", "category", "reason", "recommended_service", "suggestion"],
+        "properties": {
+          "source_id": {"type": "string"}, "source_type": {"type": "string"}, "source_name": {"type": "string"}, "category": {"type": "string"},
+          "reason": {"type": "string"}, "recommended_service": {"type": "string"}, "alternatives": {"type": "array", "items": {"type": "string"}}, "suggestion": {"type": "string"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {"provider": {"enum": ["aws", "gcp", "alibaba"]}, "account_id": {"type": "string"}, "regions": {"type": "array", "items": {"type": "string"}}, "region": {"type": "string"}}
+    }
+  }
+}

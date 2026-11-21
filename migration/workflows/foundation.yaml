@@ -1,0 +1,174 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: foundation
+  title: "Read-only discovery, assessment and target landing zone"
+  applies_to: [networking, identity, key-management, logging, monitoring, iac, certificates]
+spec:
+  steps:
+    - id: discover-source
+      phase: foundation
+      title: "Run read-only discovery of the source account"
+      description: >-
+        Run `hermes inventory aws` with a dedicated read-only cross-account role (Describe/List/Get
+        only, ExternalId required). Discovery is agentless and does not depend on IaC state; the
+        source may have been built by hand. Terraform state and CloudFormation stacks only annotate
+        managed_by. Secret values are never read.
+      automation: hermes
+      gate: none
+      reversible: true
+      rollback: "Nothing to roll back; discovery is read-only. Remove the discovery role when the migration ends."
+      risks:
+        - "Denied or throttled describe calls leave gaps; undiscovered scope is migration risk"
+        - "Discovery adds API load on the source account and can be throttled at large scale"
+      validation:
+        - "Inventory metadata.read_only is true"
+        - "Every entry in inventory.gaps is triaged: accepted, or discovery re-run with broader read-only access"
+        - "Inventory regions cover every region the source account uses (check billing by region)"
+      source_impact: read-only-load
+
+    - id: assess-and-sign-off
+      phase: foundation
+      title: "Assess the inventory and sign off scope"
+      description: >-
+        Run `hermes migrate assess` against the target provider. Review blockers, every resource
+        classified manual-review or compatibility unknown, the dependency waves and the draft_spec.
+        Record scope decisions (migrate, rebuild, retire, keep in place) in docs/decisions.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "Re-run the assessment; nothing is changed by it."
+      risks:
+        - "Capability equivalence in the catalog is not operational equivalence; owners must review differences per resource"
+        - "Cost estimates are indicative list-price ranges, not quotes"
+      validation:
+        - "Every blocker has an owner and a decision"
+        - "draft_spec reviewed by a human before it is used"
+      source_impact: none
+
+    - id: adopt-source-iac
+      phase: foundation
+      title: "Optional: adopt the source into IaC without changing it"
+      description: >-
+        `hermes adopt aws` generates import blocks from the inventory into a separate source
+        workspace with its own state. The engine imports existing resources; nothing is created,
+        changed or deleted on the source. This is IaC adoption, not migration: source and target
+        state stay isolated, and resource identity never moves between them. Review any generated
+        configuration (-generate-config-out is experimental and can write sensitive values).
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "Delete the source workspace state; imported resources are unaffected."
+      risks:
+        - "A later apply in the source workspace with drifted configuration would modify production; plans there must show no changes before any apply"
+      validation:
+        - "Plan in the source workspace shows no changes after import"
+      source_impact: read-only-load
+
+    - id: target-hierarchy-and-billing
+      phase: foundation
+      title: "Create the target resource hierarchy, billing and budgets"
+      description: >-
+        GCP: organization, folders and one project per environment, billing account link, budgets
+        with alerts. Alibaba Cloud: Resource Directory with member accounts or resource groups per
+        environment, budgets/cost alerts. Apply organization-level guardrails (allowed regions,
+        no service-account key creation on GCP, control policies in Resource Directory).
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Delete the empty projects/accounts and detach billing."
+      risks:
+        - "Organization policies applied later can block migration tooling (for example service-account key creation or external IP restrictions)"
+      validation:
+        - "Budgets and alert recipients exist for every environment"
+        - "Allowed-region policy matches the regions in the Platform spec"
+      source_impact: none
+
+    - id: bootstrap-state-backend
+      phase: foundation
+      title: "Bootstrap the Hermes state backend on the target"
+      description: >-
+        Create the remote state bucket with infra/bootstrap/<provider>/state-backend (versioned,
+        encrypted, private, deletion-protected). The bootstrap is applied once per project with an
+        explicit approval.
+      automation: hermes
+      gate: approval
+      reversible: false
+      rollback: "Remove deletion protection and delete the empty state bucket; never delete a bucket that holds state."
+      risks:
+        - "Losing state orphans resources; versioning and deletion protection must stay enabled"
+      validation:
+        - "State bucket has versioning, encryption and public-access prevention enabled"
+        - "Locking works (two concurrent plans: the second waits or fails)"
+      source_impact: none
+
+    - id: identity-and-access
+      phase: foundation
+      title: "Set up human and CI access to the target"
+      description: >-
+        Federate workforce identities (SSO) instead of creating local users, define a break-glass
+        procedure, and give CI a federated workload identity (GCP Workload Identity Federation,
+        Alibaba Cloud RAM role with OIDC) so no long-lived keys exist.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the federation configuration and role bindings."
+      risks:
+        - "Long-lived access keys created for convenience become a secret-sprawl problem"
+      validation:
+        - "No user-managed service-account keys or RAM user AccessKeys exist for CI"
+        - "Break-glass access tested and logged"
+      source_impact: none
+
+    - id: keys-and-network
+      phase: foundation
+      title: "Provision customer-managed keys and the target network"
+      description: >-
+        Write the Platform spec (start from the assessment draft_spec), then `hermes plan` and
+        `hermes apply --approve <plan-id-prefix>`. Choose a network CIDR that does not overlap any
+        source VPC CIDR from the inventory, because hybrid connectivity needs routable, distinct ranges.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> --confirm-environment <env> (keys enter their provider-specific deletion waiting period)."
+      risks:
+        - "Overlapping CIDRs make hybrid connectivity impossible without NAT"
+        - "Scheduling key deletion makes all data encrypted with that key unrecoverable after the waiting period"
+      validation:
+        - "Target CIDR does not overlap any AWS::EC2::VPC cidr in the inventory"
+        - "hermes plan shows no destructive actions on re-run (idempotent)"
+      source_impact: none
+
+    - id: audit-logging
+      phase: foundation
+      title: "Enable audit logging and log retention on the target"
+      description: >-
+        GCP: Admin Activity audit logs are always on; enable Data Access audit logs where required
+        and route them to a locked log bucket. Alibaba Cloud: create an ActionTrail trail delivering
+        to SLS or OSS. Match or exceed the retention obligations the source CloudTrail setup meets.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Disable the additional audit log configuration (Admin Activity logs cannot be disabled on GCP)."
+      risks:
+        - "Data Access audit logs can be high volume and costly"
+      validation:
+        - "A test administrative action appears in the audit log within minutes"
+        - "Retention configured to the required period"
+      source_impact: none
+
+    - id: validate-foundation
+      phase: validate
+      title: "Validate the foundation before any workload moves"
+      description: >-
+        Run `hermes migrate validate` with foundation checks (network reachable, state backend,
+        keys, budgets) and confirm hybrid connectivity is planned if any data will be synchronized
+        privately.
+      automation: hermes
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; validation is read-only."
+      risks: []
+      validation:
+        - "Validation report has no failed checks"
+      source_impact: none

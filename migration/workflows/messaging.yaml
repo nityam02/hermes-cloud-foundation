@@ -1,0 +1,137 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: messaging
+  title: "Queues, topics and streams migration with producer switch and drain"
+  applies_to: [messaging-queue, messaging-pubsub, streaming]
+spec:
+  steps:
+    - id: map-semantics
+      phase: prepare
+      title: "Map messaging semantics per queue/topic"
+      description: >-
+        For each topic, queue and subscription record: standard vs FIFO, deduplication, message
+        size (SQS and SNS accept up to 1 MiB payloads; Pub/Sub up to 10 MB; check the SMQ limit,
+        which is far lower), visibility timeout (Pub/Sub ack deadline is at most 600 s), delay
+        queues, retention, dead-letter configuration and max receive count, filter policies, and
+        delivery targets other than queues (email, SMS, HTTP, Lambda). Streams: shard/partition
+        counts, retention and consumer checkpoints.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Visibility timeouts above 600 s, per-message delays and very large messages have no direct Pub/Sub equivalent"
+        - "Pub/Sub dead-lettering accepts 5-100 delivery attempts; smaller max receive counts must be raised"
+      validation:
+        - "Every queue/topic has a target mapping or a documented redesign"
+      source_impact: none
+
+    - id: idempotent-consumers
+      phase: prepare
+      title: "Make consumers idempotent and provider-neutral"
+      description: >-
+        Both sides deliver at least once (exactly-once delivery on Pub/Sub applies only to pull
+        subscriptions within a region). Consumers must tolerate duplicates and reordering during
+        the switch. Use CloudEvents for payloads and the HERMES_TOPIC_* / HERMES_SUBSCRIPTION_*
+        bindings for names.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Revert the application release."
+      risks:
+        - "Consumers that rely on FIFO order across the switch see out-of-order messages"
+      validation:
+        - "Replaying the same message twice produces no duplicate side effects (test)"
+      source_impact: none
+
+    - id: provision-target
+      phase: provision
+      title: "Provision topics and subscriptions"
+      description: "Provision with Hermes (workloads.messaging) for topic/subscription pairs; Kafka-compatible services and brokers use the provider tool."
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> before producers switch."
+      risks: []
+      validation:
+        - "Publish/consume test message succeeds with the service identities"
+      source_impact: none
+
+    - id: consumers-on-both
+      phase: synchronize
+      title: "Run consumers on both sides"
+      description: >-
+        Deploy target consumers on the new subscriptions while source consumers keep draining
+        source queues. For streams, replicate topics (for example MirrorMaker 2 for Kafka) when
+        consumers need history, and translate consumer offsets.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Stop the target consumers."
+      risks:
+        - "Side effects run twice if a message is published to both sides"
+      validation:
+        - "Target consumers healthy and processing test traffic"
+      source_impact: none
+
+    - id: switch-producers
+      phase: cutover
+      title: "Switch producers to the target"
+      description: >-
+        Move producers to the target topics (one producer at a time where possible). Do not
+        bridge by consuming from the source and republishing unless the bridge is idempotent and
+        approved, because consuming deletes messages from the source queue.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Point producers back to the source topics/queues."
+      risks:
+        - "Messages published to the target before its consumers are ready accumulate (retention limits apply)"
+      validation:
+        - "Source publish metrics drop to zero for switched producers"
+      source_impact: none
+
+    - id: drain-source
+      phase: cutover
+      title: "Drain source queues and dead-letter queues"
+      description: >-
+        Keep source consumers running until ApproximateNumberOfMessagesVisible and NotVisible are
+        zero on every source queue, including dead-letter queues. Decide what to do with messages
+        left in DLQs (replay to the target or archive).
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Restart source consumers."
+      risks:
+        - "Messages older than the source retention period expire if draining stalls"
+      validation:
+        - "All source queues and DLQs empty for the observation period"
+      source_impact: read-only-load
+
+    - id: monitor
+      phase: monitor
+      title: "Monitor backlog and dead-letter rates on the target"
+      description: "Alert on oldest unacked message age, backlog size and dead-letter topic publish rate."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "Backlog age within SLO for the observation period"
+      source_impact: none
+
+    - id: retire-source
+      phase: decommission
+      title: "Delete source topics, queues and streams"
+      description: "Delete through the decommission workflow after the rollback window; remove event source mappings and subscriptions first."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Recreate from the recorded configuration (messages are not recoverable)."
+      risks:
+        - "Forgotten producers fail when topics disappear"
+      validation:
+        - "No publish or receive calls on source resources for the observation period"
+      source_impact: modifies-source-config

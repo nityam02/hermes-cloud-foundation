@@ -1,0 +1,3409 @@
+# Hermes ServiceCatalog (data-contracts.md section 4).
+# Source -> target capability mapping for AWS -> GCP and AWS -> Alibaba Cloud.
+# How to read this file, match attribute keys, review status and evidence levels:
+# docs/migration/service-mapping.md. The full table is generated: `hermes migrate catalog --format markdown`.
+# hermes_support describes the Hermes v1alpha1 Platform scope (see docs/migration/service-mapping.md);
+# the implementation status of the provider adapters is tracked in docs/limitations.md.
+apiVersion: hermes/v1alpha1
+kind: ServiceCatalog
+metadata:
+  reviewed_at: "2026-11-18"
+  disclaimer: "Mappings describe capability equivalence, not operational equivalence. Verify against current provider documentation."
+entries:
+  # ---------------------------------------------------------------------------
+  # Networking
+  # ---------------------------------------------------------------------------
+  - id: aws-vpc
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon VPC"
+      resource_types: ["AWS::EC2::VPC", "AWS::EC2::InternetGateway", "AWS::EC2::VPCGatewayAttachment", "AWS::EC2::DHCPOptions"]
+    targets:
+      gcp:
+        service: "VPC network"
+        alternatives: ["Shared VPC"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network block)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "GCP VPC networks are global; subnets are regional and routes are network-wide"
+          - "There is no internet gateway object; internet access uses the default route plus external IPs or Cloud NAT"
+          - "DHCP option sets have no equivalent; internal DNS is provided by Cloud DNS"
+        issues:
+          - "Choose a target CIDR that does not overlap any source VPC so hybrid connectivity can route between them"
+        references: ["https://docs.cloud.google.com/vpc/docs/vpc"]
+      alibaba:
+        service: "Virtual Private Cloud (VPC)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network block)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "VPCs are regional like AWS; subnets are called vSwitches and are zonal"
+          - "No internet gateway object; internet access uses EIPs, NAT Gateway or public load balancers"
+        issues:
+          - "Choose a target CIDR that does not overlap any source VPC"
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-subnet
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon VPC subnets"
+      resource_types: ["AWS::EC2::Subnet"]
+    targets:
+      gcp:
+        service: "VPC subnets"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network.zones)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Subnets are regional and span all zones; AWS subnets are bound to one Availability Zone"
+          - "Public/private is not a subnet property; it depends on external IPs and firewall rules"
+        issues: []
+        references: ["https://docs.cloud.google.com/vpc/docs/subnets"]
+      alibaba:
+        service: "vSwitches"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network.zones)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "vSwitches are zonal, as AWS subnets are; zone availability of instance types and services differs by region"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-rds-db-subnet-group
+    category: networking
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS DB subnet groups"
+      resource_types: ["AWS::RDS::DBSubnetGroup"]
+    targets:
+      gcp:
+        service: "Private services access allocated range (Cloud SQL private IP)"
+        alternatives: ["Private Service Connect for Cloud SQL"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (workloads.database creates the private services access connection)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "There is no subnet-group object: Cloud SQL private IPs come from an allocated range peered to the VPC through Service Networking"
+          - "Zone placement for high availability is chosen by Cloud SQL (availability_type REGIONAL), not by listing subnets"
+        issues:
+          - "The allocated range must not overlap source CIDRs if hybrid connectivity routes between the clouds during migration"
+        references: ["https://docs.cloud.google.com/sql/docs/postgres/private-ip"]
+      alibaba:
+        service: "vSwitch selection for ApsaraDB RDS"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (workloads.database places the instance in the platform vSwitches)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "The instance references a vSwitch (and a secondary zone for high availability) directly; there is no reusable subnet-group object"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-vpc-peering-connection
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon VPC peering connections"
+      resource_types: ["AWS::EC2::VPCPeeringConnection"]
+    targets:
+      gcp:
+        service: "VPC Network Peering"
+        alternatives: ["Shared VPC", "Network Connectivity Center", "Cloud VPN between VPCs"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["google_compute_network_peering (not generated by Hermes)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Peering is configured from both networks; custom route import/export is explicit"
+          - "Like AWS, peering is non-transitive; GCP additionally caps peering connections and peered-network routes per VPC"
+        issues:
+          - "Peered CIDRs must not overlap; re-plan address space before recreating peerings in the target"
+          - "A peering that crosses the source/target boundary during migration is hybrid connectivity (VPN/Interconnect), not VPC peering"
+        references: ["https://docs.cloud.google.com/vpc/docs/vpc-peering"]
+      alibaba:
+        service: "VPC peering connections"
+        alternatives: ["Cloud Enterprise Network (CEN) transit routers"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["alicloud_vpc_peer_connection (not generated by Hermes)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Peering requires routes in both VPCs; cross-region and cross-account peering are billed for transferred data"
+          - "CEN is the managed hub alternative for many VPCs, comparable to AWS Transit Gateway"
+        issues:
+          - "Peered CIDRs must not overlap"
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-security-group
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon VPC security groups and network ACLs"
+      resource_types: ["AWS::EC2::SecurityGroup", "AWS::EC2::SecurityGroupIngress", "AWS::EC2::SecurityGroupEgress", "AWS::EC2::NetworkAcl", "AWS::EC2::NetworkAclEntry"]
+    targets:
+      gcp:
+        service: "Cloud NGFW firewall rules and network firewall policies"
+        alternatives: ["Hierarchical firewall policies"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes least-privilege rules derived from the Platform spec"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Rules attach to the network and target instances by network tags or service accounts, not by group membership"
+          - "Security-group-to-security-group references must be re-expressed with tags, service accounts or secure tags"
+          - "Network ACLs have no separate equivalent; use firewall policy priorities and deny rules"
+        issues:
+          - "Hermes generates rules for its own workloads from the spec; it does not translate arbitrary source rules"
+        references: ["https://docs.cloud.google.com/firewall/docs/firewalls"]
+      alibaba:
+        service: "Security groups"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes least-privilege rules derived from the Platform spec"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Stateful like AWS, but rules support both allow and deny with priorities"
+          - "Network ACLs exist per vSwitch as a separate feature"
+        issues:
+          - "Hermes generates rules for its own workloads; arbitrary rule sets are re-created manually"
+        references: ["https://www.alibabacloud.com/help/en/ecs/"]
+
+  - id: aws-route-table
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon VPC route tables"
+      resource_types: ["AWS::EC2::RouteTable", "AWS::EC2::Route", "AWS::EC2::SubnetRouteTableAssociation"]
+    targets:
+      gcp:
+        service: "VPC routes"
+        alternatives: ["Policy-based routes"]
+        compatibility: partial
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network block)"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Routes belong to the VPC network and can target instances by network tag; there is no per-subnet route table"
+          - "Dynamic routes are learned by Cloud Router over BGP"
+        issues: []
+        references: ["https://docs.cloud.google.com/vpc/docs/routes"]
+      alibaba:
+        service: "VPC route tables"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network block)"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "System and custom route tables associated with vSwitches, similar to AWS"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-nat-gateway
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "NAT gateways"
+      resource_types: ["AWS::EC2::NatGateway"]
+    targets:
+      gcp:
+        service: "Cloud NAT"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network.nat)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Cloud NAT is a regional, software-defined service configured on a Cloud Router; no per-zone gateways"
+          - "Port allocation per VM is configurable; exhaustion shows up as dropped connections"
+        issues:
+          - "Egress IPs change; partners that allowlist source NAT IPs must be updated"
+        references: ["https://docs.cloud.google.com/nat/docs/overview"]
+      alibaba:
+        service: "NAT Gateway (Internet NAT gateway)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (network.nat)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "SNAT entries map vSwitches to Elastic IP addresses explicitly"
+        issues:
+          - "Egress IPs change; update partner allowlists"
+        references: ["https://www.alibabacloud.com/help/en/nat-gateway/"]
+
+  - id: aws-elastic-ip
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "Elastic IP addresses"
+      resource_types: ["AWS::EC2::EIP", "AWS::EC2::EIPAssociation"]
+    targets:
+      gcp:
+        service: "Static external IP addresses"
+        alternatives: ["Bring your own IP (BYOIP) for owned prefixes"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Addresses are regional or global (global for global external load balancers)"
+        issues:
+          - "Provider-owned IP addresses cannot move between clouds; every consumer of a literal IP must be updated"
+        references: ["https://docs.cloud.google.com/vpc/docs/ip-addresses"]
+      alibaba:
+        service: "Elastic IP Address (EIP)"
+        alternatives: ["Anycast EIP"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "EIPs are billed by bandwidth or by data transfer (CDT); choose the metering mode explicitly"
+        issues:
+          - "Provider-owned IP addresses cannot move between clouds"
+        references: ["https://www.alibabacloud.com/help/en/eip/"]
+
+  - id: aws-vpc-endpoint
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "VPC endpoints (gateway, interface) and PrivateLink services"
+      resource_types: ["AWS::EC2::VPCEndpoint", "AWS::EC2::VPCEndpointService"]
+    targets:
+      gcp:
+        service: "Private Service Connect"
+        alternatives: ["Private Google Access"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Access to Google APIs from private subnets usually uses Private Google Access rather than per-service endpoints"
+          - "Endpoint policies have no direct equivalent; VPC Service Controls provide perimeter-style restrictions"
+        issues: []
+        references: ["https://docs.cloud.google.com/vpc/docs/private-service-connect"]
+      alibaba:
+        service: "PrivateLink"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Many Alibaba Cloud services are reached through VPC-internal endpoints without a separate endpoint resource"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/privatelink/"]
+
+  - id: aws-transit-gateway
+    category: hybrid-connectivity
+    capability: network
+    source:
+      provider: aws
+      service: "AWS Transit Gateway"
+      resource_types: ["AWS::EC2::TransitGateway", "AWS::EC2::TransitGatewayAttachment", "AWS::EC2::TransitGatewayVpcAttachment", "AWS::EC2::TransitGatewayRouteTable"]
+    targets:
+      gcp:
+        service: "Network Connectivity Center"
+        alternatives: ["VPC Network Peering", "Shared VPC"]
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "A single global VPC often replaces several regional VPCs joined by a transit gateway"
+          - "Route table segmentation per attachment is modelled differently (hubs, spokes and route tables)"
+        issues:
+          - "Transit topology must be redesigned, not translated"
+        references: ["https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center"]
+      alibaba:
+        service: "Cloud Enterprise Network (CEN) with transit routers"
+        alternatives: ["VPC peering"]
+        compatibility: compatible
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Transit routers are regional and joined in a CEN instance; cross-region bandwidth is purchased separately"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/cen/"]
+
+  - id: aws-site-to-site-vpn
+    category: hybrid-connectivity
+    capability: network
+    source:
+      provider: aws
+      service: "AWS Site-to-Site VPN"
+      resource_types: ["AWS::EC2::VPNConnection", "AWS::EC2::VPNGateway", "AWS::EC2::CustomerGateway", "AWS::EC2::VPNConnectionRoute"]
+    targets:
+      gcp:
+        service: "HA VPN with Cloud Router"
+        alternatives: ["Cloud Interconnect", "Cross-Cloud Interconnect"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "The 99.99% HA VPN SLA requires two gateway interfaces and redundant tunnels; an AWS peer needs four tunnels"
+          - "BGP is mandatory for HA VPN dynamic routing"
+        issues:
+          - "Existing on-premises VPNs into AWS must be re-established towards the target with new peer IPs and keys"
+        references: ["https://docs.cloud.google.com/network-connectivity/docs/vpn/how-to/connect-ha-vpn-aws-peer-gateway"]
+      alibaba:
+        service: "VPN Gateway (IPsec-VPN)"
+        alternatives: ["Express Connect"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Dual-tunnel IPsec-VPN connections with optional BGP; BGP is disabled by default"
+        issues:
+          - "Existing VPNs must be re-established with new peer IPs and keys"
+        references: ["https://help.aliyun.com/en/vpn/sub-product-ipsec-vpn/user-guide/create-and-manage-an-ipsec-vpn-connection-in-dual-tunnel-mode"]
+
+  # ---------------------------------------------------------------------------
+  # Compute
+  # ---------------------------------------------------------------------------
+  - id: aws-ec2-instance
+    category: compute
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon EC2 instances"
+      resource_types: ["AWS::EC2::Instance"]
+    targets:
+      gcp:
+        service: "Compute Engine"
+        alternatives: ["Cloud Run (after containerization)", "Google Kubernetes Engine"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Migrate to Virtual Machines (rehost)", "Image build pipelines / configuration management (rebuild)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Machine families and sizes differ; map by vCPU, memory, architecture (x86/Arm) and local disk needs"
+          - "Instance metadata service, user data and instance profiles are replaced by GCE metadata and attached service accounts"
+        issues:
+          - "Hermes v1alpha1 has no VM capability; rebuild as containers where possible or rehost with the provider tool"
+          - "VM-hosted Docker managed by configuration management (for example Ansible on EC2): rehost to Compute Engine and keep the playbooks, or re-platform the same images to Cloud Run; re-platforming moves host-level settings (volumes, host networking, cron, log agents) into the image or the platform"
+          - "Instances with source/destination check disabled are routers, NAT or VPN relays; they are classified by the aws-ec2-network-appliance entry"
+          - "Licensed operating systems and software may need license changes"
+        references: ["https://docs.cloud.google.com/migrate/virtual-machines/docs"]
+      alibaba:
+        service: "Elastic Compute Service (ECS)"
+        alternatives: ["Serverless App Engine (after containerization)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Server Migration Center (rehost)", "Image build pipelines / configuration management (rebuild)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Instance families and sizes differ; RAM roles replace instance profiles"
+        issues:
+          - "Hermes v1alpha1 has no VM capability"
+          - "VM-hosted Docker managed by configuration management: rehost to ECS and keep the playbooks, or re-platform the same images to SAE"
+        references: ["https://www.alibabacloud.com/help/en/smc/"]
+
+  - id: aws-auto-scaling-group
+    category: compute
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon EC2 Auto Scaling and launch templates"
+      resource_types: ["AWS::AutoScaling::AutoScalingGroup", "AWS::AutoScaling::LaunchConfiguration", "AWS::EC2::LaunchTemplate", "AWS::AutoScaling::ScalingPolicy"]
+    targets:
+      gcp:
+        service: "Managed instance groups with instance templates"
+        alternatives: ["Cloud Run", "Google Kubernetes Engine"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Regional managed instance groups spread across zones; autoscaling signals and lifecycle hooks differ"
+        issues:
+          - "Prefer moving these workloads to containers (Hermes compute capability)"
+        references: ["https://docs.cloud.google.com/compute/docs/instance-groups"]
+      alibaba:
+        service: "Auto Scaling (ESS) with scaling configurations or launch templates"
+        alternatives: ["Serverless App Engine"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Scaling groups, rules and lifecycle hooks are similar in concept; parameters differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/auto-scaling/"]
+
+  - id: aws-ebs-volume
+    category: block-storage
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon EBS volumes"
+      resource_types: ["AWS::EC2::Volume", "AWS::EC2::VolumeAttachment"]
+    targets:
+      gcp:
+        service: "Persistent Disk / Hyperdisk"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Migrate to Virtual Machines (with the attached instance)", "File-level copy (rsync)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Performance is provisioned differently (disk type, size-based or provisioned IOPS/throughput)"
+          - "Regional persistent disks replicate synchronously across two zones; EBS is single-AZ"
+        issues:
+          - "Volumes move with their instance or by file-level copy; block snapshots are not portable between clouds"
+        references: ["https://docs.cloud.google.com/compute/docs/disks"]
+      alibaba:
+        service: "Elastic Block Storage (ESSD cloud disks)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Server Migration Center (with the attached instance)", "File-level copy (rsync)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "ESSD performance levels (PL0-PL3) replace gp3/io2 provisioning"
+        issues:
+          - "Block snapshots are not portable between clouds"
+        references: ["https://www.alibabacloud.com/help/en/ecs/"]
+
+  - id: aws-ecs-cluster
+    category: container-orchestration
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon ECS clusters and capacity providers"
+      resource_types: ["AWS::ECS::Cluster", "AWS::ECS::CapacityProvider", "AWS::ECS::ClusterCapacityProviderAssociations"]
+    targets:
+      gcp:
+        service: "Cloud Run"
+        alternatives: ["Google Kubernetes Engine Autopilot"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Cloud Run has no cluster or capacity-provider object; capacity is per service"
+        issues: []
+        references: ["https://docs.cloud.google.com/run/docs"]
+      alibaba:
+        service: "Serverless App Engine (SAE)"
+        alternatives: ["Container Service for Kubernetes (ACK)", "Elastic Container Instance (ECI)"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Applications are grouped in namespaces; there is no capacity-provider concept"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/sae/"]
+
+  - id: aws-ecs-service
+    category: serverless-container
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon ECS services and task definitions (Fargate or EC2 launch type)"
+      resource_types: ["AWS::ECS::Service", "AWS::ECS::TaskDefinition", "AWS::ApplicationAutoScaling::ScalableTarget"]
+    targets:
+      gcp:
+        service: "Cloud Run services"
+        alternatives: ["Google Kubernetes Engine", "Cloud Run jobs (for scheduled or batch tasks)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)", "OCI image copy by digest (skopeo, crane)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Inbound traffic must be HTTP/1.1, HTTP/2 (gRPC) or WebSockets; raw TCP/UDP listeners need GKE or Compute Engine"
+          - "Request-driven autoscaling with per-instance concurrency; long background work needs instance-based billing (CPU always allocated) or jobs"
+          - "Task IAM roles become per-service service accounts; secrets are injected from Secret Manager"
+          - "Sidecars are supported as additional containers; ECS service discovery (Cloud Map) has no built-in equivalent"
+        issues:
+          - "Workloads relying on EFS volumes, privileged mode or host networking need redesign"
+        references: ["https://docs.cloud.google.com/run/docs"]
+      alibaba:
+        service: "Serverless App Engine (SAE) applications"
+        alternatives: ["Container Service for Kubernetes (ACK)", "Elastic Container Instance (ECI)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)", "OCI image copy by digest (skopeo, crane)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Inbound traffic is exposed through CLB/ALB/NLB bindings rather than a built-in HTTPS endpoint"
+          - "RAM roles replace task IAM roles; supported CPU/memory specifications differ from Fargate"
+        issues:
+          - "Confirm SAE availability and specifications in the chosen region"
+        references: ["https://www.alibabacloud.com/help/en/sae/"]
+
+  - id: aws-eks-cluster
+    category: kubernetes
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon EKS"
+      resource_types: ["AWS::EKS::Cluster", "AWS::EKS::Nodegroup", "AWS::EKS::FargateProfile", "AWS::EKS::Addon"]
+    targets:
+      gcp:
+        service: "Google Kubernetes Engine (GKE)"
+        alternatives: ["GKE Autopilot", "Cloud Run (for simple HTTP services)"]
+        compatibility: compatible
+        complexity: high
+        data_migration: optional
+        workflow: container-workload
+        tooling: ["GitOps re-deployment of manifests", "Velero (backup/restore of Kubernetes objects and volumes)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "IRSA / EKS Pod Identity become Workload Identity Federation for GKE"
+          - "AWS Load Balancer Controller annotations, EBS/EFS CSI storage classes and Karpenter configuration have GKE-specific replacements"
+          - "Kubernetes versions and release channels follow a different cadence"
+        issues:
+          - "Hermes v1alpha1 reserves compute.type kubernetes; clusters are provisioned with the provider tool or your IaC"
+          - "Persistent volumes need application-level data migration or Velero file-system backup"
+        references: ["https://docs.cloud.google.com/kubernetes-engine/docs"]
+      alibaba:
+        service: "Container Service for Kubernetes (ACK)"
+        alternatives: ["ACK Serverless"]
+        compatibility: compatible
+        complexity: high
+        data_migration: optional
+        workflow: container-workload
+        tooling: ["GitOps re-deployment of manifests", "Velero (backup/restore of Kubernetes objects and volumes)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "IRSA / EKS Pod Identity become RAM Roles for Service Accounts (RRSA)"
+          - "Ingress, load balancer annotations and CSI storage classes are Alibaba Cloud specific"
+        issues:
+          - "Hermes v1alpha1 reserves compute.type kubernetes"
+        references: ["https://www.alibabacloud.com/help/en/ack/"]
+
+  - id: aws-app-runner
+    category: serverless-container
+    capability: compute
+    source:
+      provider: aws
+      service: "AWS App Runner"
+      resource_types: ["AWS::AppRunner::Service", "AWS::AppRunner::AutoScalingConfiguration"]
+    targets:
+      gcp:
+        service: "Cloud Run services"
+        alternatives: []
+        compatibility: equivalent
+        complexity: low
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Source-code deployments are replaced by container images built in CI"
+        issues: []
+        references: ["https://docs.cloud.google.com/run/docs"]
+      alibaba:
+        service: "Serverless App Engine (SAE) applications"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Hermes Platform spec (workloads.compute)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "HTTPS ingress is configured through a load balancer binding"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/sae/"]
+
+  - id: aws-elastic-beanstalk
+    category: compute
+    capability: compute
+    source:
+      provider: aws
+      service: "AWS Elastic Beanstalk"
+      resource_types: ["AWS::ElasticBeanstalk::Application", "AWS::ElasticBeanstalk::Environment", "AWS::ElasticBeanstalk::ApplicationVersion"]
+    targets:
+      gcp:
+        service: "Cloud Run services"
+        alternatives: ["App Engine flexible environment"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Containerize the application (Dockerfile or buildpacks)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Platform-managed EC2 environments, .ebextensions and worker tiers have no equivalent; the application must be containerized"
+        issues:
+          - "Environment-coupled databases created by Beanstalk must be migrated separately"
+        references: ["https://docs.cloud.google.com/run/docs"]
+      alibaba:
+        service: "Serverless App Engine (SAE) applications"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Containerize the application (Dockerfile or buildpacks)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "SAE also deploys some packaged application formats; containers keep the migration provider-neutral"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/sae/"]
+
+  - id: aws-lambda-function
+    category: serverless-function
+    capability: compute
+    source:
+      provider: aws
+      service: "AWS Lambda"
+      resource_types: ["AWS::Lambda::Function", "AWS::Lambda::Alias", "AWS::Lambda::Version", "AWS::Lambda::LayerVersion", "AWS::Lambda::Url"]
+    targets:
+      gcp:
+        service: "Cloud Run functions (formerly Cloud Functions)"
+        alternatives: ["Cloud Run services (HTTP container)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Functions Framework", "Repackage as an HTTP container"]
+        lock_in: high
+        hermes_support: partial
+        differences:
+          - "Handler signatures and event payloads differ; Lambda event shapes must be adapted (CloudEvents on GCP)"
+          - "Layers have no equivalent; bundle dependencies or use a container image"
+          - "Triggers are Eventarc, Pub/Sub or HTTP rather than event source mappings"
+        issues:
+          - "Hermes can host a function only after it is repackaged as an HTTP containerized service; triggers are not provisioned"
+        references: ["https://cloud.google.com/blog/products/serverless/google-cloud-functions-is-now-cloud-run-functions"]
+      alibaba:
+        service: "Function Compute"
+        alternatives: ["Serverless App Engine (HTTP container)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: container-workload
+        tooling: ["Repackage as an HTTP container or custom runtime"]
+        lock_in: high
+        hermes_support: partial
+        differences:
+          - "Handler signatures, event formats and trigger configuration differ"
+        issues:
+          - "Hermes can host a function only as an HTTP containerized service; triggers are not provisioned"
+        references: ["https://www.alibabacloud.com/help/en/functioncompute/"]
+
+  - id: aws-lambda-event-source-mapping
+    category: serverless-function
+    capability: messaging
+    source:
+      provider: aws
+      service: "AWS Lambda event source mappings and permissions"
+      resource_types: ["AWS::Lambda::EventSourceMapping", "AWS::Lambda::Permission", "AWS::Lambda::EventInvokeConfig"]
+    targets:
+      gcp:
+        service: "Eventarc triggers and Pub/Sub push subscriptions"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Batching, partial batch failure reporting and concurrency controls differ from Lambda polling"
+        issues:
+          - "Each trigger must be redesigned around the target event source"
+        references: ["https://docs.cloud.google.com/eventarc/docs"]
+      alibaba:
+        service: "Function Compute triggers"
+        alternatives: ["EventBridge (Alibaba Cloud)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Trigger types and batching options differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/functioncompute/"]
+
+  - id: aws-ecr-repository
+    category: container-registry
+    capability: compute
+    source:
+      provider: aws
+      service: "Amazon ECR"
+      resource_types: ["AWS::ECR::Repository", "AWS::ECR::RegistryPolicy", "AWS::ECR::ReplicationConfiguration"]
+    targets:
+      gcp:
+        service: "Artifact Registry"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: container-workload
+        tooling: ["OCI image copy by digest (skopeo, crane)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Lifecycle policies become cleanup policies; image scanning is provided by Artifact Analysis"
+          - "Use Artifact Registry, not the retired Container Registry"
+        issues:
+          - "Hermes references images by URL and does not create registries"
+        references: ["https://docs.cloud.google.com/artifact-registry/docs"]
+      alibaba:
+        service: "Container Registry (ACR)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: container-workload
+        tooling: ["OCI image copy by digest (skopeo, crane)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Personal and Enterprise editions differ in features (replication, scanning, network access); production use normally needs Enterprise"
+        issues:
+          - "Hermes references images by URL and does not create registries"
+        references: ["https://www.alibabacloud.com/help/en/acr/"]
+
+  # ---------------------------------------------------------------------------
+  # Load balancing, edge, DNS, certificates
+  # ---------------------------------------------------------------------------
+  - id: aws-alb
+    category: load-balancing
+    capability: network
+    source:
+      provider: aws
+      service: "Application Load Balancer"
+      resource_types: ["AWS::ElasticLoadBalancingV2::LoadBalancer"]
+      match:
+        type: ["application"]
+    targets:
+      gcp:
+        service: "Application Load Balancer (external or internal)"
+        alternatives: ["Cloud Run built-in HTTPS endpoint"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: ["Hermes public services (public: true)"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Built from forwarding rules, target proxies, URL maps and backend services rather than one resource"
+          - "Global external load balancers use a single anycast IP across regions"
+          - "Listener rules map to URL map host/path rules; Lambda targets map to serverless network endpoint groups"
+        issues:
+          - "Hermes provisions HTTPS ingress for public services only; custom routing rules are re-created manually"
+        references: ["https://docs.cloud.google.com/load-balancing/docs/application-load-balancer"]
+      alibaba:
+        service: "Application Load Balancer (ALB)"
+        alternatives: ["Classic Load Balancer (CLB)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: ["Hermes public services (public: true)"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Listener, forwarding rule and server group concepts are similar; editions and capacity units differ"
+        issues:
+          - "Hermes provisions ingress for public services only; custom rules are re-created manually"
+        references: ["https://www.alibabacloud.com/help/en/slb/"]
+
+  - id: aws-nlb
+    category: load-balancing
+    capability: network
+    source:
+      provider: aws
+      service: "Network Load Balancer"
+      resource_types: ["AWS::ElasticLoadBalancingV2::LoadBalancer"]
+      match:
+        type: ["network"]
+    targets:
+      gcp:
+        service: "Network Load Balancer (passthrough or proxy)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Passthrough load balancers preserve client IPs without proxy protocol; proxy variants terminate TCP/TLS"
+          - "Backends are instance groups or network endpoint groups; Cloud Run does not accept raw TCP"
+        issues:
+          - "TCP/UDP workloads need Compute Engine or GKE backends, which Hermes v1alpha1 does not provision"
+        references: ["https://docs.cloud.google.com/load-balancing/docs/network"]
+      alibaba:
+        service: "Network Load Balancer (NLB)"
+        alternatives: ["Classic Load Balancer (CLB)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Layer-4 load balancing with zonal EIPs; client IP preservation options differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/slb/"]
+
+  - id: aws-elbv2-other
+    category: load-balancing
+    capability: network
+    source:
+      provider: aws
+      service: "Elastic Load Balancing v2 (other types, for example Gateway Load Balancer)"
+      resource_types: ["AWS::ElasticLoadBalancingV2::LoadBalancer"]
+    targets:
+      gcp:
+        service: "Manual review"
+        alternatives: ["Application Load Balancer", "Network Load Balancer"]
+        compatibility: unknown
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Load balancer type not recognized (inventory attribute 'type' missing or not application/network)"
+        references: []
+      alibaba:
+        service: "Manual review"
+        alternatives: ["Application Load Balancer (ALB)", "Network Load Balancer (NLB)"]
+        compatibility: unknown
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Load balancer type not recognized"
+        references: []
+
+  - id: aws-elbv2-listener-target-group
+    category: load-balancing
+    capability: network
+    source:
+      provider: aws
+      service: "ELB listeners, listener rules and target groups"
+      resource_types: ["AWS::ElasticLoadBalancingV2::Listener", "AWS::ElasticLoadBalancingV2::ListenerRule", "AWS::ElasticLoadBalancingV2::TargetGroup", "AWS::ElasticLoadBalancingV2::ListenerCertificate"]
+    targets:
+      gcp:
+        service: "Target proxies, URL maps and backend services"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Health checks are separate resources; weighted target groups map to weighted backend services in URL maps"
+        issues: []
+        references: ["https://docs.cloud.google.com/load-balancing/docs/url-map-concepts"]
+      alibaba:
+        service: "ALB/NLB listeners, forwarding rules and server groups"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Forwarding rule conditions and actions are similar; limits per listener differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/slb/"]
+
+  - id: aws-classic-elb
+    category: load-balancing
+    capability: network
+    source:
+      provider: aws
+      service: "Classic Load Balancer"
+      resource_types: ["AWS::ElasticLoadBalancing::LoadBalancer"]
+    targets:
+      gcp:
+        service: "Application Load Balancer or Network Load Balancer"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Decide per listener whether HTTP(S) (application) or TCP (network) semantics are needed"
+        issues: []
+        references: ["https://docs.cloud.google.com/load-balancing/docs/choosing-load-balancer"]
+      alibaba:
+        service: "Classic Load Balancer (CLB) or ALB/NLB"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "CLB supports layer-4 and layer-7 listeners on one instance, like the AWS Classic Load Balancer"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/slb/"]
+
+  - id: aws-cloudfront-distribution
+    category: cdn
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon CloudFront"
+      resource_types: ["AWS::CloudFront::Distribution", "AWS::CloudFront::Function", "AWS::CloudFront::OriginAccessControl", "AWS::CloudFront::CachePolicy"]
+    targets:
+      gcp:
+        service: "Cloud CDN (on an external Application Load Balancer)"
+        alternatives: ["Media CDN"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Cloud CDN is enabled per backend service or backend bucket of a load balancer, not as a standalone distribution"
+          - "CloudFront Functions and Lambda@Edge have no direct equivalent; edge logic moves to the load balancer or origin"
+          - "Signed URLs/cookies use Cloud CDN signing keys"
+        issues:
+          - "Cache behaviours and invalidation workflows must be re-created and tested for hit ratio"
+        references: ["https://docs.cloud.google.com/cdn/docs"]
+      alibaba:
+        service: "Alibaba Cloud CDN"
+        alternatives: ["Dynamic Route for CDN (DCDN)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Points of presence, mainland China delivery (requires ICP filing) and edge scripting differ"
+        issues:
+          - "Delivery inside the Chinese mainland requires an ICP filing for the domain"
+        references: ["https://www.alibabacloud.com/help/en/cdn/"]
+
+  - id: aws-route53
+    category: dns
+    capability: dns
+    source:
+      provider: aws
+      service: "Amazon Route 53 hosted zones, records and health checks"
+      resource_types: ["AWS::Route53::HostedZone", "AWS::Route53::RecordSet", "AWS::Route53::RecordSetGroup", "AWS::Route53::HealthCheck"]
+    targets:
+      gcp:
+        service: "Cloud DNS"
+        alternatives: ["Keep DNS on Route 53 during and after migration"]
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: traffic-cutover
+        tooling: ["Zone file export/import", "Record-by-record comparison with dig"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Alias records have no equivalent; use A/AAAA records or CNAMEs (not at the zone apex)"
+          - "Routing policies (weighted, geolocation, failover) exist but health-checked routing has narrower target support"
+          - "Private hosted zones map to Cloud DNS private zones bound to VPC networks"
+        issues:
+          - "Hermes v1alpha1 reserves the dns capability"
+          - "Moving DNS hosting is optional and best done last; DNSSEC needs a safe key and DS record procedure"
+        references: ["https://docs.cloud.google.com/dns/docs"]
+      alibaba:
+        service: "Alibaba Cloud DNS"
+        alternatives: ["PrivateZone (private DNS)", "Keep DNS on Route 53"]
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: traffic-cutover
+        tooling: ["Zone file export/import", "Record-by-record comparison with dig"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Resolution lines (ISP and geography) replace latency/geolocation routing; alias records become A/CNAME records"
+          - "Private zones are a separate product (PrivateZone)"
+        issues:
+          - "Hermes v1alpha1 reserves the dns capability"
+        references: ["https://www.alibabacloud.com/help/en/dns/"]
+
+  - id: aws-api-gateway
+    category: api-gateway
+    capability: network
+    source:
+      provider: aws
+      service: "Amazon API Gateway (REST, HTTP and WebSocket APIs)"
+      resource_types: ["AWS::ApiGateway::RestApi", "AWS::ApiGateway::Stage", "AWS::ApiGateway::DomainName", "AWS::ApiGatewayV2::Api", "AWS::ApiGatewayV2::Stage", "AWS::ApiGatewayV2::DomainName"]
+    targets:
+      gcp:
+        service: "API Gateway"
+        alternatives: ["Apigee", "Application Load Balancer in front of Cloud Run"]
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: ["Export the API definition as OpenAPI and adapt it"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "API Gateway configurations use OpenAPI 2.0 with Google extensions; request/response mapping templates (VTL) have no equivalent"
+          - "Lambda authorizers, usage plans and API keys must be redesigned (for example Apigee products or application-level auth)"
+          - "WebSocket APIs have no API Gateway equivalent; serve WebSockets from Cloud Run"
+        issues:
+          - "Integration logic embedded in the gateway moves into application code"
+        references: ["https://docs.cloud.google.com/api-gateway/docs"]
+      alibaba:
+        service: "API Gateway"
+        alternatives: []
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: ["Import an OpenAPI/Swagger definition"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Authorization plugins, throttling and backend types differ; mapping templates are not portable"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/api-gateway/"]
+
+  - id: aws-wafv2
+    category: other
+    capability: network
+    source:
+      provider: aws
+      service: "AWS WAF"
+      resource_types: ["AWS::WAFv2::WebACL", "AWS::WAFv2::WebACLAssociation", "AWS::WAFv2::RuleGroup", "AWS::WAFv2::IPSet"]
+    targets:
+      gcp:
+        service: "Cloud Armor"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Security policies attach to load balancer backend services; custom rules use Common Expression Language"
+          - "AWS managed rule groups do not transfer; use preconfigured Cloud Armor WAF rules and tune them"
+        issues:
+          - "Rules need a preview/log-only period on the target to avoid blocking legitimate traffic"
+        references: ["https://docs.cloud.google.com/armor/docs"]
+      alibaba:
+        service: "Web Application Firewall (WAF)"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Protection modules and rule syntax differ; managed rules do not transfer"
+        issues:
+          - "Run new rules in observation mode before blocking"
+        references: ["https://www.alibabacloud.com/help/en/waf/"]
+
+  - id: aws-acm-certificate
+    category: certificates
+    capability: network
+    source:
+      provider: aws
+      service: "AWS Certificate Manager (public certificates)"
+      resource_types: ["AWS::CertificateManager::Certificate"]
+    targets:
+      gcp:
+        service: "Certificate Manager (Google-managed certificates)"
+        alternatives: ["Cloud Run domain mappings", "Self-managed certificate upload"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: ["DNS authorization for pre-issuance"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Public ACM certificates cannot be exported unless requested as exportable (available since 2025-06-17, extra charge); re-issue on the target instead"
+          - "DNS authorization lets Google issue certificates before DNS points at the target"
+        issues:
+          - "CAA records must allow the target certificate authority"
+        references: ["https://docs.cloud.google.com/certificate-manager/docs", "https://aws.amazon.com/about-aws/whats-new/2025/06/aws-certificate-manager-public-certificates-use-anywhere"]
+      alibaba:
+        service: "Certificate Management Service"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: traffic-cutover
+        tooling: []
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Certificates are purchased/issued or uploaded and referenced by ID (Hermes extension alibaba.certificate_id)"
+        issues:
+          - "Renewal and deployment to load balancers/CDN must be automated separately"
+        references: ["https://www.alibabacloud.com/help/en/ssl-certificate/"]
+
+  # ---------------------------------------------------------------------------
+  # Relational databases (entries with match are evaluated before entries without)
+  # ---------------------------------------------------------------------------
+  - id: aws-rds-postgresql
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS for PostgreSQL (single instance, Multi-AZ instance or Multi-AZ DB cluster)"
+      resource_types: ["AWS::RDS::DBInstance", "AWS::RDS::DBCluster"]
+      match:
+        engine: ["postgres"]
+    targets:
+      gcp:
+        service: "Cloud SQL for PostgreSQL"
+        alternatives: ["AlloyDB for PostgreSQL"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: relational-database-postgresql
+        tooling: ["Google Database Migration Service (continuous, pglogical-based)", "pg_dump/pg_restore", "Native logical replication (publication/subscription)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "AWS-specific extensions (aws_s3, aws_lambda, aws_commons) have no equivalent; check every extension against the Cloud SQL list"
+          - "Superuser is not available; cloudsqlsuperuser plays the role of rds_superuser"
+          - "IAM database authentication is configured differently and is not supported on Google DMS destinations during migration"
+          - "Multi-AZ failover repoints a DNS name to the standby; Cloud SQL regional HA fails over behind the same IP. Both drop open connections, and neither standby serves reads (Multi-AZ DB clusters do have readable standbys)"
+        issues:
+          - "Google DMS standard migrations replicate only the snapshot and INSERTs for tables without a primary key"
+          - "DDL, large objects, users/roles, pg_cron jobs and C-language functions are not migrated by Google DMS"
+          - "Destination automated backups and PITR are suspended during DMS replication until promotion"
+          - "Multi-AZ DB cluster members are DBInstances too; assess data volume once per cluster"
+        references:
+          - "https://docs.cloud.google.com/database-migration/docs/postgres/known-limitations"
+          - "https://docs.cloud.google.com/database-migration/docs/postgres/configure-source-database"
+          - "https://cloud.google.com/database-migration/pricing"
+      alibaba:
+        service: "ApsaraDB RDS for PostgreSQL"
+        alternatives: ["PolarDB for PostgreSQL"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: relational-database-postgresql
+        tooling: ["Data Transmission Service (schema, full and incremental migration)", "pg_dump/pg_restore", "Native logical replication"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Extension support and versions differ; privileged accounts replace rds_superuser"
+          - "DTS incremental migration replicates DML only; DDL must not run on the source during migration"
+        issues:
+          - "DTS source requirements for Amazon RDS: PostgreSQL 10.4 or later and rds.logical_replication = 1"
+          - "DTS does not validate sequences; set sequence values manually before cutover"
+          - "A failover of the Amazon RDS source can break the DTS task, and its replication slot must be cleaned up manually"
+          - "DTS schema and full migration are free; incremental migration is billed while it runs"
+        references:
+          - "https://help.aliyun.com/en/dts/user-guide/migrate-incremental-data-from-an-amazon-rds-for-postgresql-instance-to-an-apsaradb-rds-for-postgresql-instance"
+          - "https://help.aliyun.com/en/dts/product-overview/billable-items"
+
+  - id: aws-aurora-postgresql-cluster
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon Aurora PostgreSQL-Compatible Edition (cluster)"
+      resource_types: ["AWS::RDS::DBCluster"]
+      match:
+        engine: ["aurora-postgresql"]
+    targets:
+      gcp:
+        service: "Cloud SQL for PostgreSQL"
+        alternatives: ["AlloyDB for PostgreSQL (closer to Aurora's shared-storage architecture and read pools)"]
+        compatibility: compatible
+        complexity: high
+        data_migration: required
+        workflow: relational-database-postgresql
+        tooling: ["Google Database Migration Service (Aurora PostgreSQL source supported)", "pg_dump/pg_restore"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Aurora-only features (Global Database, Babelfish, cluster cache management, fast clones, Serverless v2 capacity scaling, aurora_* functions) have no direct equivalent"
+          - "Reader endpoints become read replicas (Cloud SQL) or read pools (AlloyDB)"
+        issues:
+          - "Source parameters go in a custom DB cluster parameter group; the cluster must be restarted"
+          - "Hermes provisions Cloud SQL; AlloyDB is provisioned with the provider tool"
+        references:
+          - "https://docs.cloud.google.com/database-migration/docs/postgres/configure-source-database"
+          - "https://docs.cloud.google.com/database-migration/docs/postgresql-to-alloydb/known-limitations"
+      alibaba:
+        service: "ApsaraDB RDS for PostgreSQL"
+        alternatives: ["PolarDB for PostgreSQL (shared-storage architecture)"]
+        compatibility: compatible
+        complexity: high
+        data_migration: required
+        workflow: relational-database-postgresql
+        tooling: ["Data Transmission Service", "pg_dump/pg_restore", "Native logical replication"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Aurora-only features have no direct equivalent"
+        issues:
+          - "Alibaba's published DTS guide for an Aurora PostgreSQL source covers full data migration; confirm incremental support before planning a low-downtime cutover"
+        references: ["https://help.aliyun.com/en/dts/user-guide/migrate-full-data-from-an-amazon-aurora-postgresql-instance-to-an-apsaradb-rds-for-postgresql-instance"]
+
+  - id: aws-aurora-postgresql-instance
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon Aurora PostgreSQL cluster member instance"
+      resource_types: ["AWS::RDS::DBInstance"]
+      match:
+        engine: ["aurora-postgresql"]
+    targets:
+      gcp:
+        service: "Cloud SQL for PostgreSQL (primary or read replica)"
+        alternatives: ["AlloyDB for PostgreSQL instances"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: relational-database-postgresql
+        tooling: []
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Instances share the cluster volume; data is migrated once at the DBCluster level"
+        issues: []
+        references: []
+      alibaba:
+        service: "ApsaraDB RDS for PostgreSQL (primary or read-only instance)"
+        alternatives: ["PolarDB for PostgreSQL nodes"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: relational-database-postgresql
+        tooling: []
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Data is migrated once at the DBCluster level"
+        issues: []
+        references: []
+
+  - id: aws-rds-mysql
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS for MySQL"
+      resource_types: ["AWS::RDS::DBInstance", "AWS::RDS::DBCluster"]
+      match:
+        engine: ["mysql"]
+    targets:
+      gcp:
+        service: "Cloud SQL for MySQL"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Google Database Migration Service (continuous, binlog-based)", "mysqldump / mydumper with replication"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "GTID_MODE must be ON or OFF; the migration user password is limited to 32 characters"
+          - "Only InnoDB tables are supported by the managed migration"
+        issues:
+          - "Hermes v1alpha1 reserves database.engine mysql; provision the target with the provider tool"
+        references: ["https://docs.cloud.google.com/database-migration/docs/mysql/configure-source-database"]
+      alibaba:
+        service: "ApsaraDB RDS for MySQL"
+        alternatives: ["PolarDB for MySQL"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Data Transmission Service", "mysqldump / mydumper with replication"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Parameter defaults (sql_mode, collation) and storage engine options differ"
+        issues:
+          - "Hermes v1alpha1 reserves database.engine mysql"
+        references: ["https://help.aliyun.com/en/dts/user-guide/connect-aws-databases-to-alibaba-cloud"]
+
+  - id: aws-rds-mariadb
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS for MariaDB"
+      resource_types: ["AWS::RDS::DBInstance"]
+      match:
+        engine: ["mariadb"]
+    targets:
+      gcp:
+        service: "Cloud SQL for MySQL"
+        alternatives: ["Self-managed MariaDB on Compute Engine or GKE"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Logical dump and restore (mysqldump / mydumper)"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "GCP has no managed MariaDB; MariaDB-specific features (sequences, system-versioned tables, its GTID format, some JSON behaviour) differ from MySQL"
+        issues:
+          - "Confirm whether the chosen replication tool accepts MariaDB sources; otherwise plan a downtime window"
+        references: ["https://docs.cloud.google.com/sql/docs/mysql"]
+      alibaba:
+        service: "ApsaraDB RDS for MariaDB"
+        alternatives: ["ApsaraDB RDS for MySQL"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Data Transmission Service", "Logical dump and restore"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Supported MariaDB versions are limited; check the current version list"
+        issues:
+          - "Current availability of RDS for MariaDB in the target region was not verified in this review"
+        references: ["https://www.alibabacloud.com/help/en/rds/apsaradb-rds-for-mariadb/mariadb"]
+
+  - id: aws-aurora-mysql-cluster
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon Aurora MySQL-Compatible Edition (cluster)"
+      resource_types: ["AWS::RDS::DBCluster"]
+      match:
+        engine: ["aurora-mysql", "aurora"]
+    targets:
+      gcp:
+        service: "Cloud SQL for MySQL"
+        alternatives: []
+        compatibility: compatible
+        complexity: high
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Google Database Migration Service", "mydumper with replication"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Aurora-only features (Global Database, backtrack, parallel query, Serverless v2) have no equivalent"
+        issues:
+          - "Binary logging must be enabled in the DB cluster parameter group"
+        references: ["https://docs.cloud.google.com/database-migration/docs/mysql/configure-source-database"]
+      alibaba:
+        service: "PolarDB for MySQL"
+        alternatives: ["ApsaraDB RDS for MySQL"]
+        compatibility: compatible
+        complexity: high
+        data_migration: required
+        workflow: relational-database-mysql
+        tooling: ["Data Transmission Service"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Shared-storage architecture comparable to Aurora; cluster endpoints and read/write splitting configured differently"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/polardb/"]
+
+  - id: aws-aurora-mysql-instance
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon Aurora MySQL cluster member instance"
+      resource_types: ["AWS::RDS::DBInstance"]
+      match:
+        engine: ["aurora-mysql", "aurora"]
+    targets:
+      gcp:
+        service: "Cloud SQL for MySQL (primary or read replica)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: relational-database-mysql
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Data is migrated once at the DBCluster level"
+        issues: []
+        references: []
+      alibaba:
+        service: "PolarDB for MySQL nodes"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: relational-database-mysql
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Data is migrated once at the DBCluster level"
+        issues: []
+        references: []
+
+  - id: aws-rds-sqlserver
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS for SQL Server"
+      resource_types: ["AWS::RDS::DBInstance"]
+      match:
+        engine: ["sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-web"]
+    targets:
+      gcp:
+        service: "Cloud SQL for SQL Server"
+        alternatives: []
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Google Database Migration Service for SQL Server (backup-file based)", "Native backup to S3, transfer, restore"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Licensing, edition features, SQL Agent jobs, linked servers and Windows authentication need individual review"
+          - "Managed SQL Server withholds sysadmin; CLR, cross-database and server-level features need case-by-case review"
+        issues:
+          - "No reserved Hermes workflow for SQL Server; follow manual-review with the provider tool"
+        references: ["https://cloud.google.com/database-migration/pricing"]
+      alibaba:
+        service: "ApsaraDB RDS for SQL Server"
+        alternatives: []
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Data Transmission Service", "Native backup restore from OSS"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Editions, licensing and supported features differ by version"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/rds/"]
+
+  - id: aws-rds-oracle
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS for Oracle"
+      resource_types: ["AWS::RDS::DBInstance"]
+      match:
+        engine: ["oracle-ee", "oracle-se2", "oracle-ee-cdb", "oracle-se2-cdb"]
+    targets:
+      gcp:
+        service: "Oracle Database@Google Cloud"
+        alternatives: ["Bare Metal Solution", "Convert to Cloud SQL for PostgreSQL or AlloyDB (heterogeneous)"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Google Database Migration Service (Oracle to PostgreSQL, heterogeneous)", "Oracle-native tools (Data Pump, GoldenGate)"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Heterogeneous conversion to PostgreSQL rewrites PL/SQL, data types and application SQL"
+        issues:
+          - "Licensing terms decide the viable target; heterogeneous DMS migrations are billed per GiB processed"
+        references: ["https://docs.cloud.google.com/database-migration/docs/oracle-to-postgresql/known-limitations"]
+      alibaba:
+        service: "PolarDB for PostgreSQL (Oracle-compatible edition)"
+        alternatives: ["Self-managed Oracle on ECS"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Data Transmission Service"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "No managed Oracle service; the Oracle-compatible PolarDB edition covers a subset of PL/SQL and features"
+        issues:
+          - "Verify the edition's compatibility coverage against the application before committing"
+        references: ["https://www.alibabacloud.com/help/en/polardb/"]
+
+  - id: aws-rds-other
+    category: relational-database
+    capability: database
+    source:
+      provider: aws
+      service: "Amazon RDS (other or unrecognized engine)"
+      resource_types: ["AWS::RDS::DBInstance", "AWS::RDS::DBCluster"]
+    targets:
+      gcp:
+        service: "Manual review"
+        alternatives: []
+        compatibility: unknown
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Engine not matched by a catalog entry (for example db2, custom engines, or engine attribute missing from the inventory)"
+        references: []
+      alibaba:
+        service: "Manual review"
+        alternatives: []
+        compatibility: unknown
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Engine not matched by a catalog entry"
+        references: []
+
+  # ---------------------------------------------------------------------------
+  # NoSQL, caches, search, analytics, time series
+  # ---------------------------------------------------------------------------
+  - id: aws-dynamodb-table
+    category: nosql-database
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon DynamoDB"
+      resource_types: ["AWS::DynamoDB::Table", "AWS::DynamoDB::GlobalTable"]
+    targets:
+      gcp:
+        service: "Firestore (Native mode)"
+        alternatives: ["Bigtable (high-throughput key/range access)", "Spanner (relational with global consistency)"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["DynamoDB export to S3 + object-storage transfer + custom loader", "DynamoDB Streams consumer for CDC", "Application dual-write"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "The API, query model, indexes, capacity model and transaction limits all differ; data access code is rewritten"
+          - "Global tables (multi-region active-active) map to multi-region Firestore/Spanner configurations with different consistency"
+        issues:
+          - "Choose the target per access pattern; there is no drop-in DynamoDB-compatible managed service on GCP"
+          - "DynamoDB Streams keep records for 24 hours; CDC consumers must not fall behind longer"
+        references: ["https://docs.cloud.google.com/firestore/docs", "https://docs.cloud.google.com/bigtable/docs"]
+      alibaba:
+        service: "Tablestore"
+        alternatives: ["ApsaraDB for MongoDB", "Lindorm (wide-column)"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["DynamoDB export to S3 + Data Online Migration + loader", "DynamoDB Streams consumer for CDC", "Application dual-write"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Tablestore uses primary-key tables with secondary and search indexes; its API and limits differ from DynamoDB"
+        issues:
+          - "Data access code is rewritten"
+        references: ["https://www.alibabacloud.com/help/en/tablestore/"]
+
+  - id: aws-documentdb
+    category: nosql-database
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon DocumentDB (with MongoDB compatibility)"
+      resource_types: ["AWS::DocDB::DBCluster", "AWS::DocDB::DBInstance"]
+    targets:
+      gcp:
+        service: "Firestore with MongoDB compatibility"
+        alternatives: ["Self-managed MongoDB on GKE", "Managed MongoDB offerings from Google Cloud Marketplace"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["mongodump/mongorestore", "Change streams consumer for CDC"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Both sides implement subsets of the MongoDB API; operator, index and transaction coverage must be checked per application"
+        issues:
+          - "Verify the current feature coverage of the chosen target against the queries the application uses"
+        references: ["https://docs.cloud.google.com/firestore/docs"]
+      alibaba:
+        service: "ApsaraDB for MongoDB"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["mongodump/mongorestore", "Data Transmission Service (verify support for a DocumentDB source)"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "A MongoDB server is generally a superset of the DocumentDB API subset; version-specific behaviour still needs testing"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/mongodb/"]
+
+  - id: aws-elasticache-redis
+    category: cache
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon ElastiCache (Redis OSS and Valkey engines)"
+      resource_types: ["AWS::ElastiCache::ReplicationGroup", "AWS::ElastiCache::CacheCluster", "AWS::ElastiCache::ServerlessCache"]
+      match:
+        engine: ["redis", "valkey"]
+    targets:
+      gcp:
+        service: "Memorystore for Valkey"
+        alternatives: ["Memorystore for Redis Cluster", "Memorystore for Redis"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Warm the new cache from the system of record", "RDB snapshot export to S3 and import (where the target supports import)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Cluster-mode and non-cluster topologies map to different Memorystore products; client libraries must match the topology"
+          - "Authentication (AUTH tokens/RBAC users) and in-transit encryption are configured differently"
+        issues:
+          - "ElastiCache restricts replication commands (SYNC/PSYNC), so online replication-based migration tools generally cannot stream from it"
+          - "If the cache is a primary data store, use the nosql-database workflow instead"
+        references: ["https://docs.cloud.google.com/memorystore/docs/valkey"]
+      alibaba:
+        service: "Tair (Redis OSS-compatible)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Warm the new cache from the system of record", "RDB snapshot import"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Instance architectures (standard, cluster, read/write splitting) and proxy behaviour differ"
+        issues:
+          - "ElastiCache restricts replication commands, limiting online migration from it"
+        references: ["https://intl.aliyun.com/product/tair"]
+
+  - id: aws-elasticache-memcached
+    category: cache
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon ElastiCache (Memcached engine)"
+      resource_types: ["AWS::ElastiCache::CacheCluster", "AWS::ElastiCache::ServerlessCache"]
+      match:
+        engine: ["memcached"]
+    targets:
+      gcp:
+        service: "Memorystore for Memcached"
+        alternatives: ["Memorystore for Valkey (requires client change)"]
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Auto Discovery endpoints differ; client configuration changes"
+        issues:
+          - "Verify the product's current availability before choosing it"
+        references: ["https://docs.cloud.google.com/memorystore/docs/memcached"]
+      alibaba:
+        service: "Tair (Redis OSS-compatible)"
+        alternatives: ["ApsaraDB for Memcache (verify availability)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "The Redis protocol differs from the Memcached protocol; clients must change unless a Memcached-protocol service is used"
+        issues:
+          - "Availability of a managed Memcached-protocol service on Alibaba Cloud was not verified in this review"
+        references: ["https://intl.aliyun.com/product/tair"]
+
+  - id: aws-memorydb
+    category: cache
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon MemoryDB"
+      resource_types: ["AWS::MemoryDB::Cluster"]
+    targets:
+      gcp:
+        service: "Memorystore for Valkey (with persistence)"
+        alternatives: ["Memorystore for Redis Cluster"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["RDB snapshot export and import (where supported)", "Application dual-write"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "MemoryDB uses a durable multi-AZ transaction log; target persistence (RDB/AOF) offers different durability guarantees"
+        issues:
+          - "If MemoryDB is the system of record, validate durability requirements before choosing the target"
+        references: ["https://docs.cloud.google.com/memorystore/docs/valkey"]
+      alibaba:
+        service: "Tair (Redis OSS-compatible), persistent memory or disk-based editions"
+        alternatives: []
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: nosql-database
+        tooling: ["RDB snapshot import", "Application dual-write"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Durability model differs per edition"
+        issues: []
+        references: ["https://intl.aliyun.com/product/tair"]
+
+  - id: aws-opensearch
+    category: analytics
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon OpenSearch Service"
+      resource_types: ["AWS::OpenSearchService::Domain", "AWS::Elasticsearch::Domain", "AWS::OpenSearchServerless::Collection"]
+    targets:
+      gcp:
+        service: "Self-managed OpenSearch on GKE"
+        alternatives: ["Managed search offerings from Google Cloud Marketplace", "Vertex AI Search (re-architect)"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Snapshot to S3 and restore", "Reindex from the system of record"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "GCP has no first-party managed OpenSearch service"
+        issues:
+          - "Running OpenSearch yourself moves patching, scaling and backups to your team"
+        references: ["https://docs.cloud.google.com/kubernetes-engine/docs"]
+      alibaba:
+        service: "Alibaba Cloud Elasticsearch"
+        alternatives: ["Self-managed OpenSearch on ACK"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Reindex from the system of record", "Reindex from remote"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "OpenSearch forked from Elasticsearch 7.10; APIs, plugins and clients have diverged since"
+          - "Alibaba Cloud's product named OpenSearch is a different search service, not the OpenSearch project"
+        issues:
+          - "Snapshots are generally not restorable across the fork boundary; plan to reindex"
+        references: ["https://www.alibabacloud.com/help/en/es/"]
+
+  - id: aws-redshift
+    category: analytics
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon Redshift"
+      resource_types: ["AWS::Redshift::Cluster", "AWS::RedshiftServerless::Workgroup", "AWS::RedshiftServerless::Namespace"]
+    targets:
+      gcp:
+        service: "BigQuery"
+        alternatives: []
+        compatibility: re-architect
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["BigQuery Migration Service (SQL translation)", "BigQuery Data Transfer Service (Redshift migration)"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Serverless, slot-based execution; distribution/sort keys become partitioning and clustering"
+          - "SQL dialect, stored procedures and UDFs need translation"
+        issues:
+          - "Downstream BI tools and ETL jobs must be re-pointed and re-tested"
+        references: ["https://docs.cloud.google.com/bigquery/docs/migration/redshift-overview"]
+      alibaba:
+        service: "AnalyticDB for PostgreSQL"
+        alternatives: ["MaxCompute"]
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Unload to S3, transfer, load"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "PostgreSQL-based MPP warehouse; dialect is closer to Redshift's PostgreSQL heritage but not identical"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/analyticdb/"]
+
+  - id: aws-timestream
+    category: time-series
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon Timestream"
+      resource_types: ["AWS::Timestream::Database", "AWS::Timestream::Table", "AWS::Timestream::InfluxDBInstance"]
+    targets:
+      gcp:
+        service: "Bigtable"
+        alternatives: ["BigQuery", "Self-managed time-series database on GKE"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: optional
+        workflow: nosql-database
+        tooling: ["Export to S3 and load", "Dual-write"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "No first-party managed time-series database; schema and query layer must be designed"
+        issues:
+          - "Timestream for LiveAnalytics stopped accepting new customers on 2025-06-20; existing tables keep working, which removes the 'stay on AWS' option for new tables"
+        references: ["https://docs.cloud.google.com/bigtable/docs"]
+      alibaba:
+        service: "Lindorm (time series engine)"
+        alternatives: []
+        compatibility: re-architect
+        complexity: high
+        data_migration: optional
+        workflow: nosql-database
+        tooling: ["Export to S3, transfer and load", "Dual-write"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Different query language and data model"
+        issues:
+          - "Timestream for LiveAnalytics stopped accepting new customers on 2025-06-20"
+          - "Do not target Alibaba Cloud TSDB (phased out from 2023-05-03) or TSDB for InfluxDB (end of life 2026-10-23)"
+        references: ["https://www.alibabacloud.com/help/en/lindorm/", "https://intl.aliyun.com/notice/0313tsdb"]
+
+  # ---------------------------------------------------------------------------
+  # Storage and backup
+  # ---------------------------------------------------------------------------
+  - id: aws-s3-bucket
+    category: object-storage
+    capability: storage
+    source:
+      provider: aws
+      service: "Amazon S3"
+      resource_types: ["AWS::S3::Bucket", "AWS::S3::BucketPolicy"]
+    targets:
+      gcp:
+        service: "Cloud Storage"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: object-storage
+        tooling: ["Storage Transfer Service (agentless; federated AWS role, no long-lived key; optional Google-managed private network)", "gcloud storage", "rclone"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Bucket policies become IAM policies; use uniform bucket-level access (UBLA), so object ACLs are neither carried over nor used"
+          - "Storage Transfer Service keeps Content-Type, Cache-Control, Content-Disposition and user metadata, stores the source ETag as x-goog-source-etag, and does not keep ACLs, object tags or timestamps"
+          - "Event notifications become Pub/Sub notifications or Eventarc triggers"
+          - "Signed URLs, multipart semantics and checksums differ (multipart S3 ETags are not MD5; composite GCS objects have only CRC32C)"
+        issues:
+          - "Archived objects (Glacier Flexible Retrieval, Deep Archive) must be restored before transfer"
+          - "Only current versions transfer by default; noncurrent versions require a manifest"
+          - "Age-based lifecycle rules restart from the transfer date because source timestamps are not preserved"
+          - "S3 Object Lock retention and legal holds do not transfer; re-establish retention policies on the target"
+        references:
+          - "https://docs.cloud.google.com/storage-transfer/docs/metadata-preservation"
+          - "https://docs.cloud.google.com/storage-transfer/docs/data-integrity"
+          - "https://docs.cloud.google.com/storage-transfer/docs/create-transfers/agentless/managed-private-network"
+      alibaba:
+        service: "Object Storage Service (OSS)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: object-storage
+        tooling: ["Data Online Migration (Amazon S3 to OSS)", "ossimport", "ossutil", "rclone"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "OSS offers strong read-after-write consistency; bucket policies and RAM policies replace S3 bucket policies"
+          - "Total user metadata is limited to 8 KB per object"
+          - "Once enabled, versioning can only be suspended, as in S3"
+        issues:
+          - "Archived objects must be restored before transfer"
+          - "AWS bills data transfer out and requests for the source side; OSS bills requests on the destination"
+          - "Data Online Migration needs a long-lived IAM user access key for the source, migrates one bucket per task and cannot rely on S3 IP allowlists; create a dedicated read-only key behind an approval gate, keep it out of Hermes artifacts and revoke it in decommission"
+          - "ossimport does not verify data after copying; validate separately"
+        references:
+          - "https://help.aliyun.com/en/data-online-migration/user-guide/migrate-data-from-amazon-s3-to-oss"
+          - "https://help.aliyun.com/en/oss/user-guide/what-is-oss"
+
+  - id: aws-efs
+    category: file-storage
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon EFS"
+      resource_types: ["AWS::EFS::FileSystem", "AWS::EFS::MountTarget", "AWS::EFS::AccessPoint"]
+    targets:
+      gcp:
+        service: "Filestore"
+        alternatives: ["Cloud Storage with Cloud Storage FUSE (if the access pattern allows)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Storage Transfer Service agent-based transfers", "rsync / parallel rsync over hybrid connectivity"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Filestore capacity is provisioned per instance tier rather than elastic; NFS protocol version support depends on the tier"
+          - "EFS access points have no direct equivalent"
+        issues:
+          - "Preserve ownership, permissions and timestamps explicitly when copying"
+        references: ["https://docs.cloud.google.com/filestore/docs"]
+      alibaba:
+        service: "File Storage NAS"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: required
+        workflow: manual-review
+        tooling: ["rsync / parallel rsync over hybrid connectivity"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "General-purpose and extreme types with different performance; mount targets per VPC"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/nas/"]
+
+  - id: aws-backup
+    category: backup
+    capability: none
+    source:
+      provider: aws
+      service: "AWS Backup"
+      resource_types: ["AWS::Backup::BackupVault", "AWS::Backup::BackupPlan", "AWS::Backup::BackupSelection"]
+    targets:
+      gcp:
+        service: "Backup and DR Service"
+        alternatives: ["Native backups of each service"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Supported workloads and vault locking options differ"
+        issues:
+          - "Existing recovery points do not migrate; keep them in AWS until their retention ends"
+        references: ["https://docs.cloud.google.com/backup-disaster-recovery/docs"]
+      alibaba:
+        service: "Cloud Backup"
+        alternatives: ["Native backups of each service"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Supported data sources and immutability options differ"
+        issues:
+          - "Existing recovery points do not migrate"
+        references: ["https://www.alibabacloud.com/help/en/cloud-backup/"]
+
+  # ---------------------------------------------------------------------------
+  # Messaging, streaming, eventing, workflow
+  # ---------------------------------------------------------------------------
+  - id: aws-sns-topic
+    category: messaging-pubsub
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon SNS"
+      resource_types: ["AWS::SNS::Topic", "AWS::SNS::Subscription", "AWS::SNS::TopicPolicy"]
+    targets:
+      gcp:
+        service: "Pub/Sub topics"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: ["Hermes Platform spec (workloads.messaging)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "SNS-to-SQS fan-out maps naturally to multiple Pub/Sub subscriptions on one topic"
+          - "Filter policies become subscription filters on attributes; a filter cannot be changed after the subscription is created"
+          - "FIFO topics map to ordering keys (order is per key and per region)"
+          - "Email, SMS and mobile push subscriptions have no Pub/Sub equivalent"
+        issues: []
+        references: ["https://docs.cloud.google.com/pubsub/docs/subscription-overview"]
+      alibaba:
+        service: "Simple Message Queue (SMQ, formerly MNS) topics"
+        alternatives: ["ApsaraMQ for RocketMQ"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: ["Hermes Platform spec (workloads.messaging)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Topics push to queues and HTTP endpoints; tag-based filtering replaces SNS filter policies"
+          - "Maximum message size is much smaller than SNS's 1 MiB; large payloads need a claim-check pattern (store in OSS, send a reference)"
+        issues:
+          - "Verify the current SMQ message size limit for the chosen edition"
+        references: ["https://www.alibabacloud.com/product/message-service"]
+
+  - id: aws-sqs-queue
+    category: messaging-queue
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon SQS (standard queues)"
+      resource_types: ["AWS::SQS::Queue", "AWS::SQS::QueuePolicy"]
+    targets:
+      gcp:
+        service: "Pub/Sub subscriptions (pull)"
+        alternatives: ["Cloud Tasks (for delayed or rate-limited dispatch)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Hermes Platform spec (topic + subscription per queue)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "There is no standalone queue: a queue becomes a topic with one subscription"
+          - "Visibility timeout (up to 12 h) maps to the ack deadline (10-600 s); long processing needs deadline extension"
+          - "Delay queues and per-message timers have no equivalent"
+          - "Dead-letter topics accept 5-100 delivery attempts; SQS maxReceiveCount below 5 must be raised"
+          - "Exactly-once delivery is available only for pull subscriptions within a region"
+          - "Subscription retention is at most 7 days (SQS allows 14)"
+        issues:
+          - "In-flight messages are drained, not migrated"
+        references: ["https://docs.cloud.google.com/pubsub/docs/exactly-once-delivery", "https://docs.cloud.google.com/pubsub/quotas", "https://aws.amazon.com/about-aws/whats-new/2025/08/amazon-sqs-max-payload-size-1mib"]
+      alibaba:
+        service: "Simple Message Queue (SMQ, formerly MNS) queues"
+        alternatives: ["ApsaraMQ for RocketMQ"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Hermes Platform spec (workloads.messaging)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Visibility timeout, delayed messages and long polling exist with different limits"
+          - "Maximum message size is much smaller than SQS's 1 MiB; large payloads need a claim-check pattern"
+          - "Message retention is at most 7 days (SQS allows 14)"
+        issues:
+          - "In-flight messages are drained, not migrated"
+        references: ["https://www.alibabacloud.com/product/message-service"]
+
+  - id: aws-kinesis-stream
+    category: streaming
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon Kinesis Data Streams and Amazon Data Firehose"
+      resource_types: ["AWS::Kinesis::Stream", "AWS::Kinesis::StreamConsumer", "AWS::KinesisFirehose::DeliveryStream"]
+    targets:
+      gcp:
+        service: "Pub/Sub"
+        alternatives: ["Google Cloud Managed Service for Apache Kafka", "Pub/Sub BigQuery and Cloud Storage subscriptions (Firehose-like delivery)"]
+        compatibility: partial
+        complexity: high
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Dual-publish from producers", "Replay from the system of record"]
+        lock_in: high
+        hermes_support: partial
+        differences:
+          - "Shards and sequence numbers have no equivalent; ordering uses ordering keys, replay uses seek to timestamp or snapshot"
+          - "KCL consumers and checkpointing are rewritten"
+        issues:
+          - "Hermes provisions Pub/Sub topics/subscriptions; Kafka clusters use the provider tool"
+        references: ["https://docs.cloud.google.com/managed-service-for-apache-kafka/docs/release-notes"]
+      alibaba:
+        service: "ApsaraMQ for Kafka"
+        alternatives: ["Simple Log Service (log ingestion and delivery)"]
+        compatibility: partial
+        complexity: high
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Dual-publish from producers"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Partitions and consumer groups replace shards and KCL leases; producer and consumer code changes"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/apsaramq-for-kafka/"]
+
+  - id: aws-msk-cluster
+    category: streaming
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon MSK"
+      resource_types: ["AWS::MSK::Cluster", "AWS::MSK::ServerlessCluster", "AWS::MSK::Configuration"]
+    targets:
+      gcp:
+        service: "Google Cloud Managed Service for Apache Kafka"
+        alternatives: ["Pub/Sub (re-architect)"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: messaging
+        tooling: ["MirrorMaker 2 (topic replication and offset translation)"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Client authentication changes (MSK IAM/SCRAM to the target's SASL mechanisms)"
+          - "Broker configuration options and Kafka Connect hosting differ"
+        issues:
+          - "Consumers must switch only after offsets are translated, or accept reprocessing"
+        references: ["https://docs.cloud.google.com/managed-service-for-apache-kafka/docs/release-notes"]
+      alibaba:
+        service: "ApsaraMQ for Kafka"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: optional
+        workflow: messaging
+        tooling: ["MirrorMaker 2"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Supported Kafka versions and configuration options are set by the service"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/apsaramq-for-kafka/"]
+
+  - id: aws-amazon-mq
+    category: messaging-queue
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon MQ (ActiveMQ and RabbitMQ engines)"
+      resource_types: ["AWS::AmazonMQ::Broker", "AWS::AmazonMQ::Configuration"]
+    targets:
+      gcp:
+        service: "Pub/Sub (re-architect)"
+        alternatives: ["Self-managed RabbitMQ or ActiveMQ on GKE"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: optional
+        workflow: messaging
+        tooling: []
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "GCP has no managed AMQP/JMS/STOMP broker; protocol clients must change or a broker must be self-managed"
+        issues: []
+        references: ["https://docs.cloud.google.com/pubsub/docs"]
+      alibaba:
+        service: "ApsaraMQ for RabbitMQ (RabbitMQ engine)"
+        alternatives: ["Self-managed ActiveMQ on ACK (ActiveMQ engine)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Drain and switch"]
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "AMQP 0-9-1 compatible for RabbitMQ clients; ActiveMQ (JMS/OpenWire/STOMP) has no managed equivalent"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/apsaramq-for-rabbitmq/"]
+
+  - id: aws-eventbridge
+    category: messaging-pubsub
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon EventBridge (event buses, rules, scheduler, pipes)"
+      resource_types: ["AWS::Events::EventBus", "AWS::Events::Rule", "AWS::Scheduler::Schedule", "AWS::Pipes::Pipe"]
+    targets:
+      gcp:
+        service: "Eventarc"
+        alternatives: ["Pub/Sub", "Cloud Scheduler (for schedule rules)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Event patterns and input transformers are not portable; AWS service events (source aws.*) have no counterpart and must be re-sourced from target services"
+          - "Schedule expressions move to Cloud Scheduler jobs"
+        issues: []
+        references: ["https://docs.cloud.google.com/eventarc/docs"]
+      alibaba:
+        service: "EventBridge (Alibaba Cloud)"
+        alternatives: ["Function Compute timer triggers (for schedule rules)"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: messaging
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "CloudEvents-based event model with its own rule syntax; AWS service events have no counterpart"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/eventbridge/"]
+
+  - id: aws-step-functions
+    category: workflow
+    capability: none
+    source:
+      provider: aws
+      service: "AWS Step Functions"
+      resource_types: ["AWS::StepFunctions::StateMachine", "AWS::StepFunctions::Activity"]
+    targets:
+      gcp:
+        service: "Workflows"
+        alternatives: ["Cloud Composer (Apache Airflow) for data pipelines"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Amazon States Language definitions are rewritten in the Workflows YAML/JSON syntax; service integrations differ"
+        issues:
+          - "Running executions do not migrate; drain or let them finish on the source"
+        references: ["https://docs.cloud.google.com/workflows/docs"]
+      alibaba:
+        service: "CloudFlow (formerly Serverless Workflow)"
+        alternatives: []
+        compatibility: re-architect
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Flow Definition Language (YAML state machines) instead of Amazon States Language; billed per state transition"
+        issues:
+          - "Running executions do not migrate"
+        references: ["https://www.alibabacloud.com/help/en/serverless-workflow/latest/what-is-cloudflow"]
+
+  - id: aws-ses
+    category: notification
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon SES"
+      resource_types: ["AWS::SES::EmailIdentity", "AWS::SES::ConfigurationSet", "AWS::SES::Template"]
+    targets:
+      gcp:
+        service: "None (no first-party email sending service)"
+        alternatives: ["Third-party email delivery provider", "Keep SES in place"]
+        compatibility: none
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Sender domains need new SPF/DKIM/DMARC records and reputation warm-up with any new provider"
+        references: []
+      alibaba:
+        service: "Direct Mail"
+        alternatives: ["Keep SES in place"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Sending limits, templates and event notifications differ"
+        issues:
+          - "New SPF/DKIM records and reputation warm-up are required"
+        references: ["https://www.alibabacloud.com/help/en/directmail/"]
+
+  # ---------------------------------------------------------------------------
+  # Secrets, keys, identity
+  # ---------------------------------------------------------------------------
+  - id: aws-secrets-manager-secret
+    category: secrets
+    capability: secrets
+    source:
+      provider: aws
+      service: "AWS Secrets Manager"
+      resource_types: ["AWS::SecretsManager::Secret", "AWS::SecretsManager::RotationSchedule", "AWS::SecretsManager::ResourcePolicy"]
+    targets:
+      gcp:
+        service: "Secret Manager"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: secrets
+        tooling: ["Hermes Platform spec (secret containers only)", "Out-of-band value entry by an authorized operator"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Rotation schedules publish Pub/Sub notifications; the rotation logic is yours (no managed rotation functions)"
+          - "Resource policies become IAM bindings on the secret"
+        issues:
+          - "Values are never read by Hermes discovery or managed by IaC; prefer re-issuing credentials over copying them"
+        references: ["https://docs.cloud.google.com/secret-manager/docs"]
+      alibaba:
+        service: "KMS Secrets Manager"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: secrets
+        tooling: ["Hermes Platform spec (secret containers only)", "Out-of-band value entry by an authorized operator"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Managed rotation exists for supported secret types (database, RAM, ECS credentials); generic secrets need custom rotation"
+          - "Secrets are tied to the KMS edition/instance model; check pricing and limits"
+        issues:
+          - "Values are never read by Hermes discovery or managed by IaC"
+        references: ["https://www.alibabacloud.com/help/en/kms/"]
+
+  - id: aws-ssm-parameter
+    category: secrets
+    capability: secrets
+    source:
+      provider: aws
+      service: "AWS Systems Manager Parameter Store"
+      resource_types: ["AWS::SSM::Parameter"]
+    targets:
+      gcp:
+        service: "Secret Manager (SecureString) / Parameter Manager (plain configuration)"
+        alternatives: ["Platform spec env values for non-secret configuration"]
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: secrets
+        tooling: ["Hermes Platform spec (secret_env and env)"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Hierarchical parameter paths and GetParametersByPath have no direct equivalent in Secret Manager"
+        issues:
+          - "Verify Parameter Manager's current availability and features in the target region before depending on it"
+        references: ["https://docs.cloud.google.com/secret-manager/docs"]
+      alibaba:
+        service: "KMS Secrets Manager (encrypted values) / OOS Parameter Store (plain configuration)"
+        alternatives: ["Platform spec env values for non-secret configuration"]
+        compatibility: compatible
+        complexity: low
+        data_migration: required
+        workflow: secrets
+        tooling: ["Hermes Platform spec (secret_env and env)"]
+        lock_in: low
+        hermes_support: partial
+        differences:
+          - "Parameter naming, versioning and access APIs differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/kms/"]
+
+  - id: aws-kms-key
+    category: key-management
+    capability: secrets
+    source:
+      provider: aws
+      service: "AWS KMS"
+      resource_types: ["AWS::KMS::Key", "AWS::KMS::Alias", "AWS::KMS::ReplicaKey"]
+    targets:
+      gcp:
+        service: "Cloud KMS"
+        alternatives: ["Cloud HSM", "Cloud External Key Manager"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (security.customer_managed_keys)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Keys live in key rings at a location; services use CMEK through service agents granted on the key"
+          - "Key policies and grants become IAM bindings"
+        issues:
+          - "AWS-generated key material cannot be exported; data is decrypted at the source and re-encrypted with target keys"
+          - "Keep source keys until every snapshot and backup encrypted with them is deleted"
+        references: ["https://docs.cloud.google.com/kms/docs"]
+      alibaba:
+        service: "Key Management Service (KMS)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes Platform spec (security.customer_managed_keys)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Key types, instance editions and service integrations differ; check which target services support customer-managed keys in the region"
+        issues:
+          - "AWS-generated key material cannot be exported; re-encrypt on the target"
+        references: ["https://www.alibabacloud.com/help/en/kms/"]
+
+  - id: aws-iam-role
+    category: identity
+    capability: identity
+    source:
+      provider: aws
+      service: "AWS IAM roles and instance profiles"
+      resource_types: ["AWS::IAM::Role", "AWS::IAM::InstanceProfile", "AWS::IAM::RolePolicy"]
+    targets:
+      gcp:
+        service: "Service accounts and IAM role bindings"
+        alternatives: ["Workload Identity Federation (external workloads)"]
+        compatibility: re-architect
+        complexity: high
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes per-service identities from the access block"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Allow policies attach to resources and are inherited down the resource hierarchy; there are no identity-based JSON policies"
+          - "Trust policies become service-account impersonation permissions or workload identity pools"
+          - "Condition keys do not translate; IAM Conditions use CEL"
+        issues:
+          - "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services"
+        references: ["https://docs.cloud.google.com/iam/docs"]
+      alibaba:
+        service: "RAM roles and policies"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes per-service identities from the access block"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Policy documents look similar (Effect/Action/Resource/Condition) but action names, resource formats and condition keys differ"
+        issues:
+          - "Policies are re-derived, not translated"
+        references: ["https://www.alibabacloud.com/help/en/ram/"]
+
+  - id: aws-iam-user-group-policy
+    category: identity
+    capability: identity
+    source:
+      provider: aws
+      service: "AWS IAM users, groups and managed policies"
+      resource_types: ["AWS::IAM::User", "AWS::IAM::Group", "AWS::IAM::ManagedPolicy", "AWS::IAM::Policy", "AWS::IAM::UserToGroupAddition", "AWS::IAM::OIDCProvider", "AWS::IAM::SAMLProvider"]
+    targets:
+      gcp:
+        service: "Cloud Identity / workforce identity federation with IAM bindings"
+        alternatives: []
+        compatibility: re-architect
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Human users come from a federated identity provider; groups are directory groups"
+          - "Access keys should become federated short-lived credentials; restrict service-account key creation by organization policy"
+        issues:
+          - "IAM user access keys are not migrated; every consumer must move to a new credential model"
+        references: ["https://docs.cloud.google.com/iam/docs/workforce-identity-federation"]
+      alibaba:
+        service: "RAM users, groups and policies with SSO"
+        alternatives: ["CloudSSO"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "RAM users can hold AccessKeys like IAM users; prefer SSO and RAM roles"
+        issues:
+          - "Access keys are not migrated"
+        references: ["https://www.alibabacloud.com/help/en/ram/"]
+
+  - id: aws-cognito
+    category: identity
+    capability: identity
+    source:
+      provider: aws
+      service: "Amazon Cognito user pools and identity pools"
+      resource_types: ["AWS::Cognito::UserPool", "AWS::Cognito::UserPoolClient", "AWS::Cognito::UserPoolDomain", "AWS::Cognito::IdentityPool"]
+    targets:
+      gcp:
+        service: "Identity Platform"
+        alternatives: []
+        compatibility: partial
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["User export plus forced password reset", "Lazy (just-in-time) migration on first sign-in"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Cognito does not export password hashes; users reset passwords or are migrated lazily by verifying credentials against Cognito at first sign-in"
+          - "Lambda triggers, hosted UI customization and token claims differ"
+          - "Identity pools (temporary AWS credentials for end users) have no direct equivalent"
+        issues:
+          - "MFA enrolments (TOTP secrets) cannot be exported; users re-enrol"
+        references: ["https://docs.cloud.google.com/identity-platform/docs"]
+      alibaba:
+        service: "IDaaS (verify customer-identity offering on the international site)"
+        alternatives: ["Self-managed open-source identity provider on ACK"]
+        compatibility: unknown
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: ["Lazy migration on first sign-in"]
+        lock_in: high
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "A managed customer-identity (CIAM) service equivalent to Cognito on the Alibaba Cloud international site was not verified in this review"
+          - "Password hashes are not exportable from Cognito"
+        references: []
+
+  - id: aws-organizations
+    category: identity
+    capability: identity
+    source:
+      provider: aws
+      service: "AWS Organizations (accounts, OUs, service control policies)"
+      resource_types: ["AWS::Organizations::Account", "AWS::Organizations::OrganizationalUnit", "AWS::Organizations::Policy"]
+    targets:
+      gcp:
+        service: "Resource hierarchy (organization, folders, projects) and Organization Policy"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Projects are lighter than AWS accounts; SCPs map partly to organization policy constraints and IAM deny policies"
+        issues: []
+        references: ["https://docs.cloud.google.com/resource-manager/docs"]
+      alibaba:
+        service: "Resource Directory (folders, member accounts, control policies)"
+        alternatives: ["Resource groups"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Control policies are comparable to SCPs with different action names"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/resource-management/"]
+
+  # ---------------------------------------------------------------------------
+  # Observability and governance
+  # ---------------------------------------------------------------------------
+  - id: aws-cloudwatch-logs
+    category: logging
+    capability: observability
+    source:
+      provider: aws
+      service: "Amazon CloudWatch Logs"
+      resource_types: ["AWS::Logs::LogGroup", "AWS::Logs::SubscriptionFilter", "AWS::Logs::MetricFilter", "AWS::Logs::LogStream"]
+    targets:
+      gcp:
+        service: "Cloud Logging (log buckets, sinks, log-based metrics)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Hermes Platform spec (observability.log_retention_days)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Retention is set per log bucket; subscription filters become sinks; Logs Insights queries become Log Analytics SQL or Logging query language"
+        issues:
+          - "Historical logs are normally archived (exported to object storage) rather than imported"
+        references: ["https://docs.cloud.google.com/logging/docs"]
+      alibaba:
+        service: "Simple Log Service (SLS)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: optional
+        workflow: stateless-rebuild
+        tooling: ["Hermes Platform spec (observability.log_retention_days)"]
+        lock_in: low
+        hermes_support: implemented
+        differences:
+          - "Projects and logstores replace log groups; query and analysis use SLS search syntax and SQL"
+        issues:
+          - "Historical logs are normally archived rather than imported"
+        references: ["https://www.alibabacloud.com/help/en/sls/"]
+
+  - id: aws-cloudwatch-alarm
+    category: monitoring
+    capability: observability
+    source:
+      provider: aws
+      service: "Amazon CloudWatch alarms"
+      resource_types: ["AWS::CloudWatch::Alarm", "AWS::CloudWatch::CompositeAlarm", "AWS::CloudWatch::AnomalyDetector"]
+    targets:
+      gcp:
+        service: "Cloud Monitoring alerting policies"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: ["Hermes baseline alerts (observability.alert_email)"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Metric names, dimensions and namespaces are entirely different; alarms are re-authored against target metrics"
+          - "Composite alarms become multi-condition policies"
+        issues: []
+        references: ["https://docs.cloud.google.com/monitoring/alerts"]
+      alibaba:
+        service: "CloudMonitor alert rules"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: ["Hermes baseline alerts (observability.alert_email)"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Metric names differ; contact groups replace SNS topics as notification targets"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/cms/"]
+
+  - id: aws-cloudwatch-dashboard
+    category: monitoring
+    capability: observability
+    source:
+      provider: aws
+      service: "Amazon CloudWatch dashboards"
+      resource_types: ["AWS::CloudWatch::Dashboard"]
+    targets:
+      gcp:
+        service: "Cloud Monitoring dashboards"
+        alternatives: ["Grafana with the Cloud Monitoring data source"]
+        compatibility: partial
+        complexity: low
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Dashboards are re-authored against target metrics"
+        issues: []
+        references: ["https://docs.cloud.google.com/monitoring/dashboards"]
+      alibaba:
+        service: "CloudMonitor dashboards"
+        alternatives: ["Managed Grafana"]
+        compatibility: partial
+        complexity: low
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Dashboards are re-authored against target metrics"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/cms/"]
+
+  - id: aws-xray
+    category: tracing
+    capability: observability
+    source:
+      provider: aws
+      service: "AWS X-Ray"
+      resource_types: ["AWS::XRay::Group", "AWS::XRay::SamplingRule"]
+    targets:
+      gcp:
+        service: "Cloud Trace (OTLP ingestion)"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: ["OpenTelemetry SDKs and Collector (Hermes injects OTEL_* bindings)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Sampling rules and groups are configured in the OpenTelemetry Collector/SDK, not in the backend"
+        issues:
+          - "X-Ray SDKs and daemon are in maintenance mode since 2026-02-25 (end of support 2027-02-25); move instrumentation to OpenTelemetry before or during migration"
+        references: ["https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-daemon-timeline.html", "https://docs.cloud.google.com/trace/docs"]
+      alibaba:
+        service: "Managed Service for OpenTelemetry"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: none
+        workflow: stateless-rebuild
+        tooling: ["OpenTelemetry SDKs and Collector (Hermes injects OTEL_* bindings)"]
+        lock_in: medium
+        hermes_support: implemented
+        differences:
+          - "Sampling is configured in the OpenTelemetry pipeline"
+        issues:
+          - "X-Ray SDKs are in maintenance mode; adopt OpenTelemetry first"
+        references: ["https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-migration.html"]
+
+  - id: aws-cloudtrail
+    category: logging
+    capability: observability
+    source:
+      provider: aws
+      service: "AWS CloudTrail"
+      resource_types: ["AWS::CloudTrail::Trail", "AWS::CloudTrail::EventDataStore"]
+    targets:
+      gcp:
+        service: "Cloud Audit Logs"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: optional
+        workflow: foundation
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Admin Activity audit logs are always on; Data Access audit logs are opt-in per service"
+        issues:
+          - "Existing trail history stays in AWS; keep it for its retention period"
+        references: ["https://docs.cloud.google.com/logging/docs/audit"]
+      alibaba:
+        service: "ActionTrail"
+        alternatives: []
+        compatibility: compatible
+        complexity: low
+        data_migration: optional
+        workflow: foundation
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Trails deliver to SLS or OSS; multi-account trails use Resource Directory"
+        issues:
+          - "Existing trail history stays in AWS"
+        references: ["https://www.alibabacloud.com/help/en/actiontrail/"]
+
+  - id: aws-config
+    category: monitoring
+    capability: observability
+    source:
+      provider: aws
+      service: "AWS Config"
+      resource_types: ["AWS::Config::ConfigurationRecorder", "AWS::Config::ConfigRule", "AWS::Config::ConformancePack", "AWS::Config::DeliveryChannel"]
+    targets:
+      gcp:
+        service: "Cloud Asset Inventory and Organization Policy"
+        alternatives: ["Security Command Center posture management"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes policies (conftest) for IaC-time checks"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Config rules and conformance packs are re-expressed as organization policies, posture policies or IaC policy checks"
+        issues: []
+        references: ["https://docs.cloud.google.com/asset-inventory/docs"]
+      alibaba:
+        service: "Cloud Config"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: foundation
+        tooling: ["Hermes policies (conftest) for IaC-time checks"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Managed rules differ; custom rules use Function Compute"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/cloud-config/"]
+
+  # ---------------------------------------------------------------------------
+  # IaC, IoT, geospatial, data processing, service discovery
+  # ---------------------------------------------------------------------------
+  - id: aws-cloudformation-stack
+    category: iac
+    capability: none
+    source:
+      provider: aws
+      service: "AWS CloudFormation"
+      resource_types: ["AWS::CloudFormation::Stack", "AWS::CloudFormation::StackSet"]
+    targets:
+      gcp:
+        service: "OpenTofu/Terraform via the Hermes Platform spec"
+        alternatives: ["Infrastructure Manager (managed Terraform)"]
+        compatibility: re-architect
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: ["Hermes draft_spec from the assessment"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Templates are not portable; infrastructure is re-described as capabilities in hermes.yaml or written as HCL"
+        issues:
+          - "Stacks only annotate managed_by in the inventory; they are not the source of truth for discovery"
+          - "Terraformer (reverse-engineering tool) was archived on 2026-03-16 and should not be relied on"
+        references: ["https://github.com/GoogleCloudPlatform/terraformer", "https://docs.cloud.google.com/infrastructure-manager/docs"]
+      alibaba:
+        service: "OpenTofu/Terraform via the Hermes Platform spec"
+        alternatives: ["Resource Orchestration Service (ROS)"]
+        compatibility: re-architect
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: ["Hermes draft_spec from the assessment"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Templates are not portable; ROS uses its own template format and can also run Terraform stacks"
+        issues:
+          - "Stacks only annotate managed_by in the inventory"
+        references: ["https://www.alibabacloud.com/help/en/ros/"]
+
+  - id: aws-iot-core
+    category: iot
+    capability: none
+    source:
+      provider: aws
+      service: "AWS IoT Core"
+      resource_types: ["AWS::IoT::Thing", "AWS::IoT::ThingType", "AWS::IoT::Policy", "AWS::IoT::TopicRule", "AWS::IoT::Certificate"]
+    targets:
+      gcp:
+        service: "None (Cloud IoT Core was retired on 2023-08-16)"
+        alternatives: ["Self-managed MQTT broker on GKE bridged to Pub/Sub", "Third-party IoT platform", "Keep IoT Core in place"]
+        compatibility: none
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Device certificates, provisioning, shadows and rules must be rebuilt; devices need new endpoints and possibly new credentials (firmware update)"
+        references: []
+      alibaba:
+        service: "None for new customers (IoT Platform stopped accepting new subscriptions)"
+        alternatives: ["Self-managed MQTT broker on ACK", "Keep IoT Core in place"]
+        compatibility: none
+        complexity: high
+        data_migration: required
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Alibaba Cloud's IoT Platform documentation (updated 2026-07-24) states it stopped accepting new subscriptions and further development, and points to Link Living for relevant requirements"
+          - "Device endpoints and credentials must change"
+        references: ["https://www.alibabacloud.com/help/doc-detail/30526.htm"]
+
+  - id: aws-location-service
+    category: geospatial
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon Location Service"
+      resource_types: ["AWS::Location::Map", "AWS::Location::PlaceIndex", "AWS::Location::RouteCalculator", "AWS::Location::Tracker", "AWS::Location::GeofenceCollection", "AWS::Location::APIKey"]
+    targets:
+      gcp:
+        service: "Google Maps Platform"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: optional
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Separate product with its own terms, pricing, caching and data-storage restrictions; APIs differ"
+          - "Trackers and geofences have no direct managed equivalent; implement in the application (for example PostGIS)"
+        issues:
+          - "Review licensing terms for stored geocoding results before migrating stored data"
+        references: ["https://aws.amazon.com/about-aws/whats-new/2024/08/amazon-location-service-migration-sdk"]
+      alibaba:
+        service: "Unknown"
+        alternatives: ["PostGIS on ApsaraDB RDS for PostgreSQL (geofencing and spatial queries)", "Third-party maps provider"]
+        compatibility: unknown
+        complexity: high
+        data_migration: optional
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "A managed maps/geocoding service on the Alibaba Cloud international site was not verified in this review"
+        references: []
+
+  - id: aws-glue
+    category: analytics
+    capability: none
+    source:
+      provider: aws
+      service: "AWS Glue (Data Catalog, crawlers, jobs)"
+      resource_types: ["AWS::Glue::Database", "AWS::Glue::Table", "AWS::Glue::Crawler", "AWS::Glue::Job", "AWS::Glue::Trigger"]
+    targets:
+      gcp:
+        service: "Dataproc Serverless / Dataflow with BigLake metastore and Dataplex"
+        alternatives: []
+        compatibility: re-architect
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Plain Spark code ports; Glue-specific APIs (GlueContext, DynamicFrame, job bookmarks) must be rewritten"
+        issues: []
+        references: ["https://docs.cloud.google.com/dataproc-serverless/docs"]
+      alibaba:
+        service: "DataWorks with MaxCompute or E-MapReduce"
+        alternatives: []
+        compatibility: re-architect
+        complexity: high
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: high
+        hermes_support: not-implemented
+        differences:
+          - "Glue-specific APIs must be rewritten; catalogs and scheduling move to DataWorks"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/dataworks/"]
+
+  - id: aws-athena
+    category: analytics
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon Athena"
+      resource_types: ["AWS::Athena::WorkGroup", "AWS::Athena::NamedQuery", "AWS::Athena::DataCatalog"]
+    targets:
+      gcp:
+        service: "BigQuery (external and BigLake tables over Cloud Storage)"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: ["BigQuery Migration Service (SQL translation)"]
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Athena's Trino/Presto SQL dialect differs from GoogleSQL; pricing models differ"
+        issues: []
+        references: ["https://docs.cloud.google.com/bigquery/docs"]
+      alibaba:
+        service: "MaxCompute (external tables over OSS)"
+        alternatives: []
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "SQL dialect and pricing model differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/maxcompute/"]
+
+  - id: aws-emr
+    category: analytics
+    capability: none
+    source:
+      provider: aws
+      service: "Amazon EMR"
+      resource_types: ["AWS::EMR::Cluster", "AWS::EMRServerless::Application"]
+    targets:
+      gcp:
+        service: "Dataproc"
+        alternatives: ["Dataproc Serverless"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "EMRFS (s3://) paths become gs:// paths; bootstrap actions become initialization actions"
+        issues: []
+        references: ["https://docs.cloud.google.com/dataproc/docs"]
+      alibaba:
+        service: "E-MapReduce (EMR)"
+        alternatives: []
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "s3:// paths become oss:// paths; component versions differ"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/emr/"]
+
+  - id: aws-cloud-map
+    category: dns
+    capability: dns
+    source:
+      provider: aws
+      service: "AWS Cloud Map"
+      resource_types: ["AWS::ServiceDiscovery::Service", "AWS::ServiceDiscovery::PrivateDnsNamespace", "AWS::ServiceDiscovery::HttpNamespace", "AWS::ServiceDiscovery::PublicDnsNamespace"]
+    targets:
+      gcp:
+        service: "Service Directory"
+        alternatives: ["Cloud DNS private zones", "Cloud Run service URLs via HERMES_* bindings"]
+        compatibility: compatible
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Health-checked instance registration is handled differently"
+        issues: []
+        references: ["https://docs.cloud.google.com/service-directory/docs"]
+      alibaba:
+        service: "PrivateZone"
+        alternatives: ["Microservices Engine (MSE) registry"]
+        compatibility: partial
+        complexity: medium
+        data_migration: none
+        workflow: manual-review
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "DNS-based discovery is available; API-based discovery requires a registry service"
+        issues: []
+        references: ["https://www.alibabacloud.com/help/en/privatezone/"]
+
+  # ---------------------------------------------------------------------------
+  # Entries added for patterns that similar names hide
+  # ---------------------------------------------------------------------------
+  - id: aws-sqs-fifo-queue
+    category: messaging-queue
+    capability: messaging
+    source:
+      provider: aws
+      service: "Amazon SQS (FIFO queues)"
+      resource_types: ["AWS::SQS::Queue"]
+      match:
+        fifo_queue: [true]
+    targets:
+      gcp:
+        service: "Pub/Sub subscriptions with message ordering (ordering keys)"
+        alternatives: ["Pub/Sub with exactly-once delivery (pull, same region)", "Google Cloud Managed Service for Apache Kafka (partition ordering)"]
+        compatibility: partial
+        complexity: high
+        data_migration: optional
+        workflow: messaging
+        tooling: ["Hermes Platform spec (topic + subscription per queue; ordering configured by the adapter or manually)"]
+        lock_in: medium
+        hermes_support: partial
+        differences:
+          - "Message groups map to ordering keys; order holds per key and per region, and publishing with ordering keys is throughput-limited per key"
+          - "Content-based or ID-based deduplication (5-minute window) has no equivalent; exactly-once delivery covers redelivery, not duplicate publishes"
+          - "A failed message blocks its ordering key until it is acknowledged or dead-lettered"
+        issues:
+          - "Ordering across the switch from SQS to Pub/Sub is not guaranteed; drain the FIFO queue fully before target consumers start, or accept reordering"
+        references: ["https://docs.cloud.google.com/pubsub/docs/exactly-once-delivery", "https://docs.cloud.google.com/pubsub/quotas"]
+      alibaba:
+        service: "ApsaraMQ for RocketMQ (ordered messages)"
+        alternatives: ["Simple Message Queue (SMQ, formerly MNS) with application-level ordering"]
+        compatibility: partial
+        complexity: high
+        data_migration: optional
+        workflow: messaging
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Ordering is per message group/sharding key on RocketMQ; SMQ queues do not offer SQS FIFO semantics"
+          - "Deduplication semantics differ; consumers must be idempotent"
+        issues:
+          - "Hermes provisions SMQ queues, not RocketMQ; ordered queues need the provider tool"
+          - "Drain the FIFO queue fully before target consumers start"
+        references: ["https://www.alibabacloud.com/help/en/apsaramq-for-rocketmq/"]
+
+  - id: aws-ec2-network-appliance
+    category: networking
+    capability: network
+    source:
+      provider: aws
+      service: "EC2 instances acting as routers, NAT instances or VPN relays (source/destination check disabled)"
+      resource_types: ["AWS::EC2::Instance"]
+      match:
+        source_dest_check: [false]
+    targets:
+      gcp:
+        service: "Compute Engine instance with IP forwarding, or a managed replacement (Cloud NAT, HA VPN)"
+        alternatives: ["Self-managed VPN on Compute Engine (can_ip_forward)", "Cloud NAT", "HA VPN"]
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Routes to an instance next hop are VPC routes, optionally scoped by network tags; IP forwarding must be enabled at instance creation"
+        issues:
+          - "Relays that carry device command-and-control traffic are safety-critical: run old and new relays in parallel (dual-running window), move devices in small cohorts with a tested fallback, and never include them in a bulk cutover"
+          - "Device-side configuration (endpoints, keys, certificates) usually changes; plan device updates before moving the relay"
+        references: ["https://docs.cloud.google.com/vpc/docs/routes"]
+      alibaba:
+        service: "ECS instance as a route next hop, or a managed replacement (NAT Gateway, VPN Gateway)"
+        alternatives: ["Self-managed VPN on ECS", "NAT Gateway", "VPN Gateway"]
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: low
+        hermes_support: not-implemented
+        differences:
+          - "Custom route entries can point at an ECS instance as next hop"
+        issues:
+          - "Relays that carry device command-and-control traffic are safety-critical: dual-running window, cohort-based device moves, never part of a bulk cutover"
+        references: ["https://www.alibabacloud.com/help/en/vpc/"]
+
+  - id: aws-client-vpn
+    category: hybrid-connectivity
+    capability: network
+    source:
+      provider: aws
+      service: "AWS Client VPN"
+      resource_types: ["AWS::EC2::ClientVpnEndpoint", "AWS::EC2::ClientVpnTargetNetworkAssociation", "AWS::EC2::ClientVpnAuthorizationRule", "AWS::EC2::ClientVpnRoute"]
+    targets:
+      gcp:
+        service: "None (no managed client/remote-access VPN)"
+        alternatives: ["Self-managed VPN server on Compute Engine", "Identity-Aware Proxy for user access to applications (re-architect)"]
+        compatibility: none
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences: []
+        issues:
+          - "Every client profile and certificate is re-issued; when clients are devices rather than people, treat the move as safety-critical with a dual-running window"
+        references: []
+      alibaba:
+        service: "VPN Gateway SSL-VPN"
+        alternatives: ["Self-managed VPN server on ECS"]
+        compatibility: partial
+        complexity: high
+        data_migration: none
+        workflow: hybrid-connectivity
+        tooling: []
+        lock_in: medium
+        hermes_support: not-implemented
+        differences:
+          - "Authentication and client configuration differ (certificate-based SSL-VPN); connection limits depend on the gateway specification"
+        issues:
+          - "Client profiles are re-issued; device clients need a dual-running window"
+        references: ["https://www.alibabacloud.com/help/en/vpn/"]

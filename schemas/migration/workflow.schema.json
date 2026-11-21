@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes.example.com/schemas/migration/workflow.schema.json",
+  "title": "Hermes MigrationWorkflow (v1alpha1)",
+  "description": "Reusable migration step template (data-contracts section 5). Steps that modify the source, and cutover/decommission steps, must have gate: approval; decommission is never automated by Hermes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "hermes/v1alpha1"},
+    "kind": {"const": "MigrationWorkflow"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "applies_to"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+        "title": {"type": "string", "minLength": 1},
+        "applies_to": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["steps"],
+      "properties": {"steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}}}
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "phase", "title", "description", "automation", "gate", "reversible", "rollback", "risks", "validation", "source_impact"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+        "phase": {"enum": ["foundation", "prepare", "provision", "synchronize", "validate", "cutover", "monitor", "decommission"]},
+        "title": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "automation": {"enum": ["manual", "hermes", "provider-tool"]},
+        "gate": {"enum": ["none", "approval", "validation"]},
+        "reversible": {"type": "boolean"},
+        "rollback": {"type": "string", "minLength": 1},
+        "risks": {"type": "array", "items": {"type": "string"}},
+        "validation": {"type": "array", "items": {"type": "string"}},
+        "source_impact": {"enum": ["none", "read-only-load", "modifies-source-config", "modifies-source-data"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"source_impact": {"enum": ["modifies-source-config", "modifies-source-data"]}}}, "then": {"properties": {"gate": {"const": "approval"}}}},
+        {"if": {"properties": {"phase": {"enum": ["cutover", "decommission"]}}}, "then": {"properties": {"gate": {"const": "approval"}}}},
+        {"if": {"properties": {"phase": {"const": "decommission"}}}, "then": {"properties": {"automation": {"not": {"const": "hermes"}}}}}
+      ]
+    }
+  }
+}

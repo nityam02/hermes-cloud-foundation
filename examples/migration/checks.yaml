@@ -1,0 +1,34 @@
+# ValidationChecks example for `hermes migrate validate --plan migration-plan.yaml --checks checks.yaml`.
+# Paths are relative to this file. Commands are argv lists and never run through a shell; their output is
+# streamed to the terminal only (the report keeps exit code, output byte count and sha256, never the output).
+apiVersion: hermes/v1alpha1
+kind: ValidationChecks
+metadata:
+  name: fleet-platform-cutover-readiness
+  description: Offline coverage plus reachability of the target before cutover.
+checks:
+  - id: target-spec-coverage
+    type: spec-coverage
+    spec: target/hermes.yaml           # written by hermes migrate generate
+  - id: target-bindings
+    type: bindings
+    file: bindings.json                # hermes bindings -o json > bindings.json (target environment)
+    expect: {buckets: [fleet-flight-5bb60a], topics: [telemetry], subscriptions: [telemetry-ingest], database: true}
+  - id: api-health
+    type: http
+    url: https://api.example.com/healthz
+    expect_status: 200
+    body_contains: ok
+  - id: database-port
+    type: tcp
+    address: db.internal.example.com:5432
+    timeout_seconds: 5
+  - id: dns-points-to-target
+    type: dns
+    name: api.example.com
+    expect: {values: ["203.0.113.10"]}
+  - id: row-counts-match
+    type: command
+    argv: ["./scripts/compare-row-counts.sh", "fleet"]
+    timeout_seconds: 600
+    steps: [relational-database-postgresql.fleet-db.validate-data]

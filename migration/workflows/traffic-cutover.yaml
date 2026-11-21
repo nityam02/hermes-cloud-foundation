@@ -1,0 +1,161 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: traffic-cutover
+  title: "Gradual, reversible traffic cutover through DNS"
+  applies_to: [dns, load-balancing, cdn, api-gateway, certificates]
+spec:
+  steps:
+    - id: inventory-entrypoints
+      phase: prepare
+      title: "List every entrypoint and external dependency"
+      description: >-
+        Hosted zones and records, load balancers, CDN distributions, API custom domains,
+        certificates, partner IP allowlists (source Elastic IPs and NAT IPs), inbound webhooks,
+        OAuth redirect URIs and email sending records (SPF/DKIM).
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Hard-coded IP addresses at partners break silently when egress IPs change"
+      validation:
+        - "Each entrypoint has an owner and a target equivalent"
+      source_impact: none
+
+    - id: lower-ttls
+      phase: prepare
+      title: "Lower DNS TTLs ahead of the cutover"
+      description: "Reduce TTLs of records that will change (for example to 60 s) at least one old-TTL period, preferably two, before the first shift."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Restore the previous TTLs."
+      risks:
+        - "Some resolvers and clients ignore TTLs; residual traffic continues for longer"
+      validation:
+        - "Authoritative answers show the new TTL"
+      source_impact: modifies-source-config
+
+    - id: pre-issue-certificates
+      phase: provision
+      title: "Issue certificates on the target before traffic moves"
+      description: >-
+        Public ACM certificates generally cannot be exported (only certificates requested as
+        exportable, available since 2025-06-17, at extra cost), so issue new certificates on the
+        target. GCP Certificate Manager DNS authorization (a CNAME in the current zone) issues
+        Google-managed certificates before DNS points at the target. Alibaba Cloud Certificate
+        Management Service can upload or issue certificates.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the authorization records and delete unused certificates."
+      risks:
+        - "Load-balancer-authorized certificates cannot be issued until traffic already points at the target"
+        - "CAA records may forbid the target's certificate authority"
+      validation:
+        - "Certificates ACTIVE for every hostname; CAA permits the issuing CA"
+      source_impact: modifies-source-config
+
+    - id: notify-dependencies
+      phase: prepare
+      title: "Update partners, allowlists and callbacks"
+      description: "Share the target egress IPs (NAT addresses), update allowlists, webhook URLs and OAuth redirect URIs before the shift."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Keep source entries until the rollback window closes."
+      risks: []
+      validation:
+        - "Partners confirm allowlist updates"
+      source_impact: none
+
+    - id: preflight
+      phase: validate
+      title: "Test target endpoints before DNS changes"
+      description: >-
+        Test target endpoints with explicit host resolution (curl --resolve) for TLS chain,
+        redirects, headers, CORS, request size and timeout limits, WebSockets/streaming and
+        health checks.
+      automation: manual
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; tests only."
+      risks: []
+      validation:
+        - "All preflight checks pass for every hostname"
+      source_impact: none
+
+    - id: freeze-and-criteria
+      phase: cutover
+      title: "Agree change freeze and rollback criteria"
+      description: "Announce the window, staff on-call on both sides, and agree numeric rollback triggers (error rate, latency, saturation)."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "Rollback criteria written in the cutover record"
+      source_impact: none
+
+    - id: weighted-shift
+      phase: cutover
+      title: "Shift traffic gradually with weighted records"
+      description: >-
+        Use weighted records in the current DNS provider (for example 1%, 10%, 50%, 100%) with
+        hold times long enough to observe errors. DNS weighting is coarse because resolvers cache
+        answers.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Set the target weight to 0."
+      risks:
+        - "Session affinity, caches and rate limits behave differently while traffic is split"
+      validation:
+        - "Target SLOs met at each step before increasing the weight"
+      source_impact: modifies-source-config
+
+    - id: observe-residual
+      phase: monitor
+      title: "Observe residual source traffic"
+      description: "Keep the source stack running and watch its request count trend to near zero; investigate clients that keep calling it."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "Source request count near zero for the observation period"
+      source_impact: none
+
+    - id: close-rollback-window
+      phase: monitor
+      title: "Close the rollback window"
+      description: "Service owners sign off after the agreed period without rollback; this unblocks decommissioning."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "Sign-off recorded"
+      source_impact: none
+
+    - id: move-dns-hosting
+      phase: decommission
+      title: "Optional: move DNS hosting to the target provider"
+      description: >-
+        Recreate zones in Cloud DNS or Alibaba Cloud DNS, compare every record (alias records have
+        no direct equivalent and become A/AAAA or CNAME records), lower NS TTLs, then change name
+        servers at the registrar. With DNSSEC, follow a safe procedure (remove the DS record and
+        wait, or a coordinated multi-signer migration) before changing name servers.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Restore the previous name servers at the registrar."
+      risks:
+        - "A DNSSEC chain mismatch makes the whole domain unresolvable for validating resolvers"
+      validation:
+        - "All records resolve identically from both providers before the NS change"
+      source_impact: modifies-source-config

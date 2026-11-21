@@ -1,0 +1,186 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: hybrid-connectivity
+  title: "Private connectivity between the source and target clouds"
+  applies_to: [hybrid-connectivity, networking]
+spec:
+  steps:
+    - id: size-and-choose
+      phase: prepare
+      title: "Size the link and choose a connectivity option"
+      description: >-
+        Required throughput = data to move / transfer window, plus replication and application
+        traffic during coexistence. Options AWS<->GCP: HA VPN (IPsec over the internet; four
+        tunnels for the 99.99% HA VPN SLA), Cross-Cloud Interconnect, or AWS Interconnect -
+        multicloud (generally available since April 2026 with Google Cloud as launch partner, in a
+        limited set of region pairs). Options AWS<->Alibaba Cloud: IPsec-VPN dual-tunnel with BGP,
+        or Express Connect through a connectivity partner. Bulk object data may not need the
+        private link at all (for example the Storage Transfer Service managed private network).
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; planning only."
+      risks:
+        - "IPsec tunnels have per-tunnel throughput limits; aggregate several tunnels with ECMP for higher throughput"
+        - "Data sent over a VPN still incurs AWS data transfer out charges plus hourly VPN connection charges"
+      validation:
+        - "Throughput requirement and chosen option recorded in docs/decisions"
+      source_impact: none
+
+    - id: allocate-addressing
+      phase: prepare
+      title: "Allocate non-overlapping CIDRs, ASNs and tunnel inside ranges"
+      description: >-
+        Choose private ASNs for both sides, link-local /30 inside-tunnel CIDRs, and confirm the
+        target VPC CIDR does not overlap the source VPCs. Advertise only the prefixes needed for
+        migration traffic.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; planning only."
+      risks:
+        - "Advertising broad prefixes can attract production traffic onto the tunnel"
+      validation:
+        - "No overlap between advertised prefixes on each side"
+      source_impact: none
+
+    - id: plan-relay-migration
+      phase: prepare
+      title: "Plan migration of VPN relays and network appliances separately"
+      description: >-
+        EC2 instances with source/destination check disabled (aws-ec2-network-appliance) and
+        Client VPN endpoints often carry device or partner traffic. When they carry device
+        command-and-control traffic they are safety-critical: build the target relay alongside the
+        source, run both in parallel for a dual-running window, move devices in small cohorts with
+        a tested fallback to the old relay, and never include them in a bulk cutover.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Devices fall back to the source relay, which stays up for the whole dual-running window."
+      risks:
+        - "Loss of command-and-control connectivity to devices in the field"
+        - "Device firmware or configuration updates are needed to change endpoints or credentials"
+      validation:
+        - "Each device cohort reports healthy command-and-control sessions through the target relay before the next cohort moves"
+      source_impact: none
+
+    - id: provision-target-gateway
+      phase: provision
+      title: "Provision the target VPN gateway and router"
+      description: >-
+        GCP: HA VPN gateway (two interfaces), Cloud Router with the chosen ASN, and an external VPN
+        gateway resource describing the AWS side (FOUR_IPS_REDUNDANCY for two AWS Site-to-Site VPN
+        connections). Alibaba Cloud: VPN Gateway with an IPsec-VPN connection in dual-tunnel mode
+        with BGP enabled (local ASN, tunnel CIDR and local BGP IP per tunnel). Hermes does not
+        provision hybrid connectivity in v1alpha1.
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Delete the target VPN gateway, router and peer gateway resources."
+      risks:
+        - "Public IPs of the gateway change if it is recreated; the AWS side must then be reconfigured"
+      validation:
+        - "Gateway interfaces have public IPs recorded for the AWS customer gateway step"
+      source_impact: none
+
+    - id: provision-source-vpn
+      phase: provision
+      title: "Create the AWS side of the VPN"
+      description: >-
+        Create customer gateways for the target gateway IPs (two Site-to-Site VPN connections for
+        GCP HA VPN; Alibaba Cloud's guide also uses two customer gateways because its two tunnels
+        have different IPs), attach to a virtual private gateway or transit gateway, enable route
+        propagation only on the route tables that need it, and download the configuration with
+        pre-shared keys and BGP addresses. Handle pre-shared keys as secrets.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Delete the VPN connections and customer gateways and remove the propagated routes."
+      risks:
+        - "Transit gateway route table changes affect every attachment that uses the table"
+        - "Pre-shared keys in downloaded configuration files are secrets and must not be committed or pasted into tickets"
+      validation:
+        - "All tunnels show UP on both sides and BGP sessions are established"
+      source_impact: modifies-source-config
+
+    - id: restrict-traffic
+      phase: provision
+      title: "Restrict traffic to the migration flows"
+      description: >-
+        Add security group rules on AWS and firewall/security-group rules on the target that allow
+        only the required flows (for example PostgreSQL 5432 from the replication service ranges)
+        in each direction.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the added rules."
+      risks:
+        - "Over-broad rules expose source databases to the whole target network"
+      validation:
+        - "Only listed ports/ranges are reachable (negative test from a non-allowed range)"
+      source_impact: modifies-source-config
+
+    - id: dns-forwarding
+      phase: provision
+      title: "Set up DNS resolution across the clouds"
+      description: >-
+        Let each side resolve the other's private names during coexistence: GCP Cloud DNS
+        forwarding zones / Alibaba Cloud PrivateZone forwarding towards Route 53 Resolver inbound
+        endpoints, and Route 53 Resolver outbound endpoints with forwarding rules towards the target
+        resolvers. Creating Route 53 Resolver endpoints and rules changes the source VPC.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Delete the forwarding rules and resolver endpoints."
+      risks:
+        - "Forwarding loops or overlapping private zones cause resolution failures for both sides"
+      validation:
+        - "Private names on each side resolve from the other side through the tunnel"
+      source_impact: modifies-source-config
+
+    - id: validate-link
+      phase: validate
+      title: "Validate throughput, failover and MTU"
+      description: >-
+        Measure throughput with a bulk TCP test between test hosts, disable one tunnel to confirm
+        failover, and verify path MTU / MSS clamping as recommended by both providers for IPsec.
+      automation: manual
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; test hosts are deleted afterwards."
+      risks:
+        - "Fragmentation from MTU mismatch shows up as stalled large transfers rather than errors"
+      validation:
+        - "Measured throughput meets the requirement with one tunnel down"
+        - "Large-packet transfers complete without stalls"
+      source_impact: none
+
+    - id: monitor-link
+      phase: monitor
+      title: "Alert on tunnel and BGP state on both sides"
+      description: "Create alerts for tunnel down and BGP session down in AWS CloudWatch and in the target monitoring service."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Delete the alerts."
+      risks: []
+      validation:
+        - "Alert fires when a tunnel is administratively disabled in a test"
+      source_impact: none
+
+    - id: remove-link
+      phase: decommission
+      title: "Remove hybrid connectivity after the rollback window"
+      description: >-
+        When no replication, transfer or application traffic uses the link and the rollback window
+        has closed, delete the VPN on both sides (see the decommission workflow).
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Recreate from this workflow; gateway IPs and pre-shared keys will be new."
+      risks:
+        - "Removing the link early breaks reverse replication used for rollback"
+      validation:
+        - "Tunnel byte counters near zero for the agreed observation period before removal"
+      source_impact: modifies-source-config

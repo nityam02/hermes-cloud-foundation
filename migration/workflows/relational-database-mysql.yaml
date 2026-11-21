@@ -1,0 +1,192 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: relational-database-mysql
+  title: "MySQL-family migration with binary-log replication"
+  applies_to: [relational-database]
+spec:
+  steps:
+    - id: assess-source
+      phase: prepare
+      title: "Assess the source database"
+      description: >-
+        Record version, engine (MySQL, MariaDB, Aurora MySQL), sizes, storage engines (non-InnoDB
+        tables block managed replication tools), DEFINER clauses on views/routines/triggers/events,
+        character sets and collations (utf8mb3 vs utf8mb4, MySQL 8.0 default collations), time
+        zone usage, and features with no target equivalent (Aurora-specific functions,
+        MariaDB-specific features when the target is MySQL).
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; read-only queries."
+      risks:
+        - "MariaDB is not MySQL: GTID formats and several features are incompatible"
+      validation:
+        - "No non-InnoDB tables in scope (information_schema.tables)"
+        - "DEFINER accounts listed and planned"
+      source_impact: read-only-load
+
+    - id: configure-binlog
+      phase: prepare
+      title: "Configure binary logging on the source"
+      description: >-
+        Amazon RDS/Aurora MySQL: automated backups must be enabled for binary logging,
+        binlog_format = ROW in the parameter group, binlog retention long enough for the initial
+        load (CALL mysql.rds_set_configuration('binlog retention hours', N)). GTID_MODE must be
+        ON or OFF for Google DMS (no other value is supported); set ON if required by the chosen
+        mode.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Revert parameter group values and binlog retention."
+      risks:
+        - "Longer binlog retention consumes source storage"
+        - "Some parameter changes require a reboot"
+      validation:
+        - "SHOW VARIABLES LIKE 'binlog_format' returns ROW"
+        - "Binlog retention covers initial load duration plus margin"
+      source_impact: modifies-source-config
+
+    - id: create-migration-user
+      phase: prepare
+      title: "Create the migration user"
+      description: >-
+        Dedicated user allowed from host '%' with a password of at most 32 characters (Google
+        DMS). Managed dump privileges: SELECT, SHOW VIEW, TRIGGER, LOCK TABLES, and RELOAD only
+        when GTID_MODE = ON; on MySQL 8.0+ the account must not have BACKUP_ADMIN. Add the
+        replication privileges the chosen tool requires for CDC.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "DROP USER after migration."
+      risks:
+        - "Over-privileged migration users"
+      validation:
+        - "Connection test from the migration service succeeds with TLS"
+      source_impact: modifies-source-config
+
+    - id: open-network-path
+      phase: prepare
+      title: "Open the network path from the replication service"
+      description: "Private connectivity preferred; otherwise TLS and an allowlist of the replication service egress IPs on port 3306."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the security group rule."
+      risks:
+        - "Public exposure of the source database"
+      validation:
+        - "Port 3306 reachable only from the listed ranges"
+      source_impact: modifies-source-config
+
+    - id: provision-target
+      phase: provision
+      title: "Provision the target database"
+      description: >-
+        Cloud SQL for MySQL (GCP) or ApsaraDB RDS for MySQL / PolarDB for MySQL (Alibaba Cloud).
+        Hermes v1alpha1 does not provision MySQL (engine: mysql is reserved), so use the
+        provider tool or your own IaC. Create DEFINER accounts before the load.
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Delete the target instance before production writes reach it."
+      risks:
+        - "Different default sql_mode or collation on the target changes query results"
+      validation:
+        - "Target version >= source; sql_mode, character set and collation match"
+      source_impact: none
+
+    - id: start-replication
+      phase: synchronize
+      title: "Start the initial load and binlog replication"
+      description: "Start the Google DMS or DTS job (or native replication from a dump with binlog coordinates/GTID)."
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Stop and delete the job."
+      risks:
+        - "Initial dump locks or loads the source; long dumps need binlog retention to cover them"
+      validation:
+        - "Job replicating; lag stable or decreasing"
+      source_impact: read-only-load
+
+    - id: ddl-freeze-and-monitor
+      phase: synchronize
+      title: "Freeze DDL and monitor replication"
+      description: "Avoid schema changes during replication unless the tool documents support for them; monitor lag and errors."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks:
+        - "Unsupported DDL stops or diverges replication"
+      validation:
+        - "No replication errors for the observation period"
+      source_impact: read-only-load
+
+    - id: validate-data
+      phase: validate
+      title: "Validate data on the target"
+      description: "Row counts, CHECKSUM TABLE or range checksums, AUTO_INCREMENT counters, routines/triggers/events present, application read-only tests."
+      automation: hermes
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; read-only."
+      risks: []
+      validation:
+        - "Row counts and checksums match for every table in scope"
+      source_impact: read-only-load
+
+    - id: freeze-writes
+      phase: cutover
+      title: "Stop writes on the source"
+      description: "Maintenance mode or scale writers to zero, then revoke write privileges from application users."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Re-grant write privileges."
+      risks:
+        - "Writers with separate credentials keep writing"
+      validation:
+        - "No write activity on the source (binlog position stops advancing)"
+      source_impact: modifies-source-config
+
+    - id: promote-target
+      phase: cutover
+      title: "Drain replication and promote the target"
+      description: "Wait for zero lag, promote the target, enable backups/HA, and switch application configuration."
+      automation: provider-tool
+      gate: approval
+      reversible: false
+      rollback: "Point applications back to the source; reconcile writes made on the target after promotion."
+      risks:
+        - "Forward replication cannot resume after promotion"
+      validation:
+        - "Target accepts writes; application connections only on the target"
+      source_impact: none
+
+    - id: monitor-target
+      phase: monitor
+      title: "Monitor the target after cutover"
+      description: "Watch errors, latency and connections; test HA failover in a maintenance window."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "SLOs met for the observation period"
+      source_impact: none
+
+    - id: retire-source-database
+      phase: decommission
+      title: "Clean up and retire the source database"
+      description: "Drop the migration user, restore normal binlog retention, take a final snapshot, then delete through the decommission workflow."
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "Restore from the final snapshot."
+      risks: []
+      validation:
+        - "Final snapshot exists and its restore was tested"
+      source_impact: modifies-source-config

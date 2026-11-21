@@ -1,0 +1,80 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: manual-review
+  title: "Manual review for resources without a standard workflow"
+  applies_to: [other]
+spec:
+  steps:
+    - id: document-current-state
+      phase: prepare
+      title: "Document the current resource"
+      description: "Configuration (inventory attributes), usage, data volume, dependencies (relationships) and owner."
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; documentation only."
+      risks:
+        - "Resources classified 'other' may be inventory gaps in disguise"
+      validation:
+        - "Owner, usage and dependencies recorded"
+      source_impact: none
+
+    - id: evaluate-options
+      phase: prepare
+      title: "Evaluate options"
+      description: >-
+        Options: managed target service (catalog alternatives and differences), portable
+        open-source software on the target container runtime, keep in place on AWS with hybrid
+        connectivity, or retire. Include lock-in, operations effort and cost.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable."
+      risks: []
+      validation:
+        - "At least two options compared"
+      source_impact: none
+
+    - id: decision-record
+      phase: prepare
+      title: "Record the decision"
+      description: "Write an ADR in docs/decisions and add a catalog entry if the pattern will recur."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Supersede the ADR."
+      risks: []
+      validation:
+        - "ADR approved by the service owner"
+      source_impact: none
+
+    - id: proof-of-concept
+      phase: validate
+      title: "Prove the chosen option"
+      description: "Run a non-production proof of concept with representative data and load, and write ValidationChecks for it."
+      automation: manual
+      gate: validation
+      reversible: true
+      rollback: "Delete the proof-of-concept resources."
+      risks: []
+      validation:
+        - "Proof of concept meets functional and performance criteria"
+      source_impact: none
+
+    - id: execute-with-standard-workflows
+      phase: synchronize
+      title: "Execute using the standard workflows"
+      description: >-
+        Compose the migration from standard workflows (object-storage for data, traffic-cutover
+        for endpoints, decommission for retirement). Any step that touches the source is treated
+        as modifying it and needs approval.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Follow the rollback of each composed workflow step."
+      risks:
+        - "Ad-hoc steps skip validation"
+      validation:
+        - "Each executed step has a validation result"
+      source_impact: modifies-source-config

@@ -1,0 +1,203 @@
+apiVersion: hermes/v1alpha1
+kind: MigrationWorkflow
+metadata:
+  id: object-storage
+  title: "Object storage migration with incremental synchronization"
+  applies_to: [object-storage, file-storage, backup]
+spec:
+  steps:
+    - id: assess-buckets
+      phase: prepare
+      title: "Assess buckets and objects"
+      description: >-
+        Per bucket: total bytes and object count (from storage metrics or inventory reports),
+        storage classes (archived classes need restore), versioning, encryption (SSE-S3 / SSE-KMS
+        key), Object Lock, lifecycle rules, replication, event notifications, bucket policies,
+        CORS, static website hosting, requester pays, and object metadata/tag usage.
+      automation: manual
+      gate: none
+      reversible: true
+      rollback: "Not applicable; read-only."
+      risks:
+        - "Object count, not bytes, often dominates transfer time and request cost for small objects"
+      validation:
+        - "Size, count and storage-class distribution recorded per bucket"
+      source_impact: read-only-load
+
+    - id: decide-scope
+      phase: prepare
+      title: "Decide what is copied"
+      description: >-
+        Transfer tools copy current versions by default. Decide whether noncurrent versions are
+        needed (Storage Transfer Service can copy specific versions listed in a manifest, which
+        needs s3:GetObjectVersion), whether object tags and ACLs matter (Storage Transfer Service
+        does not preserve them; new S3 buckets have ACLs disabled by default), and how retention
+        obligations under Object Lock are re-established on the target.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Not applicable; decision only."
+      risks:
+        - "Source timestamps are not preserved by Storage Transfer Service, so age-based lifecycle rules restart from the copy date"
+        - "Legal holds and retention modes do not travel with the objects"
+      validation:
+        - "Scope decision recorded per bucket"
+      source_impact: none
+
+    - id: restore-archived-objects
+      phase: prepare
+      title: "Restore archived objects before transfer"
+      description: >-
+        Objects in S3 Glacier Flexible Retrieval or Deep Archive cannot be read until restored.
+        Restore them in batches (S3 Batch Operations) before transfer, or exclude them. Restores
+        incur retrieval charges and temporary storage.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Restored copies expire automatically after the requested number of days."
+      risks:
+        - "Deep Archive restores take hours; bulk restores take longer and cost more than the transfer itself"
+      validation:
+        - "No in-scope object remains in an archived state without an active restore"
+      source_impact: modifies-source-config
+
+    - id: grant-transfer-access
+      phase: prepare
+      title: "Grant read-only access for the transfer service"
+      description: >-
+        Create an IAM role in the source account trusted by the transfer service (federated
+        identity preferred over access keys) with s3:ListBucket, s3:GetObject (and
+        s3:GetObjectVersion when a manifest names versions) on the in-scope buckets, plus
+        kms:Decrypt on SSE-KMS keys. Alibaba Data Online Migration uses an access key for the
+        source (long-lived credential): create a dedicated IAM user limited to these actions, enter the key directly in the Alibaba Cloud console, never store it in Hermes artifacts, files or tickets, and delete it in the decommission workflow.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Delete the role or IAM user and its keys."
+      risks:
+        - "Long-lived access keys for the transfer are a secret that must be stored and deleted properly"
+      validation:
+        - "Access works for listed buckets and is denied for any other bucket"
+      source_impact: modifies-source-config
+
+    - id: provision-target-buckets
+      phase: provision
+      title: "Provision target buckets"
+      description: >-
+        Provision buckets with Hermes (workloads.storage: versioning, retention_days), with
+        customer-managed keys in protected environments. Re-create lifecycle, CORS, notifications
+        and access grants through the Platform spec or provider configuration.
+      automation: hermes
+      gate: approval
+      reversible: true
+      rollback: "hermes destroy --approve <plan-id-prefix> while buckets are still empty or disposable."
+      risks:
+        - "Bucket names are global; the Hermes naming convention adds a random suffix"
+      validation:
+        - "Target buckets exist with versioning, encryption and public-access prevention"
+      source_impact: none
+
+    - id: bulk-transfer
+      phase: synchronize
+      title: "Run the initial bulk transfer"
+      description: >-
+        GCP: Storage Transfer Service agentless job from S3 (optionally over the Google-managed
+        private network, which replaces AWS egress charges with a per-GiB Google charge for
+        supported S3 regions). Alibaba Cloud: Data Online Migration task from Amazon S3 to OSS.
+        Throttle bandwidth if the source serves production traffic.
+      automation: provider-tool
+      gate: approval
+      reversible: true
+      rollback: "Delete the copied objects from the target bucket."
+      risks:
+        - "AWS data transfer out and request charges accrue on the source bill"
+        - "S3 request rate limits per prefix can throttle production reads during the transfer"
+      validation:
+        - "Transfer job completed with zero failed objects, or every failure triaged"
+      source_impact: read-only-load
+
+    - id: incremental-sync
+      phase: synchronize
+      title: "Run incremental synchronizations"
+      description: >-
+        Schedule repeat runs that copy only new or changed objects. Do not enable deletion of
+        destination objects missing from the source until the final sync, and never enable
+        deletion of source objects after transfer.
+      automation: provider-tool
+      gate: none
+      reversible: true
+      rollback: "Pause the schedule."
+      risks:
+        - "Delete-propagation options misconfigured can delete data"
+      validation:
+        - "Each run's changed-object count trends toward the application's write rate"
+      source_impact: read-only-load
+
+    - id: validate-objects
+      phase: validate
+      title: "Validate objects and metadata"
+      description: >-
+        Compare object counts and total bytes per prefix. Storage Transfer Service validates
+        checksums end to end when the source provides checksum metadata and fails a task with
+        DATA_LOSS on mismatch; multipart S3 ETags are not MD5 hashes of the object, and composite
+        Cloud Storage objects carry only CRC32C, so spot checks should compare CRC32C or
+        recomputed hashes. Check Content-Type, Cache-Control and user metadata on samples (OSS
+        limits total user metadata to 8 KB per object).
+      automation: hermes
+      gate: validation
+      reversible: true
+      rollback: "Not applicable; read-only."
+      risks:
+        - "Comparing ETags across providers gives false mismatches"
+      validation:
+        - "Counts and bytes match per prefix (excluding objects written after the last sync)"
+        - "Sampled objects match by recomputed hash"
+      source_impact: read-only-load
+
+    - id: cutover-writes
+      phase: cutover
+      title: "Move writers and readers to the target buckets"
+      description: >-
+        Freeze writes (or dual-write), run a final incremental sync, then switch applications to
+        the HERMES_BUCKET_* bindings. Presigned URLs, bucket-policy-based access and S3-specific
+        SDK calls must already be ported.
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Point applications back to S3; copy objects written on the target since cutover back to S3 (target egress)."
+      risks:
+        - "Writes during the gap between final sync and switch are lost unless writes are frozen or dual-written"
+      validation:
+        - "No PUT requests on source buckets after cutover (S3 request metrics or server access logs)"
+      source_impact: modifies-source-config
+
+    - id: keep-source-read-only
+      phase: monitor
+      title: "Keep the source read-only for the rollback window"
+      description: "Apply a deny-write bucket policy to source buckets and keep them for the agreed rollback window."
+      automation: manual
+      gate: approval
+      reversible: true
+      rollback: "Remove the deny-write policy."
+      risks:
+        - "Storage charges continue on both clouds during the window"
+      validation:
+        - "Write attempts to source buckets are denied"
+      source_impact: modifies-source-config
+
+    - id: retire-source-buckets
+      phase: decommission
+      title: "Delete source buckets"
+      description: >-
+        After the window and retention review, empty and delete source buckets (lifecycle
+        expiration for large buckets, including noncurrent versions and incomplete multipart
+        uploads), revoke the transfer role/keys, then follow the decommission workflow.
+      automation: manual
+      gate: approval
+      reversible: false
+      rollback: "None after deletion; keep an archive copy if required."
+      risks:
+        - "Object Lock in compliance mode prevents deletion until retention expires"
+      validation:
+        - "Buckets deleted; transfer credentials revoked"
+      source_impact: modifies-source-config
