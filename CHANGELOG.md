@@ -9,6 +9,7 @@ through `apiVersion` (currently `hermes/v1alpha1`).
 
 ### Added
 
+- `hermes ui`: a local, read-only React UI for inventories, assessments and migration plans (loopback only, Host-checked, no outside requests). See `docs/tutorials/ui.md`.
 - The cloud-independent platform specification `hermes/v1alpha1` with a JSON Schema and semantic validation.
 - The `hermes` CLI, with these commands: `init`, `doctor`, `validate`, `portability`, `render`, `plan`, `apply`,
   `status`, `bindings`, `destroy`, `state bootstrap`, `providers`, `cost` and `version`.

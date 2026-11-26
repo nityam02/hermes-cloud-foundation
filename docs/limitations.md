@@ -276,3 +276,12 @@ C3 (credentials out of state) is handled per provider rather than through write-
 RDS-managed master-user secret. On GCP and Alibaba, credentials are set out-of-band. None of this is verified on a
 real cloud. The engine floor (1.10) is below the 1.11 the report suggested for write-only arguments. C11
 (Terragrunt and Atmos interoperability) remains **designed, not tested**.
+
+## 15. Hermes UI
+
+| Item | Status |
+|---|---|
+| Read-only local UI for inventory, assessment and plan (`hermes ui`) | implemented, unit-tested and checked in a browser against a real sandbox discovery |
+| Connecting an AWS or GCP account from the page, starting discovery or a migration, approvals | designed, not implemented. The UI cannot change anything by design |
+| Hosted, multi-user version | not supported. It would hold cross-account access to customer environments and needs authentication, tenant isolation, audit and its own threat model |
+| Automated browser (end-to-end) tests | not implemented. Views are covered by render smoke tests against real documents; layout was checked by hand |

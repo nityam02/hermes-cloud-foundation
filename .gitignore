@@ -48,3 +48,10 @@ __pycache__/
 .idea/
 .vscode/
 *.swp
+
+# Hermes UI (React app): dependencies and build output. The Go server embeds internal/uiserver/dist;
+# only .gitkeep is tracked, `make ui-build` replaces the rest locally.
+ui/node_modules/
+ui/dist/
+internal/uiserver/dist/*
+!internal/uiserver/dist/.gitkeep

@@ -14,6 +14,7 @@ Start with the [project README](../README.md) or the [executive overview](overvi
 | [Installation](tutorials/installation.md) | Tools, versions, checksum-verified installs |
 | [Quickstart](tutorials/quickstart.md) | `init` → `validate` → `portability` → `render`, and what `plan` and `apply` will do |
 | [Multi-cloud tutorial](tutorials/multi-cloud.md) | One spec, three clouds, isolated state |
+| [The Hermes UI](tutorials/ui.md) | Read-only local web UI for inventory, assessment and plan |
 | [Configuration reference](reference/configuration.md) | Every `hermes.yaml` field and default |
 | [CLI reference](reference/cli.md) | Commands, flags, exit codes, the `.hermes/` directory |
 | [Diagnostic codes](reference/diagnostics.md) | `HCF1xx`–`HCF5xx` |

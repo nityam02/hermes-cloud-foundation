@@ -35,3 +35,35 @@ jobs:
         run: go test -count=1 ./policies/...
       - name: Build
         run: make build
+
+  ui:
+    # Hermes UI (React): typecheck, unit tests, production build, then the CLI with the build embedded.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - name: Install UI dependencies (lockfile, no install scripts)
+        run: make ui-install
+      - name: Typecheck and test the UI
+        run: make ui-test
+      - name: Build the UI and the CLI that embeds it
+        run: make ui-build build
+      - name: The embedded UI answers on loopback and refuses writes
+        run: |
+          ./bin/hermes ui --addr 127.0.0.1:18787 &
+          pid=$!
+          for _ in $(seq 1 20); do curl -fsS http://127.0.0.1:18787/api/status && break; sleep 0.5; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18787/)" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18787/api/status)" = 405
+          kill "$pid"

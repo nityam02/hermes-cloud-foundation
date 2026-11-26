@@ -116,6 +116,20 @@ integration: build ## Render every example and validate the rendered roots with 
 
 ## ---------------------------------------------------------------- Policy, security, docs
 
+.PHONY: ui-install
+ui-install: ## Install the Hermes UI dependencies (lockfile, no install scripts)
+	cd ui && npm ci --ignore-scripts --no-audit --no-fund
+
+.PHONY: ui-test
+ui-test: ## Typecheck and unit-test the Hermes UI
+	cd ui && npm run typecheck && npm test
+
+.PHONY: ui-build
+ui-build: ## Build the Hermes UI and place it where the CLI embeds it (then run make build)
+	cd ui && npm run build
+	find internal/uiserver/dist -mindepth 1 ! -name .gitkeep -delete
+	cp -R ui/dist/. internal/uiserver/dist/
+
 .PHONY: policy-test
 policy-test: ## conftest verify for the plan policies
 	$(CONFTEST) verify --policy policies/plan --policy policies/tests --data policies/tests --no-color

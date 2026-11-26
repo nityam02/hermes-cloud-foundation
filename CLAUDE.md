@@ -82,5 +82,6 @@ make contract-test  # provider contract tests
 make policy-test    # conftest verify
 make security       # checkov, trivy config, gitleaks, forbidden-terms check
 make demo-discovery # moto-backed AWS discovery demo (no real AWS)
+make ui-test ui-build # Hermes UI (ui/, React): typecheck+tests, build and embed (then make build)
 make ci             # everything CI runs
 ```

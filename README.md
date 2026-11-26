@@ -20,7 +20,7 @@ behind gates.
 
 ## 60-second quickstart (offline, no cloud credentials needed)
 
-Requires Go ≥ 1.24 and OpenTofu ≥ 1.10 (or Terraform ≥ 1.11). See [installation](docs/tutorials/installation.md).
+Requires Go ≥ 1.26 and OpenTofu ≥ 1.10 (or Terraform ≥ 1.11). See [installation](docs/tutorials/installation.md).
 
 ```bash
 go build -o bin/hermes ./cmd/hermes          # or `make build` with GNU Make >= 4.3
@@ -166,7 +166,7 @@ plans ([IaC adoption](docs/migration/iac-adoption.md)). Adoption is not migratio
 | You want to… | Read |
 |---|---|
 | Understand the project in 5 minutes | [Executive overview](docs/overview/executive-overview.md) |
-| Install and try it | [Installation](docs/tutorials/installation.md), [quickstart](docs/tutorials/quickstart.md), [multi-cloud](docs/tutorials/multi-cloud.md) |
+| Install and try it | [Installation](docs/tutorials/installation.md), [quickstart](docs/tutorials/quickstart.md), [multi-cloud](docs/tutorials/multi-cloud.md), [read-only web UI](docs/tutorials/ui.md) |
 | Contribute code | [Onboarding](docs/tutorials/onboarding.md), [testing guide](docs/testing.md), [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Look up commands, fields and codes | [CLI](docs/reference/cli.md), [configuration](docs/reference/configuration.md), [diagnostics](docs/reference/diagnostics.md) |
 | Go to production | [First production environment](docs/tutorials/first-production-environment.md), [state management](docs/operations/state-management.md), [cost and sizing](docs/operations/cost-and-sizing.md) |

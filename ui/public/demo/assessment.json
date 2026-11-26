@@ -1,0 +1,2632 @@
+{
+  "apiVersion": "hermes/v1alpha1",
+  "kind": "Assessment",
+  "metadata": {
+    "generated_at": "2026-11-26T19:03:44Z",
+    "generator": "hermes/dev",
+    "source": {
+      "provider": "aws",
+      "account_id": "123456789012",
+      "regions": [
+        "eu-north-1"
+      ]
+    },
+    "target": {
+      "provider": "gcp"
+    },
+    "inventory_digest": "sha256:310f1714ae6c7c62b9aeb53dbed7927ebe185394cc6160ed6454869ea10303ea",
+    "inventory_collector": "fixture",
+    "catalog_digest": "sha256:8fc18d2011a88bb7c73640ed892d0f211cadafe594bf9482b38258daa38156f9",
+    "pricing_digest": "sha256:b9b45adb04ae467ed910471aa2a1a1d6dd307794d855a0b164e6f74135f4e3aa",
+    "disclaimer": "Mappings describe capability equivalence, not operational equivalence. Verify against current provider documentation. Cost figures are indicative ranges from pricing assumptions, not quotes. The draft spec requires human review."
+  },
+  "summary": {
+    "resource_count": 62,
+    "by_compatibility": {
+      "compatible": 39,
+      "none": 2,
+      "partial": 14,
+      "re-architect": 7
+    },
+    "by_complexity": {
+      "high": 11,
+      "low": 19,
+      "medium": 32
+    },
+    "by_category": {
+      "block-storage": 2,
+      "cdn": 1,
+      "certificates": 1,
+      "compute": 2,
+      "container-orchestration": 1,
+      "container-registry": 1,
+      "dns": 1,
+      "hybrid-connectivity": 2,
+      "identity": 5,
+      "iot": 2,
+      "key-management": 1,
+      "load-balancing": 4,
+      "logging": 2,
+      "messaging-pubsub": 3,
+      "messaging-queue": 4,
+      "networking": 16,
+      "nosql-database": 1,
+      "object-storage": 4,
+      "relational-database": 1,
+      "secrets": 3,
+      "serverless-container": 2,
+      "serverless-function": 2,
+      "time-series": 1
+    },
+    "by_hermes_support": {
+      "implemented": 28,
+      "not-implemented": 16,
+      "partial": 18
+    },
+    "portability_score": 31,
+    "portability_method": "percentage of complexity-weighted resources (low=1, medium=2, high=3) whose mapping is equivalent/compatible and within the Hermes v1alpha1 provisioning scope (hermes_support: implemented)",
+    "data_volume": {
+      "required_bytes": 1953597383680,
+      "optional_bytes": 0,
+      "by_category_bytes": {
+        "block-storage": 128849018880,
+        "nosql-database": 8000000000,
+        "object-storage": 1602000000000,
+        "relational-database": 214748364800
+      },
+      "unknown_size_resources": [
+        "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+        "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+        "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+        "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl"
+      ],
+      "basis": "inventory size_bytes: S3 from CloudWatch daily storage metrics, RDS/EBS provisioned storage (upper bound), DynamoDB table size"
+    },
+    "transfer_cost": {
+      "currency": "USD",
+      "low_usd": 97.68,
+      "high_usd": 332.11,
+      "method": "low = required data (1953.6 GB) x cheapest listed AWS internet egress rate (aws-internet-egress-tier4); high = required+optional data (1953.6 GB) x (highest AWS egress rate (aws-internet-egress-tier1) + highest gcp transfer/replication fee). Free allowances, request charges and dual-running costs are not modelled.",
+      "rates_used": [
+        {
+          "id": "aws-internet-egress-tier4",
+          "provider": "aws",
+          "kind": "egress-internet",
+          "usd_per_gb": 0.05,
+          "applies_to": "Data transfer out to the internet, above 150 TB/month; US and most EU regions [S]",
+          "source": "https://aws.amazon.com/ec2/pricing/on-demand/"
+        },
+        {
+          "id": "aws-internet-egress-tier1",
+          "provider": "aws",
+          "kind": "egress-internet",
+          "usd_per_gb": 0.09,
+          "applies_to": "Data transfer out to the internet, first 10 TB/month after the 100 GB/month free allowance; US and most EU regions [S]",
+          "source": "https://aws.amazon.com/ec2/pricing/on-demand/"
+        },
+        {
+          "id": "gcp-sts-managed-private-network-apac",
+          "provider": "gcp",
+          "kind": "transfer-service",
+          "usd_per_gb": 0.08,
+          "applies_to": "As above, within APAC, per GiB (an April 2025 report listed 0.09) [S]",
+          "source": "https://cloud.google.com/storage-transfer/pricing"
+        }
+      ],
+      "exit_programmes": [
+        "May apply (not subtracted): Transfer cost range (designed for hermes migrate assess): low = cheapest viable path (for GCP, the managed-private-network rate for the region when the S3 region is supported; otherwise tiered AWS egress), high = tiered AWS internet egress with no waiver. Report the rate ids used.",
+        "May apply (not subtracted): Exit programme, AWS: free data transfer out to the internet for customers moving off AWS may apply; it requires a request to and approval by AWS Support before the move, covers moving all data (from all eligible accounts, or all data of a particular service), and must complete within a window (180 days for non-EU customers per the 2026-10-08 update; EU customers follow the AWS EU Data Act addendum). Earlier coverage listed CloudFront, Direct Connect, Snow Family and Global Accelerator transfers as excluded. Verify current terms: https://aws.amazon.com/blogs/aws/free-data-transfer-out-to-internet-when-moving-out-of-aws/ [V for the blog terms, S for exclusions].",
+        "May apply (not subtracted): Exit programme, GCP (relevant only when leaving GCP, for example a rollback after cutover): free data transfer for customers exiting Google Cloud may apply; it requires an Exit Notice before the agreement ends, migration within an initiation period, a Completion Notice and a full exit of the service; credit appears on the final invoice; internet transfers only. Verify: https://cloud.google.com/exit-cloud [S].",
+        "May apply (not subtracted): Multicloud, GCP (EU and UK): Data Transfer Essentials (2025-09-10) may zero-rate qualifying egress between GCP and another provider for workloads of one organization running in parallel; opt-in, and traffic must be designated. Useful during coexistence, not for a one-time exit. Verify: https://cloud.google.com/blog/products/networking/new-for-the-uk-and-eu-no-cost-multicloud-data-transfer-essentials [S].",
+        "May apply (not subtracted): Exit programme, Alibaba Cloud: no exit or switching waiver programme was found in this review [U]. The EU Data Act bans switching charges, including egress for switching, from 2027-01-12; it may apply to EU customers of any provider; verify with the provider [S]."
+      ],
+      "disclaimer": "Indicative list prices for estimation only; verify with the provider's current pricing and your agreements. This is an indicative range, not a quote."
+    },
+    "blocker_count": 1,
+    "risk_count": 7,
+    "gap_count": 4,
+    "wave_count": 6
+  },
+  "resources": [
+    {
+      "id": "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+      "type": "AWS::CertificateManager::Certificate",
+      "name": "example.com",
+      "region": "eu-north-1",
+      "category": "certificates",
+      "capability": "network",
+      "mapping_id": "aws-acm-certificate",
+      "target_service": "Certificate Manager (Google-managed certificates)",
+      "alternatives": [
+        "Cloud Run domain mappings",
+        "Self-managed certificate upload"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "CAA records must allow the target certificate authority"
+      ]
+    },
+    {
+      "id": "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+      "type": "AWS::CloudFront::Distribution",
+      "name": "d111111abcdef8.cloudfront.net",
+      "region": "global",
+      "category": "cdn",
+      "capability": "network",
+      "mapping_id": "aws-cloudfront-distribution",
+      "target_service": "Cloud CDN (on an external Application Load Balancer)",
+      "alternatives": [
+        "Media CDN"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "not-implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Cache behaviours and invalidation workflows must be re-created and tested for hit ratio"
+      ]
+    },
+    {
+      "id": "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+      "type": "AWS::DynamoDB::Table",
+      "name": "device-state",
+      "region": "eu-north-1",
+      "category": "nosql-database",
+      "capability": "none",
+      "mapping_id": "aws-dynamodb-table",
+      "target_service": "Firestore (Native mode)",
+      "alternatives": [
+        "Bigtable (high-throughput key/range access)",
+        "Spanner (relational with global consistency)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "required",
+      "workflow": "nosql-database",
+      "hermes_support": "not-implemented",
+      "lock_in": "high",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "size_bytes": 8000000000,
+      "notes": [
+        "Choose the target per access pattern; there is no drop-in DynamoDB-compatible managed service on GCP",
+        "DynamoDB Streams keep records for 24 hours; CDC consumers must not fall behind longer"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "type": "AWS::EC2::Instance",
+      "name": "telemetry-worker-1",
+      "region": "eu-north-1",
+      "category": "compute",
+      "capability": "compute",
+      "mapping_id": "aws-ec2-instance",
+      "target_service": "Compute Engine",
+      "alternatives": [
+        "Cloud Run (after containerization)",
+        "Google Kubernetes Engine"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "optional",
+      "workflow": "stateless-rebuild",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3,
+      "notes": [
+        "Hermes v1alpha1 has no VM capability; rebuild as containers where possible or rehost with the provider tool",
+        "VM-hosted Docker managed by configuration management (for example Ansible on EC2): rehost to Compute Engine and keep the playbooks, or re-platform the same images to Cloud Run; re-platforming moves host-level settings (volumes, host networking, cron, log agents) into the image or the platform",
+        "Instances with source/destination check disabled are routers, NAT or VPN relays; they are classified by the aws-ec2-network-appliance entry",
+        "Licensed operating systems and software may need license changes",
+        "Tags indicate a Docker/container host: candidate for the containerized compute target (image and ports must be confirmed)"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "type": "AWS::EC2::Instance",
+      "name": "telemetry-worker-2",
+      "region": "eu-north-1",
+      "category": "compute",
+      "capability": "compute",
+      "mapping_id": "aws-ec2-instance",
+      "target_service": "Compute Engine",
+      "alternatives": [
+        "Cloud Run (after containerization)",
+        "Google Kubernetes Engine"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "optional",
+      "workflow": "stateless-rebuild",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3,
+      "notes": [
+        "Hermes v1alpha1 has no VM capability; rebuild as containers where possible or rehost with the provider tool",
+        "VM-hosted Docker managed by configuration management (for example Ansible on EC2): rehost to Compute Engine and keep the playbooks, or re-platform the same images to Cloud Run; re-platforming moves host-level settings (volumes, host networking, cron, log agents) into the image or the platform",
+        "Instances with source/destination check disabled are routers, NAT or VPN relays; they are classified by the aws-ec2-network-appliance entry",
+        "Licensed operating systems and software may need license changes",
+        "Tags indicate a Docker/container host: candidate for the containerized compute target (image and ports must be confirmed)"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "type": "AWS::EC2::Instance",
+      "name": "vpn-relay",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-ec2-network-appliance",
+      "target_service": "Compute Engine instance with IP forwarding, or a managed replacement (Cloud NAT, HA VPN)",
+      "alternatives": [
+        "Self-managed VPN on Compute Engine (can_ip_forward)",
+        "Cloud NAT",
+        "HA VPN"
+      ],
+      "compatibility": "partial",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "hybrid-connectivity",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Relays that carry device command-and-control traffic are safety-critical: run old and new relays in parallel (dual-running window), move devices in small cohorts with a tested fallback, and never include them in a bulk cutover",
+        "Device-side configuration (endpoints, keys, certificates) usually changes; plan device updates before moving the relay",
+        "Instance vpn-relay forwards traffic (source/destination check disabled): router, NAT or VPN relay"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+      "type": "AWS::EC2::InternetGateway",
+      "name": "fleet-igw",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-vpc",
+      "target_service": "VPC network",
+      "alternatives": [
+        "Shared VPC"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Choose a target CIDR that does not overlap any source VPC so hybrid connectivity can route between them"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "type": "AWS::EC2::NatGateway",
+      "name": "fleet-nat-a",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-nat-gateway",
+      "target_service": "Cloud NAT",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Egress IPs change; partners that allowlist source NAT IPs must be updated"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "type": "AWS::EC2::RouteTable",
+      "name": "public",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-route-table",
+      "target_service": "VPC routes",
+      "alternatives": [
+        "Policy-based routes"
+      ],
+      "compatibility": "partial",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "type": "AWS::EC2::RouteTable",
+      "name": "private",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-route-table",
+      "target_service": "VPC routes",
+      "alternatives": [
+        "Policy-based routes"
+      ],
+      "compatibility": "partial",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "alb",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-security-group",
+      "target_service": "Cloud NGFW firewall rules and network firewall policies",
+      "alternatives": [
+        "Hierarchical firewall policies"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Hermes generates rules for its own workloads from the spec; it does not translate arbitrary source rules"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "app",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-security-group",
+      "target_service": "Cloud NGFW firewall rules and network firewall policies",
+      "alternatives": [
+        "Hierarchical firewall policies"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Hermes generates rules for its own workloads from the spec; it does not translate arbitrary source rules"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "database",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-security-group",
+      "target_service": "Cloud NGFW firewall rules and network firewall policies",
+      "alternatives": [
+        "Hierarchical firewall policies"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3,
+      "notes": [
+        "Hermes generates rules for its own workloads from the spec; it does not translate arbitrary source rules"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+      "type": "AWS::EC2::SecurityGroup",
+      "name": "vpn-relay",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-security-group",
+      "target_service": "Cloud NGFW firewall rules and network firewall policies",
+      "alternatives": [
+        "Hierarchical firewall policies"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Hermes generates rules for its own workloads from the spec; it does not translate arbitrary source rules",
+        "Security group vpn-relay allows udp/51820-51820 from the internet"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "private-a",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-subnet",
+      "target_service": "VPC subnets",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "private-b",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-subnet",
+      "target_service": "VPC subnets",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "public-a",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-subnet",
+      "target_service": "VPC subnets",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "type": "AWS::EC2::Subnet",
+      "name": "public-b",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-subnet",
+      "target_service": "VPC subnets",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+      "type": "AWS::EC2::Volume",
+      "name": "vol-0b00000000000001",
+      "region": "eu-north-1",
+      "category": "block-storage",
+      "capability": "none",
+      "mapping_id": "aws-ebs-volume",
+      "target_service": "Persistent Disk / Hyperdisk",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "manual-review",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 4,
+      "size_bytes": 107374182400,
+      "notes": [
+        "Volumes move with their instance or by file-level copy; block snapshots are not portable between clouds"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+      "type": "AWS::EC2::Volume",
+      "name": "vol-0b00000000000002",
+      "region": "eu-north-1",
+      "category": "block-storage",
+      "capability": "none",
+      "mapping_id": "aws-ebs-volume",
+      "target_service": "Persistent Disk / Hyperdisk",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "manual-review",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3,
+      "size_bytes": 21474836480,
+      "notes": [
+        "Volumes move with their instance or by file-level copy; block snapshots are not portable between clouds"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpc-endpoint/vpce-0900000000000001",
+      "type": "AWS::EC2::VPCEndpoint",
+      "name": "com.amazonaws.eu-north-1.s3",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-vpc-endpoint",
+      "target_service": "Private Service Connect",
+      "alternatives": [
+        "Private Google Access"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "not-implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "type": "AWS::EC2::VPC",
+      "name": "fleet-main",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "network",
+      "mapping_id": "aws-vpc",
+      "target_service": "VPC network",
+      "alternatives": [
+        "Shared VPC"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Choose a target CIDR that does not overlap any source VPC so hybrid connectivity can route between them"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpn-connection/vpn-0c00000000000001",
+      "type": "AWS::EC2::VPNConnection",
+      "name": "depot-site-to-site",
+      "region": "eu-north-1",
+      "category": "hybrid-connectivity",
+      "capability": "network",
+      "mapping_id": "aws-site-to-site-vpn",
+      "target_service": "HA VPN with Cloud Router",
+      "alternatives": [
+        "Cloud Interconnect",
+        "Cross-Cloud Interconnect"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "hybrid-connectivity",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Existing on-premises VPNs into AWS must be re-established towards the target with new peer IPs and keys"
+      ]
+    },
+    {
+      "id": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "type": "AWS::EC2::VPNGateway",
+      "name": "depot-vgw",
+      "region": "eu-north-1",
+      "category": "hybrid-connectivity",
+      "capability": "network",
+      "mapping_id": "aws-site-to-site-vpn",
+      "target_service": "HA VPN with Cloud Router",
+      "alternatives": [
+        "Cloud Interconnect",
+        "Cross-Cloud Interconnect"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "hybrid-connectivity",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Existing on-premises VPNs into AWS must be re-established towards the target with new peer IPs and keys"
+      ]
+    },
+    {
+      "id": "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+      "type": "AWS::ECR::Repository",
+      "name": "fleet/api",
+      "region": "eu-north-1",
+      "category": "container-registry",
+      "capability": "compute",
+      "mapping_id": "aws-ecr-repository",
+      "target_service": "Artifact Registry",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "required",
+      "workflow": "container-workload",
+      "hermes_support": "not-implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Hermes references images by URL and does not create registries"
+      ]
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+      "type": "AWS::ECS::Cluster",
+      "name": "fleet",
+      "region": "eu-north-1",
+      "category": "container-orchestration",
+      "capability": "compute",
+      "mapping_id": "aws-ecs-cluster",
+      "target_service": "Cloud Run",
+      "alternatives": [
+        "Google Kubernetes Engine Autopilot"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "container-workload",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "type": "AWS::ECS::Service",
+      "name": "fleet-api",
+      "region": "eu-north-1",
+      "category": "serverless-container",
+      "capability": "compute",
+      "mapping_id": "aws-ecs-service",
+      "target_service": "Cloud Run services",
+      "alternatives": [
+        "Google Kubernetes Engine",
+        "Cloud Run jobs (for scheduled or batch tasks)"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "container-workload",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 3,
+      "notes": [
+        "Workloads relying on EFS volumes, privileged mode or host networking need redesign"
+      ]
+    },
+    {
+      "id": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "type": "AWS::ECS::TaskDefinition",
+      "name": "fleet-api:12",
+      "region": "eu-north-1",
+      "category": "serverless-container",
+      "capability": "compute",
+      "mapping_id": "aws-ecs-service",
+      "target_service": "Cloud Run services",
+      "alternatives": [
+        "Google Kubernetes Engine",
+        "Cloud Run jobs (for scheduled or batch tasks)"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "container-workload",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Workloads relying on EFS volumes, privileged mode or host networking need redesign"
+      ]
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "type": "AWS::ElasticLoadBalancingV2::Listener",
+      "name": "fleet-public:443",
+      "region": "eu-north-1",
+      "category": "load-balancing",
+      "capability": "network",
+      "mapping_id": "aws-elbv2-listener-target-group",
+      "target_service": "Target proxies, URL maps and backend services",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 5
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "name": "fleet-public",
+      "region": "eu-north-1",
+      "category": "load-balancing",
+      "capability": "network",
+      "mapping_id": "aws-alb",
+      "target_service": "Application Load Balancer (external or internal)",
+      "alternatives": [
+        "Cloud Run built-in HTTPS endpoint"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Hermes provisions HTTPS ingress for public services only; custom routing rules are re-created manually"
+      ]
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "name": "fleet-api",
+      "region": "eu-north-1",
+      "category": "load-balancing",
+      "capability": "network",
+      "mapping_id": "aws-elbv2-listener-target-group",
+      "target_service": "Target proxies, URL maps and backend services",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 4
+    },
+    {
+      "id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "name": "telemetry-workers",
+      "region": "eu-north-1",
+      "category": "load-balancing",
+      "capability": "network",
+      "mapping_id": "aws-elbv2-listener-target-group",
+      "target_service": "Target proxies, URL maps and backend services",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "traffic-cutover",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 4
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ci-deploy",
+      "type": "AWS::IAM::Role",
+      "name": "ci-deploy",
+      "region": "global",
+      "category": "identity",
+      "capability": "identity",
+      "mapping_id": "aws-iam-role",
+      "target_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "partial",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+        "Role trusts principals in another account; re-create cross-account access deliberately on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ecs-task-api",
+      "type": "AWS::IAM::Role",
+      "name": "ecs-task-api",
+      "region": "global",
+      "category": "identity",
+      "capability": "identity",
+      "mapping_id": "aws-iam-role",
+      "target_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services"
+      ]
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/ecs-task-execution",
+      "type": "AWS::IAM::Role",
+      "name": "ecs-task-execution",
+      "region": "global",
+      "category": "identity",
+      "capability": "identity",
+      "mapping_id": "aws-iam-role",
+      "target_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services"
+      ]
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/fleet-app-host",
+      "type": "AWS::IAM::Role",
+      "name": "fleet-app-host",
+      "region": "global",
+      "category": "identity",
+      "capability": "identity",
+      "mapping_id": "aws-iam-role",
+      "target_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services"
+      ]
+    },
+    {
+      "id": "arn:aws:iam::123456789012:role/telemetry-archiver",
+      "type": "AWS::IAM::Role",
+      "name": "telemetry-archiver",
+      "region": "global",
+      "category": "identity",
+      "capability": "identity",
+      "mapping_id": "aws-iam-role",
+      "target_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services"
+      ]
+    },
+    {
+      "id": "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+      "type": "AWS::IoT::TopicRule",
+      "name": "telemetry_to_sns",
+      "region": "eu-north-1",
+      "category": "iot",
+      "capability": "none",
+      "mapping_id": "aws-iot-core",
+      "target_service": "None (Cloud IoT Core was retired on 2023-08-16)",
+      "alternatives": [
+        "Self-managed MQTT broker on GKE bridged to Pub/Sub",
+        "Third-party IoT platform",
+        "Keep IoT Core in place"
+      ],
+      "compatibility": "none",
+      "complexity": "high",
+      "data_migration": "required",
+      "workflow": "manual-review",
+      "hermes_support": "not-implemented",
+      "lock_in": "high",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Device certificates, provisioning, shadows and rules must be rebuilt; devices need new endpoints and possibly new credentials (firmware update)"
+      ]
+    },
+    {
+      "id": "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+      "type": "AWS::IoT::Thing",
+      "name": "tracker-fleet-template",
+      "region": "eu-north-1",
+      "category": "iot",
+      "capability": "none",
+      "mapping_id": "aws-iot-core",
+      "target_service": "None (Cloud IoT Core was retired on 2023-08-16)",
+      "alternatives": [
+        "Self-managed MQTT broker on GKE bridged to Pub/Sub",
+        "Third-party IoT platform",
+        "Keep IoT Core in place"
+      ],
+      "compatibility": "none",
+      "complexity": "high",
+      "data_migration": "required",
+      "workflow": "manual-review",
+      "hermes_support": "not-implemented",
+      "lock_in": "high",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Device certificates, provisioning, shadows and rules must be rebuilt; devices need new endpoints and possibly new credentials (firmware update)"
+      ]
+    },
+    {
+      "id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "type": "AWS::KMS::Key",
+      "name": "fleet-data",
+      "region": "eu-north-1",
+      "category": "key-management",
+      "capability": "secrets",
+      "mapping_id": "aws-kms-key",
+      "target_service": "Cloud KMS",
+      "alternatives": [
+        "Cloud HSM",
+        "Cloud External Key Manager"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "AWS-generated key material cannot be exported; data is decrypted at the source and re-encrypted with target keys",
+        "Keep source keys until every snapshot and backup encrypted with them is deleted",
+        "KMS key material cannot be exported; data is re-encrypted with target keys during migration"
+      ]
+    },
+    {
+      "id": "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+      "type": "AWS::Lambda::EventSourceMapping",
+      "name": "0d0e0f00-1111-4222-8333-944444444444",
+      "region": "eu-north-1",
+      "category": "serverless-function",
+      "capability": "messaging",
+      "mapping_id": "aws-lambda-event-source-mapping",
+      "target_service": "Eventarc triggers and Pub/Sub push subscriptions",
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "messaging",
+      "hermes_support": "not-implemented",
+      "lock_in": "high",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "Each trigger must be redesigned around the target event source"
+      ]
+    },
+    {
+      "id": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+      "type": "AWS::Lambda::Function",
+      "name": "telemetry-archiver",
+      "region": "eu-north-1",
+      "category": "serverless-function",
+      "capability": "compute",
+      "mapping_id": "aws-lambda-function",
+      "target_service": "Cloud Run functions (formerly Cloud Functions)",
+      "alternatives": [
+        "Cloud Run services (HTTP container)"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "container-workload",
+      "hermes_support": "partial",
+      "lock_in": "high",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Hermes can host a function only after it is repackaged as an HTTP containerized service; triggers are not provisioned"
+      ]
+    },
+    {
+      "id": "arn:aws:logs:eu-north-1:123456789012:log-group:/aws/lambda/telemetry-archiver",
+      "type": "AWS::Logs::LogGroup",
+      "name": "/aws/lambda/telemetry-archiver",
+      "region": "eu-north-1",
+      "category": "logging",
+      "capability": "observability",
+      "mapping_id": "aws-cloudwatch-logs",
+      "target_service": "Cloud Logging (log buckets, sinks, log-based metrics)",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "optional",
+      "workflow": "stateless-rebuild",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Historical logs are normally archived (exported to object storage) rather than imported"
+      ]
+    },
+    {
+      "id": "arn:aws:logs:eu-north-1:123456789012:log-group:/ecs/fleet-api",
+      "type": "AWS::Logs::LogGroup",
+      "name": "/ecs/fleet-api",
+      "region": "eu-north-1",
+      "category": "logging",
+      "capability": "observability",
+      "mapping_id": "aws-cloudwatch-logs",
+      "target_service": "Cloud Logging (log buckets, sinks, log-based metrics)",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "optional",
+      "workflow": "stateless-rebuild",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Historical logs are normally archived (exported to object storage) rather than imported"
+      ]
+    },
+    {
+      "id": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "type": "AWS::RDS::DBInstance",
+      "name": "fleet-db",
+      "region": "eu-north-1",
+      "category": "relational-database",
+      "capability": "database",
+      "mapping_id": "aws-rds-postgresql",
+      "target_service": "Cloud SQL for PostgreSQL",
+      "alternatives": [
+        "AlloyDB for PostgreSQL"
+      ],
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "relational-database-postgresql",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 4,
+      "size_bytes": 214748364800,
+      "notes": [
+        "Google DMS standard migrations replicate only the snapshot and INSERTs for tables without a primary key",
+        "DDL, large objects, users/roles, pg_cron jobs and C-language functions are not migrated by Google DMS",
+        "Destination automated backups and PITR are suspended during DMS replication until promotion",
+        "Multi-AZ DB cluster members are DBInstances too; assess data volume once per cluster"
+      ]
+    },
+    {
+      "id": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "type": "AWS::RDS::DBSubnetGroup",
+      "name": "fleet-db-subnets",
+      "region": "eu-north-1",
+      "category": "networking",
+      "capability": "database",
+      "mapping_id": "aws-rds-db-subnet-group",
+      "target_service": "Private services access allocated range (Cloud SQL private IP)",
+      "alternatives": [
+        "Private Service Connect for Cloud SQL"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "none",
+      "workflow": "foundation",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 2,
+      "notes": [
+        "The allocated range must not overlap source CIDRs if hybrid connectivity routes between the clouds during migration"
+      ]
+    },
+    {
+      "id": "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+      "type": "AWS::Route53::HostedZone",
+      "name": "example.com",
+      "region": "global",
+      "category": "dns",
+      "capability": "dns",
+      "mapping_id": "aws-route53",
+      "target_service": "Cloud DNS",
+      "alternatives": [
+        "Keep DNS on Route 53 during and after migration"
+      ],
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "required",
+      "workflow": "traffic-cutover",
+      "hermes_support": "not-implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Hermes v1alpha1 reserves the dns capability",
+        "Moving DNS hosting is optional and best done last; DNSSEC needs a safe key and DS record procedure"
+      ]
+    },
+    {
+      "id": "arn:aws:s3:::fleet-alb-access-logs-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-alb-access-logs-example",
+      "region": "eu-north-1",
+      "category": "object-storage",
+      "capability": "storage",
+      "mapping_id": "aws-s3-bucket",
+      "target_service": "Cloud Storage",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "object-storage",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "partial",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "size_bytes": 50000000000,
+      "notes": [
+        "Archived objects (Glacier Flexible Retrieval, Deep Archive) must be restored before transfer",
+        "Only current versions transfer by default; noncurrent versions require a manifest",
+        "Age-based lifecycle rules restart from the transfer date because source timestamps are not preserved",
+        "S3 Object Lock retention and legal holds do not transfer; re-establish retention policies on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:s3:::fleet-flight-logs-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-flight-logs-example",
+      "region": "eu-north-1",
+      "category": "object-storage",
+      "capability": "storage",
+      "mapping_id": "aws-s3-bucket",
+      "target_service": "Cloud Storage",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "object-storage",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "size_bytes": 1200000000000,
+      "notes": [
+        "Archived objects (Glacier Flexible Retrieval, Deep Archive) must be restored before transfer",
+        "Only current versions transfer by default; noncurrent versions require a manifest",
+        "Age-based lifecycle rules restart from the transfer date because source timestamps are not preserved",
+        "S3 Object Lock retention and legal holds do not transfer; re-establish retention policies on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:s3:::fleet-mission-images-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-mission-images-example",
+      "region": "eu-north-1",
+      "category": "object-storage",
+      "capability": "storage",
+      "mapping_id": "aws-s3-bucket",
+      "target_service": "Cloud Storage",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "object-storage",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "size_bytes": 350000000000,
+      "notes": [
+        "Archived objects (Glacier Flexible Retrieval, Deep Archive) must be restored before transfer",
+        "Only current versions transfer by default; noncurrent versions require a manifest",
+        "Age-based lifecycle rules restart from the transfer date because source timestamps are not preserved",
+        "S3 Object Lock retention and legal holds do not transfer; re-establish retention policies on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:s3:::fleet-static-site-example",
+      "type": "AWS::S3::Bucket",
+      "name": "fleet-static-site-example",
+      "region": "eu-north-1",
+      "category": "object-storage",
+      "capability": "storage",
+      "mapping_id": "aws-s3-bucket",
+      "target_service": "Cloud Storage",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "required",
+      "workflow": "object-storage",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "size_bytes": 2000000000,
+      "notes": [
+        "Archived objects (Glacier Flexible Retrieval, Deep Archive) must be restored before transfer",
+        "Only current versions transfer by default; noncurrent versions require a manifest",
+        "Age-based lifecycle rules restart from the transfer date because source timestamps are not preserved",
+        "S3 Object Lock retention and legal holds do not transfer; re-establish retention policies on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "fleet/db-password",
+      "region": "eu-north-1",
+      "category": "secrets",
+      "capability": "secrets",
+      "mapping_id": "aws-secrets-manager-secret",
+      "target_service": "Secret Manager",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "required",
+      "workflow": "secrets",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "Values are never read by Hermes discovery or managed by IaC; prefer re-issuing credentials over copying them"
+      ]
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "fleet/maps-api-key",
+      "region": "eu-north-1",
+      "category": "secrets",
+      "capability": "secrets",
+      "mapping_id": "aws-secrets-manager-secret",
+      "target_service": "Secret Manager",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "required",
+      "workflow": "secrets",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Values are never read by Hermes discovery or managed by IaC; prefer re-issuing credentials over copying them"
+      ]
+    },
+    {
+      "id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl",
+      "type": "AWS::SecretsManager::Secret",
+      "name": "rds!db-0f1e2d3c-1111-2222-3333-444444444444",
+      "region": "eu-north-1",
+      "category": "secrets",
+      "capability": "secrets",
+      "mapping_id": "aws-secrets-manager-secret",
+      "target_service": "Secret Manager",
+      "compatibility": "compatible",
+      "complexity": "low",
+      "data_migration": "required",
+      "workflow": "secrets",
+      "hermes_support": "implemented",
+      "lock_in": "low",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Values are never read by Hermes discovery or managed by IaC; prefer re-issuing credentials over copying them"
+      ]
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "type": "AWS::SNS::Topic",
+      "name": "telemetry",
+      "region": "eu-north-1",
+      "category": "messaging-pubsub",
+      "capability": "messaging",
+      "mapping_id": "aws-sns-topic",
+      "target_service": "Pub/Sub topics",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-archive-sub-0000",
+      "type": "AWS::SNS::Subscription",
+      "name": "telemetry-\u003etelemetry-archive",
+      "region": "eu-north-1",
+      "category": "messaging-pubsub",
+      "capability": "messaging",
+      "mapping_id": "aws-sns-topic",
+      "target_service": "Pub/Sub topics",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-ingest-sub-0000",
+      "type": "AWS::SNS::Subscription",
+      "name": "telemetry-\u003etelemetry-ingest",
+      "region": "eu-north-1",
+      "category": "messaging-pubsub",
+      "capability": "messaging",
+      "mapping_id": "aws-sns-topic",
+      "target_service": "Pub/Sub topics",
+      "compatibility": "compatible",
+      "complexity": "medium",
+      "data_migration": "none",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:dispatch-commands.fifo",
+      "type": "AWS::SQS::Queue",
+      "name": "dispatch-commands.fifo",
+      "region": "eu-north-1",
+      "category": "messaging-queue",
+      "capability": "messaging",
+      "mapping_id": "aws-sqs-fifo-queue",
+      "target_service": "Pub/Sub subscriptions with message ordering (ordering keys)",
+      "alternatives": [
+        "Pub/Sub with exactly-once delivery (pull, same region)",
+        "Google Cloud Managed Service for Apache Kafka (partition ordering)"
+      ],
+      "compatibility": "partial",
+      "complexity": "high",
+      "data_migration": "optional",
+      "workflow": "messaging",
+      "hermes_support": "partial",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Ordering across the switch from SQS to Pub/Sub is not guaranteed; drain the FIFO queue fully before target consumers start, or accept reordering",
+        "Queue dispatch-commands.fifo is FIFO; ordering/exactly-once semantics differ on the target"
+      ]
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-archive",
+      "region": "eu-north-1",
+      "category": "messaging-queue",
+      "capability": "messaging",
+      "mapping_id": "aws-sqs-queue",
+      "target_service": "Pub/Sub subscriptions (pull)",
+      "alternatives": [
+        "Cloud Tasks (for delayed or rate-limited dispatch)"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "optional",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "In-flight messages are drained, not migrated",
+        "Message retention exceeds 7 days; the portable maximum (Pub/Sub subscriptions, SMQ queues) is 7 days"
+      ]
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-ingest",
+      "region": "eu-north-1",
+      "category": "messaging-queue",
+      "capability": "messaging",
+      "mapping_id": "aws-sqs-queue",
+      "target_service": "Pub/Sub subscriptions (pull)",
+      "alternatives": [
+        "Cloud Tasks (for delayed or rate-limited dispatch)"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "optional",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 1,
+      "notes": [
+        "In-flight messages are drained, not migrated"
+      ]
+    },
+    {
+      "id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+      "type": "AWS::SQS::Queue",
+      "name": "telemetry-ingest-dlq",
+      "region": "eu-north-1",
+      "category": "messaging-queue",
+      "capability": "messaging",
+      "mapping_id": "aws-sqs-queue",
+      "target_service": "Pub/Sub subscriptions (pull)",
+      "alternatives": [
+        "Cloud Tasks (for delayed or rate-limited dispatch)"
+      ],
+      "compatibility": "partial",
+      "complexity": "medium",
+      "data_migration": "optional",
+      "workflow": "messaging",
+      "hermes_support": "implemented",
+      "lock_in": "medium",
+      "completeness": "full",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "In-flight messages are drained, not migrated",
+        "Message retention exceeds 7 days; the portable maximum (Pub/Sub subscriptions, SMQ queues) is 7 days"
+      ]
+    },
+    {
+      "id": "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics",
+      "type": "AWS::Timestream::Database",
+      "name": "fleet-metrics",
+      "region": "eu-north-1",
+      "category": "time-series",
+      "capability": "none",
+      "mapping_id": "aws-timestream",
+      "target_service": "Bigtable",
+      "alternatives": [
+        "BigQuery",
+        "Self-managed time-series database on GKE"
+      ],
+      "compatibility": "re-architect",
+      "complexity": "high",
+      "data_migration": "optional",
+      "workflow": "nosql-database",
+      "hermes_support": "not-implemented",
+      "lock_in": "high",
+      "completeness": "partial",
+      "managed_by": "unmanaged",
+      "wave": 0,
+      "notes": [
+        "Timestream for LiveAnalytics stopped accepting new customers on 2025-06-20; existing tables keep working, which removes the 'stay on AWS' option for new tables"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "code": "HCF402",
+      "severity": "blocker",
+      "resource_ids": [
+        "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+        "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template"
+      ],
+      "message": "2 resource(s) have no equivalent target service",
+      "recommendation": "Decide per resource: keep on the source with hybrid connectivity, replace with portable software, or retire"
+    },
+    {
+      "code": "HCF403",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+        "arn:aws:iam::123456789012:role/ci-deploy",
+        "arn:aws:iam::123456789012:role/ecs-task-api",
+        "arn:aws:iam::123456789012:role/ecs-task-execution",
+        "arn:aws:iam::123456789012:role/fleet-app-host",
+        "arn:aws:iam::123456789012:role/telemetry-archiver",
+        "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+      ],
+      "message": "7 resource(s) require re-architecture on the target",
+      "recommendation": "Plan application changes; see the catalog differences for each mapping"
+    },
+    {
+      "code": "HCF404",
+      "severity": "risk",
+      "message": "4 discovery gap(s): parts of the source were not discovered or not fully inspected; undiscovered scope is migration risk",
+      "recommendation": "Triage every gap: grant the missing read-only permission and re-run discovery, or accept the gap explicitly"
+    },
+    {
+      "code": "HCF405",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:iam::123456789012:role/ci-deploy",
+        "arn:aws:s3:::fleet-alb-access-logs-example",
+        "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+      ],
+      "message": "3 resource(s) were only partially inspected (a detail call failed)",
+      "recommendation": "Grant the missing read-only permissions listed in gaps and re-run discovery"
+    },
+    {
+      "code": "HCF407",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+        "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+        "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+        "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+        "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl"
+      ],
+      "message": "7 data-bearing resource(s) have no size; the transfer estimate excludes them",
+      "recommendation": "Allow cloudwatch:GetMetricData (S3 sizes) or measure the data volume manually"
+    },
+    {
+      "code": "HCF408",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003"
+      ],
+      "message": "Instance vpn-relay forwards traffic (source/destination check disabled): router, NAT or VPN relay",
+      "recommendation": "Treat as a network appliance on a separate dual-running track; never include it in a bulk cutover"
+    },
+    {
+      "code": "HCF408",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004"
+      ],
+      "message": "Security group vpn-relay allows udp/51820-51820 from the internet",
+      "recommendation": "Do not replicate broad internet ingress on the target; Hermes generates least-privilege rules from the spec"
+    },
+    {
+      "code": "HCF408",
+      "severity": "risk",
+      "resource_ids": [
+        "arn:aws:sqs:eu-north-1:123456789012:dispatch-commands.fifo"
+      ],
+      "message": "Queue dispatch-commands.fifo is FIFO; ordering/exactly-once semantics differ on the target",
+      "recommendation": "Use ordering keys (Pub/Sub) or redesign; test ordering assumptions"
+    },
+    {
+      "code": "HCF406",
+      "severity": "info",
+      "resource_ids": [
+        "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+        "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+        "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+        "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+        "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+        "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+      ],
+      "message": "6 resource(s) use a high lock-in source service",
+      "recommendation": "Expect application changes beyond configuration"
+    }
+  ],
+  "gaps": [
+    {
+      "service": "cloudcontrol",
+      "region": "eu-north-1",
+      "operation": "ListResources",
+      "reason": "access-denied",
+      "message": "api error AccessDeniedException: not authorized to perform timestream:ListDatabases",
+      "impact": "AWS::Timestream::Database resources were not inventoried",
+      "resource_id": "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+    },
+    {
+      "service": "iam",
+      "region": "us-east-1",
+      "operation": "ListRolePolicies",
+      "reason": "access-denied",
+      "message": "api error AccessDenied: not authorized to perform iam:ListRolePolicies on role ci-deploy (permissions boundary)",
+      "impact": "Inline policy names unknown",
+      "resource_id": "arn:aws:iam::123456789012:role/ci-deploy"
+    },
+    {
+      "service": "kinesis",
+      "region": "eu-north-1",
+      "operation": "ListStreams",
+      "reason": "access-denied",
+      "message": "operation error Kinesis: ListStreams, https response error StatusCode: 400, api error AccessDeniedException: User: arn:aws:sts::123456789012:assumed-role/HermesDiscoveryReadOnly/hermes-discovery is not authorized to perform: kinesis:ListStreams",
+      "impact": "Kinesis data streams were not inventoried"
+    },
+    {
+      "service": "s3",
+      "region": "eu-north-1",
+      "operation": "GetBucketPolicy",
+      "reason": "access-denied",
+      "message": "api error AccessDenied: Access Denied (bucket policy denies all principals outside the log delivery role)",
+      "impact": "Bucket policy flags unknown",
+      "resource_id": "arn:aws:s3:::fleet-alb-access-logs-example"
+    }
+  ],
+  "dependencies": {
+    "waves": [
+      {
+        "index": 0,
+        "resources": [
+          "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+          "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+          "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+          "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+          "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+          "arn:aws:iam::123456789012:role/ci-deploy",
+          "arn:aws:iam::123456789012:role/ecs-task-api",
+          "arn:aws:iam::123456789012:role/ecs-task-execution",
+          "arn:aws:iam::123456789012:role/fleet-app-host",
+          "arn:aws:iam::123456789012:role/telemetry-archiver",
+          "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+          "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+          "arn:aws:logs:eu-north-1:123456789012:log-group:/aws/lambda/telemetry-archiver",
+          "arn:aws:logs:eu-north-1:123456789012:log-group:/ecs/fleet-api",
+          "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+          "arn:aws:s3:::fleet-static-site-example",
+          "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+          "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl",
+          "arn:aws:sns:eu-north-1:123456789012:telemetry",
+          "arn:aws:sqs:eu-north-1:123456789012:dispatch-commands.fifo",
+          "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+          "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics"
+        ]
+      },
+      {
+        "index": 1,
+        "resources": [
+          "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+          "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+          "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+          "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+          "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+          "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+          "arn:aws:ec2:eu-north-1:123456789012:vpc-endpoint/vpce-0900000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+          "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+          "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+          "arn:aws:s3:::fleet-alb-access-logs-example",
+          "arn:aws:s3:::fleet-flight-logs-example",
+          "arn:aws:s3:::fleet-mission-images-example",
+          "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+          "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-archive-sub-0000",
+          "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-ingest-sub-0000",
+          "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+          "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest"
+        ]
+      },
+      {
+        "index": 2,
+        "resources": [
+          "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+          "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+          "arn:aws:ec2:eu-north-1:123456789012:vpn-connection/vpn-0c00000000000001",
+          "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+          "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+          "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets"
+        ]
+      },
+      {
+        "index": 3,
+        "resources": [
+          "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+          "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+          "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+          "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+          "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+          "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api"
+        ]
+      },
+      {
+        "index": 4,
+        "resources": [
+          "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+          "arn:aws:rds:eu-north-1:123456789012:db:fleet-db"
+        ]
+      },
+      {
+        "index": 5,
+        "resources": [
+          "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2"
+        ]
+      }
+    ],
+    "external_references": [
+      "arn:aws:acm:us-east-1:123456789012:certificate/1b2c3d4e-0000-4000-8000-000000000009"
+    ]
+  },
+  "draft_spec": {
+    "apiVersion": "hermes/v1alpha1",
+    "cloud": {
+      "account": "",
+      "provider": "gcp",
+      "region": "europe-north1"
+    },
+    "kind": "Platform",
+    "network": {
+      "cidr": "10.20.0.0/16",
+      "nat": true,
+      "zones": 2
+    },
+    "project": {
+      "environment": "production",
+      "labels": {
+        "migrated-from": "aws"
+      },
+      "name": "migrated-platform"
+    },
+    "workloads": {
+      "compute": {
+        "services": [
+          {
+            "access": {
+              "database": true
+            },
+            "cpu": 0.5,
+            "health_check_path": "/healthz",
+            "image": "123456789012.dkr.ecr.eu-north-1.amazonaws.com/fleet/api:2.8.1",
+            "max_instances": 4,
+            "memory_mb": 1024,
+            "min_instances": 2,
+            "name": "fleet-api",
+            "port": 8080,
+            "public": true,
+            "secret_env": {
+              "DATABASE_PASSWORD": "fleet-db-password",
+              "MAPS_API_KEY": "fleet-maps-api-key"
+            }
+          },
+          {
+            "cpu": 1,
+            "image": "registry.example.com/review-required/telemetry-worker-1:0.0.0",
+            "max_instances": 2,
+            "memory_mb": 2048,
+            "min_instances": 1,
+            "name": "telemetry-worker-1",
+            "port": 8080,
+            "public": false
+          },
+          {
+            "cpu": 1,
+            "image": "registry.example.com/review-required/telemetry-worker-2:0.0.0",
+            "max_instances": 2,
+            "memory_mb": 2048,
+            "min_instances": 1,
+            "name": "telemetry-worker-2",
+            "port": 8080,
+            "public": false
+          }
+        ],
+        "type": "containerized"
+      },
+      "database": {
+        "backup_retention_days": 7,
+        "deletion_protection": true,
+        "enabled": true,
+        "engine": "postgresql",
+        "extensions": [
+          "postgis"
+        ],
+        "high_availability": true,
+        "max_storage_gb": 500,
+        "point_in_time_recovery": true,
+        "size": "medium",
+        "storage_gb": 200,
+        "version": "15"
+      },
+      "messaging": {
+        "enabled": true,
+        "topics": [
+          {
+            "name": "telemetry",
+            "retention_hours": 96,
+            "subscriptions": [
+              {
+                "ack_deadline_seconds": 120,
+                "max_delivery_attempts": 0,
+                "name": "telemetry-archive"
+              },
+              {
+                "ack_deadline_seconds": 60,
+                "max_delivery_attempts": 5,
+                "name": "telemetry-ingest"
+              }
+            ]
+          },
+          {
+            "name": "dispatch-comm-b93c9e",
+            "retention_hours": 96,
+            "subscriptions": [
+              {
+                "ack_deadline_seconds": 30,
+                "max_delivery_attempts": 0,
+                "name": "dispatch-comm-2fff0d"
+              }
+            ]
+          }
+        ]
+      },
+      "observability": {
+        "enabled": true,
+        "log_retention_days": 30,
+        "metrics": true,
+        "tracing": true
+      },
+      "secrets": {
+        "enabled": true,
+        "names": [
+          "fleet-db-password",
+          "fleet-maps-api-key"
+        ]
+      },
+      "storage": {
+        "buckets": [
+          {
+            "name": "fleet-alb-acc-62c46c",
+            "retention_days": 0,
+            "versioning": false
+          },
+          {
+            "name": "fleet-flight-9abea2",
+            "retention_days": 0,
+            "versioning": true
+          },
+          {
+            "name": "fleet-mission-7dd19a",
+            "retention_days": 0,
+            "versioning": true
+          },
+          {
+            "name": "fleet-static-cab6e5",
+            "retention_days": 0,
+            "versioning": false
+          }
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "spec_mapping": [
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:internet-gateway/igw-0f00000000000001",
+      "source_type": "AWS::EC2::InternetGateway",
+      "source_name": "fleet-igw",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:natgateway/nat-0e00000000000001",
+      "source_type": "AWS::EC2::NatGateway",
+      "source_name": "fleet-nat-a",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000001",
+      "source_type": "AWS::EC2::RouteTable",
+      "source_name": "public",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:route-table/rtb-0a00000000000002",
+      "source_type": "AWS::EC2::RouteTable",
+      "source_name": "private",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000001",
+      "source_type": "AWS::EC2::SecurityGroup",
+      "source_name": "alb",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "review": true,
+      "note": "rules are not translated; Hermes generates least-privilege firewall rules from the spec (review source rules for anything still needed)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000002",
+      "source_type": "AWS::EC2::SecurityGroup",
+      "source_name": "app",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "review": true,
+      "note": "rules are not translated; Hermes generates least-privilege firewall rules from the spec (review source rules for anything still needed)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000003",
+      "source_type": "AWS::EC2::SecurityGroup",
+      "source_name": "database",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "review": true,
+      "note": "rules are not translated; Hermes generates least-privilege firewall rules from the spec (review source rules for anything still needed)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:security-group/sg-0a1b000000000004",
+      "source_type": "AWS::EC2::SecurityGroup",
+      "source_name": "vpn-relay",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "review": true,
+      "note": "rules are not translated; Hermes generates least-privilege firewall rules from the spec (review source rules for anything still needed)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privatea0001",
+      "source_type": "AWS::EC2::Subnet",
+      "source_name": "private-a",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0privateb0001",
+      "source_type": "AWS::EC2::Subnet",
+      "source_name": "private-b",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publica0001",
+      "source_type": "AWS::EC2::Subnet",
+      "source_name": "public-a",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:subnet/subnet-0publicb0001",
+      "source_type": "AWS::EC2::Subnet",
+      "source_name": "public-b",
+      "target_kind": "absorbed",
+      "target_path": "network",
+      "note": "absorbed into the network block (subnets per zone, routing and NAT are generated by the provider module)"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:vpc/vpc-0a1b2c3d4e5f60001",
+      "source_type": "AWS::EC2::VPC",
+      "source_name": "fleet-main",
+      "target_kind": "network",
+      "target_name": "migrated-platform",
+      "target_path": "network",
+      "note": "source 10.0.0.0/16 -\u003e target 10.20.0.0/16: same size, chosen not to overlap any source VPC so hybrid connectivity can route between them; 2 zone(s), nat=true"
+    },
+    {
+      "source_id": "arn:aws:ecs:eu-north-1:123456789012:cluster/fleet",
+      "source_type": "AWS::ECS::Cluster",
+      "source_name": "fleet",
+      "target_kind": "absorbed",
+      "target_path": "workloads.compute",
+      "note": "container runtime is generated by the provider module"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000001",
+      "source_type": "AWS::EC2::Instance",
+      "source_name": "telemetry-worker-1",
+      "target_kind": "service",
+      "target_name": "telemetry-worker-1",
+      "target_path": "workloads.compute.services",
+      "review": true,
+      "note": "REVIEW: EC2-hosted container workload (tags indicate Docker); image, port, CPU/memory and environment are placeholders to replace"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000002",
+      "source_type": "AWS::EC2::Instance",
+      "source_name": "telemetry-worker-2",
+      "target_kind": "service",
+      "target_name": "telemetry-worker-2",
+      "target_path": "workloads.compute.services",
+      "review": true,
+      "note": "REVIEW: EC2-hosted container workload (tags indicate Docker); image, port, CPU/memory and environment are placeholders to replace"
+    },
+    {
+      "source_id": "arn:aws:ecs:eu-north-1:123456789012:service/fleet/fleet-api",
+      "source_type": "AWS::ECS::Service",
+      "source_name": "fleet-api",
+      "target_kind": "service",
+      "target_name": "fleet-api",
+      "target_path": "workloads.compute.services",
+      "review": true,
+      "note": "environment variable values must be supplied in env: LOG_LEVEL, MAP_TILE_URL"
+    },
+    {
+      "source_id": "arn:aws:ecs:eu-north-1:123456789012:task-definition/fleet-api:12",
+      "source_type": "AWS::ECS::TaskDefinition",
+      "source_name": "fleet-api:12",
+      "target_kind": "absorbed",
+      "target_path": "workloads.compute.services",
+      "note": "task definition of service fleet-api"
+    },
+    {
+      "source_id": "arn:aws:rds:eu-north-1:123456789012:db:fleet-db",
+      "source_type": "AWS::RDS::DBInstance",
+      "source_name": "fleet-db",
+      "target_kind": "database",
+      "target_name": "database",
+      "target_path": "workloads.database",
+      "note": "postgres 15.5 -\u003e PostgreSQL 15; parameter group fleet-pg15-postgis suggests PostGIS; confirm installed extensions with SELECT extname FROM pg_extension; size medium from instance class db.m6g.large (heuristic)"
+    },
+    {
+      "source_id": "arn:aws:rds:eu-north-1:123456789012:subgrp:fleet-db-subnets",
+      "source_type": "AWS::RDS::DBSubnetGroup",
+      "source_name": "fleet-db-subnets",
+      "target_kind": "absorbed",
+      "target_path": "workloads.database",
+      "note": "subnet placement is generated by the provider module"
+    },
+    {
+      "source_id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-archive-sub-0000",
+      "source_type": "AWS::SNS::Subscription",
+      "source_name": "telemetry-\u003etelemetry-archive",
+      "target_kind": "absorbed",
+      "target_path": "workloads.messaging",
+      "review": true,
+      "note": "covered by the workloads.messaging block; no 1:1 element"
+    },
+    {
+      "source_id": "arn:aws:sns:eu-north-1:123456789012:telemetry:telemetry-ingest-sub-0000",
+      "source_type": "AWS::SNS::Subscription",
+      "source_name": "telemetry-\u003etelemetry-ingest",
+      "target_kind": "absorbed",
+      "target_path": "workloads.messaging",
+      "review": true,
+      "note": "covered by the workloads.messaging block; no 1:1 element"
+    },
+    {
+      "source_id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest-dlq",
+      "source_type": "AWS::SQS::Queue",
+      "source_name": "telemetry-ingest-dlq",
+      "target_kind": "absorbed",
+      "target_path": "workloads.messaging",
+      "note": "dead-letter queue: represented by max_delivery_attempts dead-lettering on the target subscription"
+    },
+    {
+      "source_id": "arn:aws:sns:eu-north-1:123456789012:telemetry",
+      "source_type": "AWS::SNS::Topic",
+      "source_name": "telemetry",
+      "target_kind": "topic",
+      "target_name": "telemetry",
+      "target_path": "workloads.messaging.topics"
+    },
+    {
+      "source_id": "arn:aws:sqs:eu-north-1:123456789012:dispatch-commands.fifo",
+      "source_type": "AWS::SQS::Queue",
+      "source_name": "dispatch-commands.fifo",
+      "target_kind": "subscription",
+      "target_name": "dispatch-comm-2fff0d",
+      "target_path": "workloads.messaging.topics.subscriptions",
+      "review": true,
+      "note": "standalone SQS queue -\u003e topic dispatch-comm-b93c9e with one subscription; producers publish to the topic, consumers pull from the subscription; FIFO semantics differ (use ordering keys)"
+    },
+    {
+      "source_id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-archive",
+      "source_type": "AWS::SQS::Queue",
+      "source_name": "telemetry-archive",
+      "target_kind": "subscription",
+      "target_name": "telemetry-archive",
+      "target_path": "workloads.messaging.topics.subscriptions",
+      "note": "SQS subscription to telemetry"
+    },
+    {
+      "source_id": "arn:aws:sqs:eu-north-1:123456789012:telemetry-ingest",
+      "source_type": "AWS::SQS::Queue",
+      "source_name": "telemetry-ingest",
+      "target_kind": "subscription",
+      "target_name": "telemetry-ingest",
+      "target_path": "workloads.messaging.topics.subscriptions",
+      "note": "SQS subscription to telemetry"
+    },
+    {
+      "source_id": "arn:aws:logs:eu-north-1:123456789012:log-group:/aws/lambda/telemetry-archiver",
+      "source_type": "AWS::Logs::LogGroup",
+      "source_name": "/aws/lambda/telemetry-archiver",
+      "target_kind": "absorbed",
+      "target_path": "workloads.observability",
+      "note": "log data is not migrated; retention mapped to log_retention_days"
+    },
+    {
+      "source_id": "arn:aws:logs:eu-north-1:123456789012:log-group:/ecs/fleet-api",
+      "source_type": "AWS::Logs::LogGroup",
+      "source_name": "/ecs/fleet-api",
+      "target_kind": "absorbed",
+      "target_path": "workloads.observability",
+      "note": "log data is not migrated; retention mapped to log_retention_days"
+    },
+    {
+      "source_id": "arn:aws:kms:eu-north-1:123456789012:key/1a2b3c4d-0000-4000-8000-000000000001",
+      "source_type": "AWS::KMS::Key",
+      "source_name": "fleet-data",
+      "target_kind": "absorbed",
+      "target_path": "workloads.secrets",
+      "review": true,
+      "note": "covered by the workloads.secrets block; no 1:1 element"
+    },
+    {
+      "source_id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:rds!db-0f1e2d3c-1111-2222-3333-444444444444-Ij56Kl",
+      "source_type": "AWS::SecretsManager::Secret",
+      "source_name": "rds!db-0f1e2d3c-1111-2222-3333-444444444444",
+      "target_kind": "absorbed",
+      "target_path": "workloads.secrets",
+      "note": "managed by rds on the source (for example an RDS master password); the target service manages its own credentials"
+    },
+    {
+      "source_id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/db-password-Ab12Cd",
+      "source_type": "AWS::SecretsManager::Secret",
+      "source_name": "fleet/db-password",
+      "target_kind": "secret",
+      "target_name": "fleet-db-password",
+      "target_path": "workloads.secrets.names",
+      "note": "container only; copy the value out-of-band (never through Hermes)"
+    },
+    {
+      "source_id": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:fleet/maps-api-key-Ef34Gh",
+      "source_type": "AWS::SecretsManager::Secret",
+      "source_name": "fleet/maps-api-key",
+      "target_kind": "secret",
+      "target_name": "fleet-maps-api-key",
+      "target_path": "workloads.secrets.names",
+      "note": "container only; copy the value out-of-band (never through Hermes)"
+    },
+    {
+      "source_id": "arn:aws:s3:::fleet-alb-access-logs-example",
+      "source_type": "AWS::S3::Bucket",
+      "source_name": "fleet-alb-access-logs-example",
+      "target_kind": "bucket",
+      "target_name": "fleet-alb-acc-62c46c",
+      "target_path": "workloads.storage.buckets",
+      "note": "renamed to fit the spec pattern; the native name gets the \u003cproject\u003e-\u003cenv\u003e- prefix and a random suffix; source has lifecycle rules: set retention_days if objects expire"
+    },
+    {
+      "source_id": "arn:aws:s3:::fleet-flight-logs-example",
+      "source_type": "AWS::S3::Bucket",
+      "source_name": "fleet-flight-logs-example",
+      "target_kind": "bucket",
+      "target_name": "fleet-flight-9abea2",
+      "target_path": "workloads.storage.buckets",
+      "note": "renamed to fit the spec pattern; the native name gets the \u003cproject\u003e-\u003cenv\u003e- prefix and a random suffix; source has lifecycle rules: set retention_days if objects expire"
+    },
+    {
+      "source_id": "arn:aws:s3:::fleet-mission-images-example",
+      "source_type": "AWS::S3::Bucket",
+      "source_name": "fleet-mission-images-example",
+      "target_kind": "bucket",
+      "target_name": "fleet-mission-7dd19a",
+      "target_path": "workloads.storage.buckets",
+      "note": "renamed to fit the spec pattern; the native name gets the \u003cproject\u003e-\u003cenv\u003e- prefix and a random suffix; source has lifecycle rules: set retention_days if objects expire"
+    },
+    {
+      "source_id": "arn:aws:s3:::fleet-static-site-example",
+      "source_type": "AWS::S3::Bucket",
+      "source_name": "fleet-static-site-example",
+      "target_kind": "bucket",
+      "target_name": "fleet-static-cab6e5",
+      "target_path": "workloads.storage.buckets",
+      "note": "renamed to fit the spec pattern; the native name gets the \u003cproject\u003e-\u003cenv\u003e- prefix and a random suffix"
+    }
+  ],
+  "unsupported": [
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000001",
+      "source_type": "AWS::EC2::Volume",
+      "source_name": "vol-0b00000000000001",
+      "category": "block-storage",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Persistent Disk / Hyperdisk",
+      "suggestion": "google_compute_disk (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:volume/vol-0b00000000000002",
+      "source_type": "AWS::EC2::Volume",
+      "source_name": "vol-0b00000000000002",
+      "category": "block-storage",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Persistent Disk / Hyperdisk",
+      "suggestion": "google_compute_disk (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:cloudfront::123456789012:distribution/E1EXAMPLE00001",
+      "source_type": "AWS::CloudFront::Distribution",
+      "source_name": "d111111abcdef8.cloudfront.net",
+      "category": "cdn",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Cloud CDN (on an external Application Load Balancer)",
+      "alternatives": [
+        "Media CDN"
+      ],
+      "suggestion": "terraform-google-modules/lb-http/google (Cloud CDN) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:acm:eu-north-1:123456789012:certificate/9f8e7d6c-0000-4000-8000-000000000001",
+      "source_type": "AWS::CertificateManager::Certificate",
+      "source_name": "example.com",
+      "category": "certificates",
+      "reason": "only partially covered by Hermes v1alpha1: CAA records must allow the target certificate authority",
+      "recommended_service": "Certificate Manager (Google-managed certificates)",
+      "alternatives": [
+        "Cloud Run domain mappings",
+        "Self-managed certificate upload"
+      ],
+      "suggestion": "google_certificate_manager_certificate (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ecr:eu-north-1:123456789012:repository/fleet/api",
+      "source_type": "AWS::ECR::Repository",
+      "source_name": "fleet/api",
+      "category": "container-registry",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Artifact Registry",
+      "suggestion": "google_artifact_registry_repository (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:route53:::hostedzone/Z0EXAMPLE00001",
+      "source_type": "AWS::Route53::HostedZone",
+      "source_name": "example.com",
+      "category": "dns",
+      "reason": "DNS is reserved in v1alpha1 (dns.enabled must stay false); re-create the zone and records with the target DNS service",
+      "recommended_service": "Cloud DNS",
+      "alternatives": [
+        "Keep DNS on Route 53 during and after migration"
+      ],
+      "suggestion": "terraform-google-modules/cloud-dns/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:vpn-connection/vpn-0c00000000000001",
+      "source_type": "AWS::EC2::VPNConnection",
+      "source_name": "depot-site-to-site",
+      "category": "hybrid-connectivity",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "HA VPN with Cloud Router",
+      "alternatives": [
+        "Cloud Interconnect",
+        "Cross-Cloud Interconnect"
+      ],
+      "suggestion": "terraform-google-modules/vpn/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:vpn-gateway/vgw-0d00000000000001",
+      "source_type": "AWS::EC2::VPNGateway",
+      "source_name": "depot-vgw",
+      "category": "hybrid-connectivity",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "HA VPN with Cloud Router",
+      "alternatives": [
+        "Cloud Interconnect",
+        "Cross-Cloud Interconnect"
+      ],
+      "suggestion": "terraform-google-modules/vpn/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iam::123456789012:role/ci-deploy",
+      "source_type": "AWS::IAM::Role",
+      "source_name": "ci-deploy",
+      "category": "identity",
+      "reason": "only partially covered by Hermes v1alpha1: Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+      "recommended_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "suggestion": "terraform-google-modules/iam/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iam::123456789012:role/ecs-task-api",
+      "source_type": "AWS::IAM::Role",
+      "source_name": "ecs-task-api",
+      "category": "identity",
+      "reason": "only partially covered by Hermes v1alpha1: Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+      "recommended_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "suggestion": "terraform-google-modules/iam/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iam::123456789012:role/ecs-task-execution",
+      "source_type": "AWS::IAM::Role",
+      "source_name": "ecs-task-execution",
+      "category": "identity",
+      "reason": "only partially covered by Hermes v1alpha1: Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+      "recommended_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "suggestion": "terraform-google-modules/iam/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iam::123456789012:role/fleet-app-host",
+      "source_type": "AWS::IAM::Role",
+      "source_name": "fleet-app-host",
+      "category": "identity",
+      "reason": "only partially covered by Hermes v1alpha1: Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+      "recommended_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "suggestion": "terraform-google-modules/iam/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iam::123456789012:role/telemetry-archiver",
+      "source_type": "AWS::IAM::Role",
+      "source_name": "telemetry-archiver",
+      "category": "identity",
+      "reason": "only partially covered by Hermes v1alpha1: Policies are re-derived from actual needs, not translated; Hermes creates least-privilege identities only for its own services",
+      "recommended_service": "Service accounts and IAM role bindings",
+      "alternatives": [
+        "Workload Identity Federation (external workloads)"
+      ],
+      "suggestion": "terraform-google-modules/iam/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iot:eu-north-1:123456789012:rule/telemetry_to_sns",
+      "source_type": "AWS::IoT::TopicRule",
+      "source_name": "telemetry_to_sns",
+      "category": "iot",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "None (Cloud IoT Core was retired on 2023-08-16)",
+      "alternatives": [
+        "Self-managed MQTT broker on GKE bridged to Pub/Sub",
+        "Third-party IoT platform",
+        "Keep IoT Core in place"
+      ],
+      "suggestion": "no managed equivalent: run an MQTT broker on the container runtime [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:iot:eu-north-1:123456789012:thing/tracker-fleet-template",
+      "source_type": "AWS::IoT::Thing",
+      "source_name": "tracker-fleet-template",
+      "category": "iot",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "None (Cloud IoT Core was retired on 2023-08-16)",
+      "alternatives": [
+        "Self-managed MQTT broker on GKE bridged to Pub/Sub",
+        "Third-party IoT platform",
+        "Keep IoT Core in place"
+      ],
+      "suggestion": "no managed equivalent: run an MQTT broker on the container runtime [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:listener/app/fleet-public/50dc6c495c0c9188/f2f7dc8efc522ab2",
+      "source_type": "AWS::ElasticLoadBalancingV2::Listener",
+      "source_name": "fleet-public:443",
+      "category": "load-balancing",
+      "reason": "only partially covered by Hermes v1alpha1: see catalog differences",
+      "recommended_service": "Target proxies, URL maps and backend services",
+      "suggestion": "terraform-google-modules/lb-http/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:loadbalancer/app/fleet-public/50dc6c495c0c9188",
+      "source_type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "source_name": "fleet-public",
+      "category": "load-balancing",
+      "reason": "only partially covered by Hermes v1alpha1: Hermes provisions HTTPS ingress for public services only; custom routing rules are re-created manually",
+      "recommended_service": "Application Load Balancer (external or internal)",
+      "alternatives": [
+        "Cloud Run built-in HTTPS endpoint"
+      ],
+      "suggestion": "terraform-google-modules/lb-http/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/fleet-api/0123456789abcdef",
+      "source_type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "source_name": "fleet-api",
+      "category": "load-balancing",
+      "reason": "only partially covered by Hermes v1alpha1: see catalog differences",
+      "recommended_service": "Target proxies, URL maps and backend services",
+      "suggestion": "terraform-google-modules/lb-http/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:elasticloadbalancing:eu-north-1:123456789012:targetgroup/telemetry-workers/fedcba9876543210",
+      "source_type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "source_name": "telemetry-workers",
+      "category": "load-balancing",
+      "reason": "only partially covered by Hermes v1alpha1: see catalog differences",
+      "recommended_service": "Target proxies, URL maps and backend services",
+      "suggestion": "terraform-google-modules/lb-http/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:instance/i-0a00000000000003",
+      "source_type": "AWS::EC2::Instance",
+      "source_name": "vpn-relay",
+      "category": "networking",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Compute Engine instance with IP forwarding, or a managed replacement (Cloud NAT, HA VPN)",
+      "alternatives": [
+        "Self-managed VPN on Compute Engine (can_ip_forward)",
+        "Cloud NAT",
+        "HA VPN"
+      ],
+      "suggestion": "terraform-google-modules/network/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:ec2:eu-north-1:123456789012:vpc-endpoint/vpce-0900000000000001",
+      "source_type": "AWS::EC2::VPCEndpoint",
+      "source_name": "com.amazonaws.eu-north-1.s3",
+      "category": "networking",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Private Service Connect",
+      "alternatives": [
+        "Private Google Access"
+      ],
+      "suggestion": "terraform-google-modules/network/google [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:dynamodb:eu-north-1:123456789012:table/device-state",
+      "source_type": "AWS::DynamoDB::Table",
+      "source_name": "device-state",
+      "category": "nosql-database",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Firestore (Native mode)",
+      "alternatives": [
+        "Bigtable (high-throughput key/range access)",
+        "Spanner (relational with global consistency)"
+      ],
+      "suggestion": "google_firestore_database / google_bigtable_instance (provider resources) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:lambda:eu-north-1:123456789012:event-source-mapping:0d0e0f00-1111-4222-8333-944444444444",
+      "source_type": "AWS::Lambda::EventSourceMapping",
+      "source_name": "0d0e0f00-1111-4222-8333-944444444444",
+      "category": "serverless-function",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Eventarc triggers and Pub/Sub push subscriptions",
+      "suggestion": "google_cloudfunctions2_function (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:lambda:eu-north-1:123456789012:function:telemetry-archiver",
+      "source_type": "AWS::Lambda::Function",
+      "source_name": "telemetry-archiver",
+      "category": "serverless-function",
+      "reason": "only partially covered by Hermes v1alpha1: Hermes can host a function only after it is repackaged as an HTTP containerized service; triggers are not provisioned",
+      "recommended_service": "Cloud Run functions (formerly Cloud Functions)",
+      "alternatives": [
+        "Cloud Run services (HTTP container)"
+      ],
+      "suggestion": "google_cloudfunctions2_function (provider resource) [verify in the registry]"
+    },
+    {
+      "source_id": "arn:aws:timestream:eu-north-1:123456789012:database/fleet-metrics",
+      "source_type": "AWS::Timestream::Database",
+      "source_name": "fleet-metrics",
+      "category": "time-series",
+      "reason": "outside the Hermes v1alpha1 provisioning scope",
+      "recommended_service": "Bigtable",
+      "alternatives": [
+        "BigQuery",
+        "Self-managed time-series database on GKE"
+      ],
+      "suggestion": "google_bigtable_instance / BigQuery (provider resources) [verify in the registry]"
+    }
+  ]
+}
