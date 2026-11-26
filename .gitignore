@@ -53,5 +53,6 @@ __pycache__/
 # only .gitkeep is tracked, `make ui-build` replaces the rest locally.
 ui/node_modules/
 ui/dist/
+!internal/uiserver/dist/
 internal/uiserver/dist/*
 !internal/uiserver/dist/.gitkeep

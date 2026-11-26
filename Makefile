@@ -127,6 +127,7 @@ ui-test: ## Typecheck and unit-test the Hermes UI
 .PHONY: ui-build
 ui-build: ## Build the Hermes UI and place it where the CLI embeds it (then run make build)
 	cd ui && npm run build
+	mkdir -p internal/uiserver/dist && touch internal/uiserver/dist/.gitkeep
 	find internal/uiserver/dist -mindepth 1 ! -name .gitkeep -delete
 	cp -R ui/dist/. internal/uiserver/dist/
 
