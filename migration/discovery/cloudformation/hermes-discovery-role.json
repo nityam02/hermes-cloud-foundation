@@ -18,7 +18,6 @@
       "Description": "Random value shared out-of-band with the operator; required as sts:ExternalId (prevents confused-deputy use of the role).",
       "MaxLength": 1224,
       "MinLength": 16,
-      "NoEcho": true,
       "Type": "String"
     },
     "RoleName": {
@@ -71,6 +70,7 @@
                     "cloudformation:DescribeStacks",
                     "cloudformation:ListResources",
                     "cloudformation:ListStackResources",
+                    "cloudformation:ListStacks",
                     "cloudfront:ListDistributions",
                     "cloudwatch:DescribeAlarms",
                     "cloudwatch:GetMetricData",

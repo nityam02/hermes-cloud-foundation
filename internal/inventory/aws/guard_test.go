@@ -284,6 +284,24 @@ func TestDiscoveryPolicyFileMatchesRegistry(t *testing.T) {
 	}
 }
 
+func TestDiscoveryPolicyIncludesImpliedActionsAndExternalIDIsPrefillable(t *testing.T) {
+	allow := map[string]bool{}
+	for _, st := range DiscoveryPolicy().Statement {
+		if st.Effect == "Allow" {
+			for _, a := range st.Action {
+				allow[a] = true
+			}
+		}
+	}
+	if !allow["cloudformation:ListStacks"] {
+		t.Error("DescribeStacks without a stack name needs cloudformation:ListStacks (real-account finding)")
+	}
+	// Quick-create links ignore NoEcho parameters, and AWS does not treat the external ID as a secret.
+	if strings.Contains(string(DiscoveryRoleTemplate()), "NoEcho") {
+		t.Error("ExternalId must not be NoEcho: quick-create links could not prefill it")
+	}
+}
+
 func TestDiscoveryRoleArtifactsMatchRegistry(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	disc := filepath.Join(filepath.Dir(file), "..", "..", "..", "migration", "discovery")
@@ -304,7 +322,7 @@ func TestDiscoveryRoleArtifactsMatchRegistry(t *testing.T) {
 		}
 	}
 	tpl := string(DiscoveryRoleTemplate())
-	for _, want := range []string{`"sts:ExternalId"`, `"MaxSessionDuration": 3600`, `"NoEcho": true`, `"HermesDenySecretAndDataReads"`} {
+	for _, want := range []string{`"sts:ExternalId"`, `"MaxSessionDuration": 3600`, `"HermesDenySecretAndDataReads"`} {
 		if !strings.Contains(tpl, want) {
 			t.Errorf("CloudFormation template lacks %s", want)
 		}

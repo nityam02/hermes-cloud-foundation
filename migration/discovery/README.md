@@ -10,6 +10,15 @@ to inspect, create one IAM role that the operator assumes with an ExternalId.
 | `cloudformation/hermes-discovery-role.json` | CloudFormation template: the role, its trust policy (one principal, `sts:ExternalId` required), a 1-hour maximum session and the inline policy. Use it if the source organization does not use Terraform |
 | `terraform/` | Plain-HCL equivalent (`trusted_principal_arn`, `external_id`, `role_name`, `tags`; output `role_arn`). Tested with `tofu validate` and `tofu test` with a mock provider |
 
+## Who can run discovery
+
+Run `hermes inventory aws` as an IAM user, an IAM role or an SSO identity, **never as the account root user**:
+AWS refuses to let root assume a role (`Roles may not be assumed by root accounts`). The role's trust policy
+may name the account root (`arn:aws:iam::<account>:root`) to mean "principals of that account", but root
+itself still cannot use it. The external ID is an anti-confusion value, not a secret (AWS documents it as
+such); the CloudFormation template therefore does not mark it `NoEcho`, so a CloudFormation quick-create link
+can prefill it. Found in the first run against a real sandbox account; the moto demo cannot show either point.
+
 ## What the policy allows and denies
 
 - **Allow** (92 actions, `Resource: "*"` because List/Describe actions do not support resource-level

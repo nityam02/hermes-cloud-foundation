@@ -163,7 +163,7 @@ func (d *Discoverer) Run(ctx context.Context) (*inventory.Inventory, error) {
 
 	ident, err := home.STS.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
-		return nil, fmt.Errorf("aws: sts:GetCallerIdentity failed (check credentials, --profile or --role-arn/--external-id): %w", err)
+		return nil, fmt.Errorf("aws: sts:GetCallerIdentity failed (check credentials, --profile or --role-arn/--external-id; note that AWS never lets the root user assume a role, so run as an IAM user or role): %w", err)
 	}
 	account := aws.ToString(ident.Account)
 	principal := aws.ToString(ident.Arn)

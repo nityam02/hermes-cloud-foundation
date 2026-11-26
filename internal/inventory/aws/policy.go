@@ -57,6 +57,12 @@ var DeniedIAMActions = []string{
 // APIGatewayReadResources scopes apigateway:GET to the HTTP/WebSocket API collection.
 var APIGatewayReadResources = []string{"arn:aws:apigateway:*::/apis", "arn:aws:apigateway:*::/apis/*"}
 
+// ImpliedIAMActions are permissions that AWS checks in addition to the action of the API that
+// Hermes calls. They are not operations Hermes calls itself. Found in a real account run:
+// cloudformation:DescribeStacks without a stack name also requires cloudformation:ListStacks
+// (the first run recorded access-denied gaps until it was added).
+var ImpliedIAMActions = []string{"cloudformation:ListStacks"}
+
 // DiscoveryPolicy generates the least-privilege read-only IAM policy from the operation
 // registry. List/Describe actions do not support resource-level scoping, so "*" is used for
 // them; API Gateway reads are scoped to /apis.
@@ -72,6 +78,9 @@ func DiscoveryPolicy() PolicyDocument {
 			continue
 		}
 		set[op.IAMAction] = true
+	}
+	for _, a := range ImpliedIAMActions {
+		set[a] = true
 	}
 	doc := PolicyDocument{Version: "2012-10-17"}
 	doc.Statement = append(doc.Statement, PolicyStatement{Sid: "HermesReadOnlyDiscovery", Effect: "Allow", Action: sortedKeys(set), Resource: "*"})
@@ -116,7 +125,7 @@ func DiscoveryRoleTemplate() []byte {
 			"TrustedPrincipalArn": map[string]any{"Type": "String",
 				"Description":    "ARN of the principal that runs hermes inventory (an IAM role or user in the operator account, or arn:aws:iam::<account>:root).",
 				"AllowedPattern": `^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:(root|role/.+|user/.+)$`},
-			"ExternalId": map[string]any{"Type": "String", "NoEcho": true, "MinLength": 16, "MaxLength": 1224,
+			"ExternalId": map[string]any{"Type": "String", "MinLength": 16, "MaxLength": 1224,
 				"AllowedPattern": `^[\w+=,.@:/-]+$`,
 				"Description":    "Random value shared out-of-band with the operator; required as sts:ExternalId (prevents confused-deputy use of the role)."},
 			"RoleName": map[string]any{"Type": "String", "Default": "HermesDiscoveryReadOnly"},
