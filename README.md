@@ -166,7 +166,7 @@ plans ([IaC adoption](docs/migration/iac-adoption.md)). Adoption is not migratio
 | You want to… | Read |
 |---|---|
 | Understand the project in 5 minutes | [Executive overview](docs/overview/executive-overview.md) |
-| Install and try it | [Installation](docs/tutorials/installation.md), [quickstart](docs/tutorials/quickstart.md), [multi-cloud](docs/tutorials/multi-cloud.md), [read-only web UI](docs/tutorials/ui.md) |
+| Install and try it | [Installation](docs/tutorials/installation.md), [quickstart](docs/tutorials/quickstart.md), [multi-cloud](docs/tutorials/multi-cloud.md), [web UI](docs/tutorials/ui.md) |
 | Contribute code | [Onboarding](docs/tutorials/onboarding.md), [testing guide](docs/testing.md), [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Look up commands, fields and codes | [CLI](docs/reference/cli.md), [configuration](docs/reference/configuration.md), [diagnostics](docs/reference/diagnostics.md) |
 | Go to production | [First production environment](docs/tutorials/first-production-environment.md), [state management](docs/operations/state-management.md), [cost and sizing](docs/operations/cost-and-sizing.md) |

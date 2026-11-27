@@ -281,7 +281,10 @@ real cloud. The engine floor (1.10) is below the 1.11 the report suggested for w
 
 | Item | Status |
 |---|---|
-| Read-only local UI for inventory, assessment and plan (`hermes ui`) | implemented, unit-tested and checked in a browser against a real sandbox discovery |
-| Connecting an AWS or GCP account from the page, starting discovery or a migration, approvals | designed, not implemented. The UI cannot change anything by design |
+| Connect AWS and Google Cloud, live checks, discovery to plan as a job (`hermes ui`) | implemented. AWS checks verified on a real sandbox account; Google checks verified against a fake Google API only |
+| Deploy a new service from a form, with validation and a rendered OpenTofu preview | designed (ADR 0016 phase 2), not implemented |
+| Apply, destroy and approvals from the page | designed (phase 3), not implemented. Applies would stay saved-plan only with approval by plan id |
+| Migration execution from the page: provisioning the target, data movement (for S3 through Storage Transfer Service with a role ARN), validation, gated cutover | designed (phase 4), not implemented |
 | Hosted, multi-user version | not supported. It would hold cross-account access to customer environments and needs authentication, tenant isolation, audit and its own threat model |
-| Automated browser (end-to-end) tests | not implemented. Views are covered by render smoke tests against real documents; layout was checked by hand |
+| Automated browser (end-to-end) tests | not implemented. Views are covered by render smoke tests; the server by unit tests with the race detector; layout was checked by hand |
+| Google Cloud permission preflight | a list of 14 permissions checked with `testIamPermissions`. It is a preflight, not a guarantee that apply will succeed |

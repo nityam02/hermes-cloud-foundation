@@ -5,10 +5,12 @@ import inventory from "../../public/demo/inventory.json";
 import plan from "../../public/demo/plan.json";
 import { normalizeDocs } from "../lib";
 import type { Docs } from "../types";
+import { Connect } from "./Connect";
 import { Gaps } from "./Gaps";
 import { Inventory } from "./Inventory";
 import { Overview } from "./Overview";
 import { PlanView } from "./Plan";
+import { defaults } from "../session";
 
 const full = normalizeDocs(structuredClone({ mode: "demo", inventory, assessment, plan }) as unknown as Docs);
 const empty: Docs = { mode: "empty" };
@@ -48,5 +50,29 @@ describe("views render the documents Hermes writes", () => {
       expect(renderToString(<V docs={empty} />)).toContain("hermes ");
     }
     expect(renderToString(<Gaps docs={empty} />)).toContain("hermes ");
+  });
+});
+
+describe("connect flow", () => {
+  const status = { inventory: false, assessment: false, plan: false, version: "t", can: { connect_aws: true, connect_gcp: true, discover: true } };
+  it("starts at AWS with the sign-in check and no way to skip ahead", () => {
+    const html = renderToString(<Connect session={{ ...defaults }} setSession={() => undefined} status={status} onDiscovered={() => undefined} />);
+    expect(html).toContain("Connect your clouds");
+    expect(html).toContain("Who are you in AWS?");
+    expect(html).toContain("Check my sign-in");
+    // later steps are locked until the earlier ones pass
+    expect(html).toMatch(/<button type="button" disabled=""[^>]*><span class="stop-dot"[^>]*>2<\/span>Connect Google Cloud/);
+    expect(html).not.toContain("Check Google Cloud");
+  });
+  it("never offers a field for access keys or key files", () => {
+    const html = renderToString(<Connect session={{ ...defaults }} setSession={() => undefined} status={status} onDiscovered={() => undefined} />).toLowerCase();
+    for (const bad of ["secret access key", "access key id", "json key", "private key", "password"]) {
+      expect(html).not.toContain(bad);
+    }
+  });
+  it("jumps to the Google step once AWS is connected", () => {
+    const html = renderToString(<Connect session={{ ...defaults, awsOk: true }} setSession={() => undefined} status={status} onDiscovered={() => undefined} />);
+    expect(html).toContain("Which Google Cloud project?");
+    expect(html).toContain("gcloud auth application-default login");
   });
 });

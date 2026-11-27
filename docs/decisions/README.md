@@ -22,3 +22,4 @@ Evidence references point to [`docs/research/open-source-landscape.md`](../resea
 | [0013](0013-testing-without-cloud-credentials.md) | Test without cloud credentials; real-cloud tests are opt-in | Accepted |
 | [0014](0014-cutover-hooks-and-no-automatic-decommission.md) | Cutover runs only user-declared hooks; decommissioning is never automated | Accepted |
 | [0015](0015-measurable-portability.md) | Portability is measured, not promised | Accepted |
+| [0016](0016-ui-control-plane.md) | The UI is a local control plane over the CLI, not a second engine | Accepted |
