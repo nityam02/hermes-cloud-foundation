@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import { api, AuthError, type Status } from "./api";
 import { loadDocs } from "./data";
-import { loadSession, type Session } from "./session";
 import type { Docs } from "./types";
 import { Connect } from "./views/Connect";
 import { Gaps } from "./views/Gaps";
@@ -23,6 +22,24 @@ function tabFromHash(fallback: Tab): Tab {
   return (tabs.find((t) => t.id === h)?.id ?? fallback) as Tab;
 }
 
+/** Shows what broke instead of a blank page. */
+class Boundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="callout fail" role="alert">
+        <strong>This page hit an error.</strong>
+        <p>{this.state.error.message}</p>
+        <button type="button" className="btn small" onClick={() => window.location.reload()}>Reload the page</button>
+      </div>
+    );
+  }
+}
+
 function Mark() {
   // A route with three stops: the product's one recurring image.
   return (
@@ -39,7 +56,6 @@ export function App() {
   const [docs, setDocs] = useState<Docs | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
   const [locked, setLocked] = useState(false);
-  const [session, setSession] = useState<Session>(loadSession);
   const demo = new URLSearchParams(window.location.search).has("demo");
   const [tab, setTab] = useState<Tab>(() => tabFromHash(demo ? "overview" : "connect"));
 
@@ -57,7 +73,10 @@ export function App() {
 
   useEffect(() => {
     void refresh();
-    const onHash = () => setTab(tabFromHash("connect"));
+    const onHash = () => {
+      setTab(tabFromHash("connect"));
+      window.scrollTo(0, 0);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, [refresh]);
@@ -74,7 +93,7 @@ export function App() {
         <div className="panel lock">
           <h1>This page is locked</h1>
           <p>Hermes UI only opens from the link that <code>hermes ui</code> printed in your terminal. That link carries a private session token.</p>
-          <p className="muted">If you closed the terminal, run <code>hermes ui</code> again and use the new link.</p>
+          <p className="muted">If you closed the terminal, run <code>hermes ui</code> again. It opens a new page, and remembers what you connected.</p>
         </div>
       </div>
     );
@@ -102,16 +121,18 @@ export function App() {
         </p>
       )}
       <main>
+        <Boundary>
         {!docs && <p className="muted">Loading…</p>}
-        {docs && tab === "connect" && status && <Connect session={session} setSession={setSession} status={status} onDiscovered={goOverview} />}
+        {docs && tab === "connect" && status && <Connect status={status} onDiscovered={goOverview} />}
         {docs && tab === "connect" && !status && <p className="muted">Connecting is available when you open the UI with <code>hermes ui</code>.</p>}
         {docs && tab === "overview" && <Overview docs={docs} />}
         {docs && tab === "inventory" && <Inventory docs={docs} />}
         {docs && tab === "plan" && <PlanView docs={docs} />}
         {docs && tab === "gaps" && <Gaps docs={docs} />}
+        </Boundary>
       </main>
       <footer>
-        Hermes reads your clouds through your own sign-in and never asks for access keys. This version only reads: it creates, changes and deletes nothing.
+        Hermes uses your own sign-ins and never asks for passwords or access keys. It only reads, except when you press a button that says what it will change: creating or removing the read-only AWS role, and turning on Google Cloud APIs.
       </footer>
     </div>
   );

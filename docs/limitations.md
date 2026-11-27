@@ -282,9 +282,12 @@ real cloud. The engine floor (1.10) is below the 1.11 the report suggested for w
 | Item | Status |
 |---|---|
 | Connect AWS and Google Cloud, live checks, discovery to plan as a job (`hermes ui`) | implemented. AWS checks verified on a real sandbox account; Google checks verified against a fake Google API only |
+| Sign in to AWS and Google from the page (it runs `aws login`, `aws sso login`, `gcloud auth application-default login`), install the Google Cloud CLI with Homebrew | implemented, not tested against real cloud. Tested with fake CLIs and walked through against pretend clouds (`make ui-dev`). `aws login` needs AWS CLI 2.32 or later; Homebrew install is macOS/Linux only |
+| Create, update and remove the read-only role stack (`hermes-discovery-role`) and turn on Google APIs from the page | implemented, not tested against real cloud (fake CloudFormation and fake Google API). These are the only writes the UI makes, each behind its own button. Needs permission to create CloudFormation stacks and IAM roles; otherwise use the template path |
+| Listing Google projects with user Application Default Credentials | not verified on a real account. If listing fails, the page asks for the project ID instead. Billing and Service Usage calls send the project as the quota project |
 | Deploy a new service from a form, with validation and a rendered OpenTofu preview | designed (ADR 0016 phase 2), not implemented |
 | Apply, destroy and approvals from the page | designed (phase 3), not implemented. Applies would stay saved-plan only with approval by plan id |
 | Migration execution from the page: provisioning the target, data movement (for S3 through Storage Transfer Service with a role ARN), validation, gated cutover | designed (phase 4), not implemented |
 | Hosted, multi-user version | not supported. It would hold cross-account access to customer environments and needs authentication, tenant isolation, audit and its own threat model |
-| Automated browser (end-to-end) tests | not implemented. Views are covered by render smoke tests; the server by unit tests with the race detector; layout was checked by hand |
+| Automated browser (end-to-end) tests | not implemented. Views are covered by render smoke tests and the page's decisions by unit tests; the server by unit tests with the race detector; the flows were walked through by hand in a browser against pretend clouds |
 | Google Cloud permission preflight | a list of 14 permissions checked with `testIamPermissions`. It is a preflight, not a guarantee that apply will succeed |

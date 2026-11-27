@@ -72,13 +72,16 @@ with mock providers, conftest fixtures). It never means verified on a real cloud
 | Plan policies (Conftest/Rego, all three providers) | implemented & verified against synthetic plans and plans derived from the compositions (mock providers) | `make policy-test`: 41/41 Rego tests (2026-11-21) |
 | `hermes cost` (Infracost wrapper) | implemented, not tested (Infracost not run); Alibaba **not supported** by Infracost | — |
 | `hermes status --drift` | implemented, **not tested against a real cloud** | fake engine only |
-| AWS discovery (`hermes inventory aws`), read-only guard, IAM policy | implemented & verified with Go fakes and a local moto server; **not run against real AWS** | `go test ./internal/inventory/...`. The moto demo discovered 58 resources of 28 types, and all 81 API operations called were on the allowlist. An opt-in real-AWS test exists and has never run |
+| AWS discovery (`hermes inventory aws`), read-only guard, IAM policy | implemented & verified with Go fakes and a local moto server; run once against a real sandbox account through the UI's connection check (role assumed, 9 resources read) | `go test ./internal/inventory/...`. The moto demo discovered 58 resources of 28 types, and all 81 API operations called were on the allowlist. An opt-in real-AWS test exists and has never run |
 | Migration assess / plan / generate / validate / cutover (to GCP or Alibaba) | implemented & verified offline on a sample inventory; cutover hooks never run against real systems | `go test ./internal/migration/...`; sample run below |
 | IaC adoption (`hermes adopt`, import-only gate) | implemented & verified with a fake engine; **not tested against real AWS** | `go test ./internal/migration/adopt` |
+| Hermes UI (`hermes ui`): sign in to AWS and Google from the page, one-button read-only role, project checks, discovery to plan | implemented; sign-in and setup **not tested against a real cloud** (fake CLIs, fake CloudFormation and Google APIs, and a walkthrough over pretend clouds with `make ui-dev`) | `go test ./internal/connect ./internal/uiserver`; `make ui-test`; [UI guide](docs/tutorials/ui.md) |
 | GCP or Alibaba as a migration **source** | not supported | AWS is the only source |
 | Kubernetes compute, MySQL, DNS | designed, not implemented (reserved; `HCF111`) | — |
 
 ## Architecture
+
+![How Hermes works: your machine, AWS and Google Cloud](docs/architecture/hermes-system.svg)
 
 ```mermaid
 flowchart LR

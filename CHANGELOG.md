@@ -9,6 +9,7 @@ through `apiVersion` (currently `hermes/v1alpha1`).
 
 ### Added
 
+- Hermes UI, connect without a terminal: sign in to AWS (`aws login` / `aws sso login`) and Google Cloud (`gcloud auth application-default login`) from the page, install the Google Cloud CLI with Homebrew, create, update or remove the read-only role stack with one button, pick a Google project from a list, turn on the required Google APIs, and have checks run by themselves. Both clouds are shown side by side; the connection is remembered in `.hermes/ui/connection.json` (no credentials). `hermes ui` now opens the browser by default. `make ui-dev` serves the UI over pretend clouds. A system diagram is in `docs/architecture/hermes-system.svg`.
 - `hermes ui`: a local React UI that connects AWS (read-only role with a generated external ID) and Google Cloud (Application Default Credentials), checks both with plain-language fixes, runs discovery, assessment and planning as a job, and shows the results. Loopback only, token and cookie, CSRF-protected posts, no outside requests, no access keys. See `docs/tutorials/ui.md` and ADR 0016.
 - The cloud-independent platform specification `hermes/v1alpha1` with a JSON Schema and semantic validation.
 - The `hermes` CLI, with these commands: `init`, `doctor`, `validate`, `portability`, `render`, `plan`, `apply`,

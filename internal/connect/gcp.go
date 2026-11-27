@@ -55,6 +55,7 @@ type GCPDeps struct {
 	// HTTP returns a client that authenticates with Application Default Credentials.
 	HTTP                            func(ctx context.Context) (*http.Client, error)
 	CRMBase, UsageBase, BillingBase string
+	UserinfoURL                     string
 }
 
 var projectIDPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{4,28}[a-z0-9]$`)
@@ -74,7 +75,32 @@ func DefaultGCPDeps() GCPDeps {
 		CRMBase:     "https://cloudresourcemanager.googleapis.com",
 		UsageBase:   "https://serviceusage.googleapis.com",
 		BillingBase: "https://cloudbilling.googleapis.com",
+		UserinfoURL: "https://openidconnect.googleapis.com/v1/userinfo",
 	}
+}
+
+// quotaProject bills API quota to the project being checked. Sign-ins from
+// `gcloud auth application-default login` have no project of their own, and the Billing and Service
+// Usage APIs refuse calls without one.
+type quotaProject struct {
+	project string
+	base    http.RoundTripper
+}
+
+func (q quotaProject) RoundTrip(r *http.Request) (*http.Response, error) {
+	r = r.Clone(r.Context())
+	r.Header.Set("X-Goog-User-Project", q.project)
+	return q.base.RoundTrip(r)
+}
+
+func withQuotaProject(cl *http.Client, project string) *http.Client {
+	base := cl.Transport
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	c := *cl
+	c.Transport = quotaProject{project: project, base: base}
+	return &c
 }
 
 // CheckGCP runs the Google Cloud connection test.
@@ -101,8 +127,8 @@ func CheckGCP(ctx context.Context, d GCPDeps, req GCPRequest) Result {
 	cl, err := d.HTTP(ctx)
 	if err != nil {
 		r.Steps = append(r.Steps, Step{ID: "credentials", Title: "Find your Google sign-in", Status: Fail,
-			Detail: "No Google credentials were found on this machine.",
-			Fix:    "Run `gcloud auth application-default login` and sign in with the account that can deploy to this project. Or set up service account impersonation or workload identity federation. Hermes never asks for a key file."})
+			Detail: "No Google sign-in was found on this machine.",
+			Fix:    "Choose Sign in with Google on this page (it runs `gcloud auth application-default login` for you). Hermes never asks for a key file."})
 		skipRest(&r, later, "Sign in first.")
 		finish(&r, "", "Hermes could not find your Google sign-in.")
 		return r
@@ -117,7 +143,7 @@ func CheckGCP(ctx context.Context, d GCPDeps, req GCPRequest) Result {
 	switch {
 	case err != nil || code == 401:
 		r.Steps = append(r.Steps, Step{ID: "project", Title: "Find the project", Status: Fail, Detail: "Google rejected the credentials.",
-			Fix: "They may have expired. Run `gcloud auth application-default login` again."})
+			Fix: "The sign-in may have expired. Sign in with Google again."})
 		skipRest(&r, later[1:], "The project must be found first.")
 		finish(&r, "", "Google rejected the credentials.")
 		return r
@@ -142,23 +168,26 @@ func CheckGCP(ctx context.Context, d GCPDeps, req GCPRequest) Result {
 	}
 	r.Steps = append(r.Steps, Step{ID: "project", Title: "Find the project", Status: Pass, Detail: fmt.Sprintf("%s (number %s)", firstNonEmpty(proj.Name, proj.ProjectID), proj.ProjectNumber)})
 
+	qcl := withQuotaProject(cl, req.ProjectID)
+
 	// billing
 	var bill struct{ BillingEnabled bool }
-	code, _ = getJSON(ctx, cl, d.BillingBase+"/v1/projects/"+url.PathEscape(req.ProjectID)+"/billingInfo", &bill)
+	code, _ = getJSON(ctx, qcl, d.BillingBase+"/v1/projects/"+url.PathEscape(req.ProjectID)+"/billingInfo", &bill)
 	switch {
 	case code == 200 && bill.BillingEnabled:
 		r.Steps = append(r.Steps, Step{ID: "billing", Title: "Billing is enabled", Status: Pass, Detail: "A billing account is linked."})
 	case code == 200:
-		r.Steps = append(r.Steps, Step{ID: "billing", Title: "Billing is enabled", Status: Fail, Detail: "The project has no billing account.", Fix: "Link a billing account to the project in the Google Cloud console. Cloud Run, Cloud SQL and most services need it."})
+		r.Steps = append(r.Steps, Step{ID: "billing", Title: "Billing is enabled", Status: Fail, Detail: "The project has no billing account.",
+			Fix: "Link a billing account to the project in the Google Cloud console (Open billing, below). Cloud Run, Cloud SQL and most services need it."})
 	default:
 		r.Steps = append(r.Steps, Step{ID: "billing", Title: "Billing is enabled", Status: Warn, Detail: "Hermes could not read the billing status with this sign-in.", Fix: "Check in the console that billing is linked."})
 	}
 
 	// APIs
-	enabled, code := enabledAPIs(ctx, cl, d.UsageBase, req.ProjectID)
+	enabled, code := enabledAPIs(ctx, qcl, d.UsageBase, req.ProjectID)
 	if code != 200 {
 		r.Steps = append(r.Steps, Step{ID: "apis", Title: "Required APIs are enabled", Status: Warn, Detail: "Hermes could not list the enabled APIs with this sign-in.",
-			Fix: "Make sure the Cloud Resource Manager and Service Usage APIs are enabled: `gcloud services enable cloudresourcemanager.googleapis.com serviceusage.googleapis.com`."})
+			Fix: "Turn on the APIs Hermes needs with the button below, or make sure the Service Usage API is enabled in the console."})
 	} else {
 		var missingReq, missingRec []string
 		for _, a := range GCPRequiredAPIs {
@@ -175,10 +204,10 @@ func CheckGCP(ctx context.Context, d GCPDeps, req GCPRequest) Result {
 		case len(missingReq) > 0:
 			r.Steps = append(r.Steps, Step{ID: "apis", Title: "Required APIs are enabled", Status: Fail,
 				Detail: "These must be on before Hermes can deploy: " + strings.Join(missingReq, ", ") + ".",
-				Fix:    "Run `gcloud services enable " + strings.Join(missingReq, " ") + " --project " + req.ProjectID + "`."})
+				Fix:    "Turn them on with the button below, or run `gcloud services enable " + strings.Join(missingReq, " ") + " --project " + req.ProjectID + "`."})
 		case len(missingRec) > 0:
 			r.Steps = append(r.Steps, Step{ID: "apis", Title: "Required APIs are enabled", Status: Pass,
-				Detail: fmt.Sprintf("The two bootstrap APIs are on. Hermes will enable %d more during apply (%s) if you may enable APIs.", len(missingRec), strings.Join(missingRec, ", "))})
+				Detail: fmt.Sprintf("The two bootstrap APIs are on. %d more are needed when you deploy (%s); you can turn them on now or Hermes will during apply.", len(missingRec), strings.Join(missingRec, ", "))})
 		default:
 			r.Steps = append(r.Steps, Step{ID: "apis", Title: "Required APIs are enabled", Status: Pass, Detail: "Every API Hermes uses is already enabled."})
 		}

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -68,7 +70,7 @@ func post(h http.Handler, target, body string, extra map[string]string) *httptes
 
 func TestTokenIsRequiredForEveryAPIRoute(t *testing.T) {
 	h := newHandler(t, Config{Docs: Documents{Inventory: []byte(`{"kind":"Inventory"}`)}})
-	for _, p := range []string{"/api/status", "/api/inventory.json", "/api/plan.json", "/api/connect/aws/profiles", "/api/jobs/abc"} {
+	for _, p := range []string{"/api/status", "/api/inventory.json", "/api/plan.json", "/api/connect/aws/profiles", "/api/jobs/abc", "/api/jobs/running", "/api/connection", "/api/connect/gcp/status", "/api/connect/gcp/projects"} {
 		if w := get(h, p, false); w.Code != http.StatusUnauthorized {
 			t.Errorf("%s without a cookie: %d", p, w.Code)
 		}
@@ -279,5 +281,162 @@ func TestValidateAddr(t *testing.T) {
 		if err := ValidateAddr(bad); err == nil {
 			t.Errorf("%s should be refused", bad)
 		}
+	}
+}
+
+func TestSignInJobPassesOnTheLinkAndCanBeCancelled(t *testing.T) {
+	h := newHandler(t, Config{Actions: Actions{AWSSignIn: func(ctx context.Context, req connect.AWSSignInRequest, p connect.Progress) error {
+		p.Step("signin", "running", "waiting for the browser")
+		p.Prompt("https://signin.aws.amazon.com/v1/authorize?x", "")
+		p.Line("Attempting to open your default browser.")
+		<-ctx.Done()
+		return ctx.Err()
+	}}})
+	w := post(h, "/api/connect/aws/signin", `{"profile":"hermes","region":"us-east-1"}`, nil)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	var id struct{ ID string }
+	_ = json.Unmarshal(w.Body.Bytes(), &id)
+	// A second AWS task waits; the page can find the running one again after a reload.
+	if w := post(h, "/api/connect/aws/signin", `{"profile":"hermes"}`, nil); w.Code != http.StatusConflict || !strings.Contains(w.Body.String(), id.ID) {
+		t.Fatalf("second sign-in: %d %s", w.Code, w.Body)
+	}
+	var running map[string]string
+	_ = json.Unmarshal(get(h, "/api/jobs/running", true).Body.Bytes(), &running)
+	if running["aws"] != id.ID {
+		t.Fatalf("running: %v", running)
+	}
+	var j Job
+	for i := 0; i < 100 && j.Link == ""; i++ {
+		_ = json.Unmarshal(get(h, "/api/jobs/"+id.ID, true).Body.Bytes(), &j)
+		time.Sleep(5 * time.Millisecond)
+	}
+	if j.Link == "" || len(j.Log) != 1 {
+		t.Fatalf("the link and output must reach the page: %+v", j)
+	}
+	if w := post(h, "/api/jobs/"+id.ID+"/cancel", `{}`, nil); w.Code != 200 {
+		t.Fatalf("cancel: %d", w.Code)
+	}
+	j = waitJob(t, h, id.ID)
+	if j.State != "cancelled" || j.Steps[0].Status != "failed" {
+		t.Fatalf("%+v", j)
+	}
+	if w := post(h, "/api/connect/aws/signin", `{"profile":"hermes"}`, nil); w.Code != http.StatusAccepted {
+		t.Fatalf("a new sign-in may start after the cancel: %d", w.Code)
+	}
+}
+
+func TestLanesLetAWSAndGoogleWorkAtTheSameTime(t *testing.T) {
+	release := make(chan struct{})
+	block := func(ctx context.Context, _ connect.Progress) error { <-release; return nil }
+	h := newHandler(t, Config{Actions: Actions{
+		AWSSignIn: func(ctx context.Context, _ connect.AWSSignInRequest, p connect.Progress) error { return block(ctx, p) },
+		GCPSignIn: block,
+	}})
+	defer close(release)
+	if w := post(h, "/api/connect/aws/signin", `{"profile":"a"}`, nil); w.Code != http.StatusAccepted {
+		t.Fatalf("aws: %d", w.Code)
+	}
+	if w := post(h, "/api/connect/gcp/signin", `{}`, nil); w.Code != http.StatusAccepted {
+		t.Fatalf("google must not wait for AWS: %d", w.Code)
+	}
+}
+
+func TestRoleEnsureRefusesRootAndReturnsTheRole(t *testing.T) {
+	h := newHandler(t, Config{Actions: Actions{
+		AWSFindRole: func(context.Context, string, string) (*connect.RoleStack, error) { return nil, nil },
+		AWSEnsureRole: func(_ context.Context, req connect.RoleRequest, p connect.Progress) (connect.RoleStack, error) {
+			p.Step("create", "done", "Created.")
+			return connect.RoleStack{Status: "CREATE_COMPLETE", RoleARN: "arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly", ExternalID: "hermes-x-0000000000", TrustedPrincipal: req.Principal}, nil
+		},
+	}})
+	if w := post(h, "/api/connect/aws/role/ensure", `{"principal":"arn:aws:iam::123456789012:root"}`, nil); w.Code != 400 {
+		t.Fatalf("root: %d", w.Code)
+	}
+	var found struct{ Found bool }
+	_ = json.Unmarshal(post(h, "/api/connect/aws/role", `{"profile":"p"}`, nil).Body.Bytes(), &found)
+	if found.Found {
+		t.Fatal("no stack yet")
+	}
+	var id struct{ ID string }
+	_ = json.Unmarshal(post(h, "/api/connect/aws/role/ensure", `{"profile":"p","principal":"arn:aws:iam::123456789012:user/op"}`, nil).Body.Bytes(), &id)
+	j := waitJob(t, h, id.ID)
+	var st connect.RoleStack
+	_ = json.Unmarshal(j.Result, &st)
+	if j.State != "done" || st.RoleARN == "" || st.TrustedPrincipal != "arn:aws:iam::123456789012:user/op" {
+		t.Fatalf("%+v %+v", j, st)
+	}
+}
+
+func TestScanChecksEveryProfile(t *testing.T) {
+	h := newHandler(t, Config{Actions: Actions{
+		AWSProfiles: func() []connect.AWSProfile {
+			return []connect.AWSProfile{{Name: "default", Kind: "other"}, {Name: "op", Kind: "login"}, {Name: "rooty", Kind: "login"}}
+		},
+		AWSIdentity: func(_ context.Context, profile, _ string) (string, string, error) {
+			switch profile {
+			case "op":
+				return "arn:aws:iam::123456789012:user/op", "123456789012", nil
+			case "rooty":
+				return "arn:aws:iam::123456789012:root", "123456789012", nil
+			}
+			return "", "", errors.New("failed to refresh cached credentials, no EC2 IMDS role found")
+		},
+	}})
+	var out struct{ Profiles []identityResult }
+	_ = json.Unmarshal(post(h, "/api/connect/aws/scan", `{"region":"us-east-1"}`, nil).Body.Bytes(), &out)
+	if len(out.Profiles) != 3 {
+		t.Fatalf("%+v", out)
+	}
+	byName := map[string]identityResult{}
+	for _, p := range out.Profiles {
+		byName[p.Name] = p
+	}
+	if byName["default"].OK || !strings.Contains(byName["default"].Error["fix"], "Sign in to AWS") {
+		t.Errorf("default: %+v", byName["default"])
+	}
+	if !byName["op"].OK || byName["op"].Root || byName["op"].Kind != "login" {
+		t.Errorf("op: %+v", byName["op"])
+	}
+	if !byName["rooty"].Root {
+		t.Errorf("root must be flagged: %+v", byName["rooty"])
+	}
+}
+
+func TestConnectionIsRememberedOnDiskWithoutSecrets(t *testing.T) {
+	dir := t.TempDir()
+	h := newHandler(t, Config{StateDir: dir})
+	body := `{"aws":{"profile":"op","region":"us-east-1","role_arn":"arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly","external_id":"hermes-0123456789abcdef","ok":true,"secret_access_key":"nope"},"gcp":{"project_id":"alpha-sandbox","region":"europe-north1"},"regions":"us-east-1","token":"nope"}`
+	if w := post(h, "/api/connection", body, nil); w.Code != 200 {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "connection.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "nope") || !strings.Contains(string(data), "alpha-sandbox") {
+		t.Fatalf("only known, non-secret fields are kept: %s", data)
+	}
+	if st, _ := os.Stat(filepath.Join(dir, "connection.json")); st.Mode().Perm() != 0o600 {
+		t.Fatalf("mode %v", st.Mode())
+	}
+	// A new server (a restart) starts from what was saved.
+	h2 := newHandler(t, Config{StateDir: dir})
+	var c Connection
+	_ = json.Unmarshal(get(h2, "/api/connection", true).Body.Bytes(), &c)
+	if c.AWS.Profile != "op" || !c.AWS.OK || c.GCP.ProjectID != "alpha-sandbox" {
+		t.Fatalf("%+v", c)
+	}
+}
+
+func TestAJobWithNoStepsYetStillHasAList(t *testing.T) {
+	release := make(chan struct{})
+	defer close(release)
+	h := newHandler(t, Config{Actions: Actions{GCPSignIn: func(ctx context.Context, _ connect.Progress) error { <-release; return nil }}})
+	var id struct{ ID string }
+	_ = json.Unmarshal(post(h, "/api/connect/gcp/signin", `{}`, nil).Body.Bytes(), &id)
+	if body := get(h, "/api/jobs/"+id.ID, true).Body.String(); !strings.Contains(body, `"steps":[]`) {
+		t.Fatalf("steps must be an empty list, not null: %s", body)
 	}
 }

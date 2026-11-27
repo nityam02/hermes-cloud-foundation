@@ -124,6 +124,11 @@ ui-install: ## Install the Hermes UI dependencies (lockfile, no install scripts)
 ui-test: ## Typecheck and unit-test the Hermes UI
 	cd ui && npm run typecheck && npm test
 
+.PHONY: ui-dev
+ui-dev: ## Serve the built UI over pretend clouds (no account needed); rebuild with `cd ui && npm run build`
+	cd ui && npm run build
+	go run ./cmd/hermes-ui-dev
+
 .PHONY: ui-build
 ui-build: ## Build the Hermes UI and place it where the CLI embeds it (then run make build)
 	cd ui && npm run build

@@ -47,6 +47,28 @@ run a migration, with Terraform generated underneath. The research this ADR rest
 | 3 | Apply from the UI: approval by plan id, streamed logs, destroy with confirmation | designed |
 | 4 | Migration execution: provision target from the draft spec, data movement through managed services, validation, gated cutover | designed |
 
+## Update: sign-in and setup from the page
+
+The first version asked people to run `aws login` and `gcloud auth application-default login` in a
+terminal and to create the role stack in the CloudFormation console. Every switch lost people, so the
+page now does these steps itself:
+
+- **Sign-in.** The server runs the clouds' own CLIs (no shell, validated arguments, stdin closed, own
+  process group so Cancel stops their helpers) and passes on only the sign-in link and device code they
+  print, and only for AWS and Google hosts. Hermes still never handles a password, key or token, and
+  needs no OAuth client of its own. A Hermes-registered OAuth app was rejected: it would hold
+  cloud-platform scope for every user and need Google verification, and AWS offers no equivalent.
+- **Role.** The role stack is created, updated or deleted with the operator's own sign-in, one button
+  each, through a CloudFormation client that only names `hermes-discovery-role`. Discovery still runs
+  through the read-only guard, as the role. This is the UI's first write to a cloud; it is explicit,
+  reversible from the same page, and the template path remains for operators without IAM rights.
+- **Google APIs.** Enabling the missing APIs is one button (Service Usage `batchEnable`).
+- **Memory.** The connection (names and IDs, no credentials) is kept in `.hermes/ui/connection.json`,
+  and jobs run in lanes (AWS, Google, discovery) so both sides can be set up at once; a reloaded page
+  reattaches to a running job.
+- **Development.** `make ui-dev` serves the page over pretend clouds, so the UI can be worked on and
+  demonstrated without any account.
+
 ## Consequences
 
 - The UI cannot do anything the CLI cannot, and the CLI stays the source of truth for gates.

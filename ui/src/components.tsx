@@ -43,6 +43,17 @@ export function StatusIcon({ status }: { status: string }) {
   );
 }
 
+/** Text with `backticked` commands shown as code. */
+export function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(`[^`]+`)/g).map((part, i) =>
+        part.startsWith("`") && part.endsWith("`") && part.length > 2 ? <code key={i}>{part.slice(1, -1)}</code> : part,
+      )}
+    </>
+  );
+}
+
 /** A connection test: one row per check, with what was found and how to fix it. */
 export function Checklist({ steps }: { steps: CheckStep[] }) {
   return (
@@ -52,12 +63,29 @@ export function Checklist({ steps }: { steps: CheckStep[] }) {
           <StatusIcon status={s.status} />
           <div>
             <strong>{s.title}</strong>
-            {s.detail && <p>{s.detail}</p>}
-            {s.fix && s.status !== "pass" && <p className="fix"><b>How to fix:</b> {s.fix}</p>}
+            {s.detail && <p><Rich text={s.detail} /></p>}
+            {s.fix && s.status !== "pass" && <p className="fix"><b>How to fix:</b> <Rich text={s.fix} /></p>}
           </div>
         </li>
       ))}
     </ol>
+  );
+}
+
+/** A failed check: what needs attention first, the checks that passed folded away. */
+export function Problems({ steps }: { steps: CheckStep[] }) {
+  const bad = steps.filter((s) => s.status !== "pass");
+  const good = steps.filter((s) => s.status === "pass");
+  return (
+    <>
+      <Checklist steps={bad} />
+      {good.length > 0 && (
+        <details>
+          <summary>{good.length === 1 ? "1 other check passed" : `${good.length} other checks passed`}</summary>
+          <Checklist steps={good} />
+        </details>
+      )}
+    </>
   );
 }
 

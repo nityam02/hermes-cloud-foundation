@@ -254,21 +254,26 @@ func TestGCPInputValidationMakesNoCall(t *testing.T) {
 	}
 }
 
-func TestAWSProfilesReturnsNamesOnly(t *testing.T) {
+func TestAWSProfilesReturnsNamesAndKindsOnly(t *testing.T) {
 	dir := t.TempDir()
 	cfg := dir + "/config"
 	creds := dir + "/credentials"
 	secret := "SECRETVALUE-do-not-leak"
-	_ = os.WriteFile(cfg, []byte("[default]\nregion=eu-north-1\n[profile work]\nsso_session=x\n[sso-session x]\n[profile hermes-op]\nlogin_session=arn\n"), 0o600)
-	_ = os.WriteFile(creds, []byte("[legacy]\naws_secret_access_key="+secret+"\n[default]\n"), 0o600)
+	_ = os.WriteFile(cfg, []byte("[default]\nregion=eu-north-1\n[profile work]\nsso_session=x\n[sso-session x]\nsso_start_url=https://x\n[profile hermes-op]\nlogin_session=arn\n[profile chain]\nrole_arn=arn\nsource_profile=work\n# [profile commented]\n"), 0o600)
+	_ = os.WriteFile(creds, []byte("[legacy]\naws_access_key_id = AKIAEXAMPLE\naws_secret_access_key="+secret+"\n[default]\n"), 0o600)
 	t.Setenv("AWS_CONFIG_FILE", cfg)
 	t.Setenv("AWS_SHARED_CREDENTIALS_FILE", creds)
 	got := AWSProfiles()
-	want := []string{"default", "hermes-op", "legacy", "work"}
-	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Fatalf("got %v want %v", got, want)
+	var flat []string
+	for _, p := range got {
+		flat = append(flat, p.Name+"="+p.Kind)
 	}
-	if strings.Contains(strings.Join(got, ""), secret) {
+	want := "chain=role,default=other,hermes-op=login,legacy=keys,work=sso"
+	if strings.Join(flat, ",") != want {
+		t.Fatalf("got %v want %v", flat, want)
+	}
+	out, _ := json.Marshal(got)
+	if strings.Contains(string(out), secret) || strings.Contains(string(out), "AKIA") {
 		t.Fatal("a credential value leaked into the profile list")
 	}
 }

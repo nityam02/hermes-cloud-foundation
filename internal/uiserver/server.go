@@ -47,10 +47,26 @@ type DiscoverRequest = connect.PipelineRequest
 // Actions are the operations the UI can start. A nil function disables its endpoint, which is how the
 // tests (and read-only embedding) run the server without any cloud access.
 type Actions struct {
-	AWSProfiles func() []string
+	AWSProfiles func() []connect.AWSProfile
+	AWSCLI      func(ctx context.Context) connect.AWSCLI
 	AWSIdentity func(ctx context.Context, profile, region string) (arn, account string, err error)
-	CheckAWS    func(ctx context.Context, req connect.AWSRequest) connect.Result
-	CheckGCP    func(ctx context.Context, req connect.GCPRequest) connect.Result
+	// AWSSignIn runs the AWS CLI's own browser sign-in.
+	AWSSignIn func(ctx context.Context, req connect.AWSSignInRequest, p connect.Progress) error
+	// AWSFindRole, AWSEnsureRole and AWSRemoveRole manage the read-only role stack with the operator's
+	// own sign-in. They are the only AWS writes, and run only when the operator asks on the page.
+	AWSFindRole   func(ctx context.Context, profile, region string) (*connect.RoleStack, error)
+	AWSEnsureRole func(ctx context.Context, req connect.RoleRequest, p connect.Progress) (connect.RoleStack, error)
+	AWSRemoveRole func(ctx context.Context, profile, region string, p connect.Progress) error
+	CheckAWS      func(ctx context.Context, req connect.AWSRequest) connect.Result
+
+	GCPStatus   func(ctx context.Context) connect.GCPState
+	GCPInstall  func(ctx context.Context, p connect.Progress) error
+	GCPSignIn   func(ctx context.Context, p connect.Progress) error
+	GCPProjects func(ctx context.Context) ([]connect.GCPProject, error)
+	// GCPEnableAPIs turns on the APIs Hermes uses, when the operator asks on the page.
+	GCPEnableAPIs func(ctx context.Context, project string, p connect.Progress) error
+	CheckGCP      func(ctx context.Context, req connect.GCPRequest) connect.Result
+
 	// Discover runs discovery, assessment and planning, and returns the documents it produced.
 	Discover func(ctx context.Context, req DiscoverRequest, report connect.Reporter) (Documents, error)
 }
@@ -61,6 +77,8 @@ type Config struct {
 	Docs    Documents
 	Actions Actions
 	Version string
+	// StateDir keeps the remembered connection (connection.json). Empty keeps it in memory only.
+	StateDir string
 }
 
 // NewToken returns a random 256-bit token.
@@ -95,6 +113,7 @@ type server struct {
 	mu     sync.RWMutex
 	docs   Documents
 	jobs   *jobs
+	store  *store
 	static fs.FS
 	files  http.Handler
 	index  bool
@@ -112,7 +131,7 @@ func New(cfg Config, static fs.FS) (http.Handler, error) {
 		}
 		static = sub
 	}
-	s := &server{cfg: cfg, docs: cfg.Docs, jobs: newJobs(), static: static, files: http.FileServer(http.FS(static))}
+	s := &server{cfg: cfg, docs: cfg.Docs, jobs: newJobs(), store: newStore(cfg.StateDir), static: static, files: http.FileServer(http.FS(static))}
 	_, err := fs.Stat(static, "index.html")
 	s.index = err == nil
 
@@ -121,13 +140,27 @@ func New(cfg Config, static fs.FS) (http.Handler, error) {
 	mux.HandleFunc("GET /api/inventory.json", s.api(s.doc(func(d Documents) []byte { return d.Inventory })))
 	mux.HandleFunc("GET /api/assessment.json", s.api(s.doc(func(d Documents) []byte { return d.Assessment })))
 	mux.HandleFunc("GET /api/plan.json", s.api(s.doc(func(d Documents) []byte { return d.Plan })))
+	mux.HandleFunc("GET /api/connection", s.api(s.getConnection))
+	mux.HandleFunc("POST /api/connection", s.api(s.setConnection))
 	mux.HandleFunc("GET /api/connect/aws/profiles", s.api(s.awsProfiles))
+	mux.HandleFunc("POST /api/connect/aws/scan", s.api(s.awsScan))
 	mux.HandleFunc("POST /api/connect/aws/identity", s.api(s.awsIdentity))
+	mux.HandleFunc("POST /api/connect/aws/signin", s.api(s.awsSignIn))
+	mux.HandleFunc("POST /api/connect/aws/role", s.api(s.awsFindRole))
+	mux.HandleFunc("POST /api/connect/aws/role/ensure", s.api(s.awsEnsureRole))
+	mux.HandleFunc("POST /api/connect/aws/role/remove", s.api(s.awsRemoveRole))
 	mux.HandleFunc("POST /api/connect/aws/template", s.api(s.awsTemplate))
 	mux.HandleFunc("POST /api/connect/aws/check", s.api(s.checkAWS))
+	mux.HandleFunc("GET /api/connect/gcp/status", s.api(s.gcpStatus))
+	mux.HandleFunc("POST /api/connect/gcp/install", s.api(s.gcpInstall))
+	mux.HandleFunc("POST /api/connect/gcp/signin", s.api(s.gcpSignIn))
+	mux.HandleFunc("GET /api/connect/gcp/projects", s.api(s.gcpProjects))
+	mux.HandleFunc("POST /api/connect/gcp/apis", s.api(s.gcpEnableAPIs))
 	mux.HandleFunc("POST /api/connect/gcp/check", s.api(s.checkGCP))
 	mux.HandleFunc("POST /api/jobs/discover", s.api(s.startDiscover))
+	mux.HandleFunc("GET /api/jobs/running", s.api(s.runningJobs))
 	mux.HandleFunc("GET /api/jobs/{id}", s.api(s.getJob))
+	mux.HandleFunc("POST /api/jobs/{id}/cancel", s.api(s.cancelJob))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { http.NotFound(w, r) })
 	mux.HandleFunc("/", s.page)
 	return s.guard(mux), nil
@@ -268,7 +301,11 @@ func (s *server) status(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, 200, map[string]any{
 		"inventory": d.Inventory != nil, "assessment": d.Assessment != nil, "plan": d.Plan != nil,
 		"version": s.cfg.Version,
-		"can":     map[string]bool{"connect_aws": a.CheckAWS != nil, "connect_gcp": a.CheckGCP != nil, "discover": a.Discover != nil},
+		"can": map[string]bool{
+			"connect_aws": a.CheckAWS != nil, "connect_gcp": a.CheckGCP != nil, "discover": a.Discover != nil,
+			"aws_signin": a.AWSSignIn != nil, "aws_role": a.AWSEnsureRole != nil && a.AWSFindRole != nil,
+			"gcp_signin": a.GCPSignIn != nil, "gcp_install": a.GCPInstall != nil, "gcp_apis": a.GCPEnableAPIs != nil,
+		},
 	})
 }
 
@@ -284,12 +321,54 @@ func (s *server) doc(pick func(Documents) []byte) func(http.ResponseWriter, *htt
 	}
 }
 
-func (s *server) awsProfiles(w http.ResponseWriter, _ *http.Request) {
-	var p []string
+func (s *server) getConnection(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, 200, s.store.get())
+}
+
+func (s *server) setConnection(w http.ResponseWriter, r *http.Request) {
+	var c Connection
+	if !readJSON(w, r, &c) {
+		return
+	}
+	if err := s.store.set(c); err != nil {
+		writeErr(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, c)
+}
+
+func (s *server) awsProfiles(w http.ResponseWriter, r *http.Request) {
+	p := []connect.AWSProfile{}
 	if s.cfg.Actions.AWSProfiles != nil {
 		p = s.cfg.Actions.AWSProfiles()
 	}
-	writeJSON(w, 200, map[string]any{"profiles": p})
+	var cli connect.AWSCLI
+	if s.cfg.Actions.AWSCLI != nil {
+		cli = s.cfg.Actions.AWSCLI(r.Context())
+	}
+	writeJSON(w, 200, map[string]any{"profiles": p, "cli": cli})
+}
+
+// identityResult is one profile's sign-in, as the page shows it.
+type identityResult struct {
+	Name    string            `json:"name,omitempty"`
+	Kind    string            `json:"kind,omitempty"`
+	OK      bool              `json:"ok"`
+	ARN     string            `json:"arn,omitempty"`
+	Account string            `json:"account,omitempty"`
+	Root    bool              `json:"root,omitempty"`
+	Error   map[string]string `json:"error,omitempty"`
+}
+
+func (s *server) identity(ctx context.Context, profile, region string) identityResult {
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+	arn, account, err := s.cfg.Actions.AWSIdentity(ctx, profile, region)
+	if err != nil {
+		detail, fix := connect.ExplainAWSError(err, profile)
+		return identityResult{Error: map[string]string{"detail": detail, "fix": fix}}
+	}
+	return identityResult{OK: true, ARN: arn, Account: account, Root: connect.IsRootARN(arn)}
 }
 
 func (s *server) awsIdentity(w http.ResponseWriter, r *http.Request) {
@@ -301,26 +380,180 @@ func (s *server) awsIdentity(w http.ResponseWriter, r *http.Request) {
 	if !readJSON(w, r, &req) {
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
-	defer cancel()
-	arn, account, err := s.cfg.Actions.AWSIdentity(ctx, req.Profile, req.Region)
-	if err != nil {
-		res := connect.CheckAWS(ctx, connect.AWSDeps{Identity: func(context.Context, string, string) (string, string, error) { return "", "", err }},
-			connect.AWSRequest{Profile: req.Profile, Region: req.Region, RoleARN: "arn:aws:iam::000000000000:role/x", ExternalID: strings.Repeat("x", 16)})
-		writeJSON(w, 200, map[string]any{"ok": false, "error": firstFix(res)})
-		return
-	}
-	writeJSON(w, 200, map[string]any{"ok": true, "arn": arn, "account": account, "root": connect.IsRootARN(arn)})
+	writeJSON(w, 200, s.identity(r.Context(), req.Profile, req.Region))
 }
 
-// firstFix returns the explanation of the first failed step, for identity errors.
-func firstFix(r connect.Result) map[string]string {
-	for _, st := range r.Steps {
-		if st.Status == connect.Fail {
-			return map[string]string{"detail": st.Detail, "fix": st.Fix}
-		}
+// awsScan checks every profile's sign-in at once (sts:GetCallerIdentity needs no permission), so the
+// page can offer the ones that work instead of making the person guess.
+func (s *server) awsScan(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.AWSIdentity == nil || s.cfg.Actions.AWSProfiles == nil {
+		writeErr(w, 501, "not available")
+		return
 	}
-	return map[string]string{"detail": "Could not read your AWS sign-in."}
+	var req struct{ Region string }
+	if !readJSON(w, r, &req) {
+		return
+	}
+	profiles := s.cfg.Actions.AWSProfiles()
+	if len(profiles) > 20 {
+		profiles = profiles[:20]
+	}
+	out := make([]identityResult, len(profiles))
+	var wg sync.WaitGroup
+	for i, p := range profiles {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			res := s.identity(r.Context(), p.Name, req.Region)
+			res.Name, res.Kind = p.Name, p.Kind
+			out[i] = res
+		}()
+	}
+	wg.Wait()
+	writeJSON(w, 200, map[string]any{"profiles": out})
+}
+
+// startJob starts a job and answers with its id, or 409 when the lane is busy.
+func (s *server) startJob(w http.ResponseWriter, lane, kind string, timeout time.Duration, fn jobFunc) {
+	id, ok := s.jobs.start(lane, kind, timeout, fn)
+	if !ok {
+		running, _ := s.jobs.running(lane)
+		writeJSON(w, http.StatusConflict, map[string]string{"error": "another " + lane + " task is still running", "id": running})
+		return
+	}
+	writeJSON(w, http.StatusAccepted, map[string]string{"id": id})
+}
+
+func (s *server) awsSignIn(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.AWSSignIn == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	var req connect.AWSSignInRequest
+	if !readJSON(w, r, &req) {
+		return
+	}
+	s.startJob(w, "aws", "aws-signin", 10*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return nil, s.cfg.Actions.AWSSignIn(ctx, req, p)
+	})
+}
+
+type profileRegion struct {
+	Profile string `json:"profile"`
+	Region  string `json:"region"`
+}
+
+func (s *server) awsFindRole(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.AWSFindRole == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	var req profileRegion
+	if !readJSON(w, r, &req) {
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+	defer cancel()
+	st, err := s.cfg.Actions.AWSFindRole(ctx, req.Profile, req.Region)
+	if err != nil {
+		writeJSON(w, 200, map[string]any{"found": false, "error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, map[string]any{"found": st != nil && st.Status != "DELETE_COMPLETE", "stack": st})
+}
+
+func (s *server) awsEnsureRole(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.AWSEnsureRole == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	var req connect.RoleRequest
+	if !readJSON(w, r, &req) {
+		return
+	}
+	if !strings.HasPrefix(req.Principal, "arn:aws") || connect.IsRootARN(req.Principal) {
+		writeErr(w, 400, "principal must be the ARN of an IAM user or role (not the root user)")
+		return
+	}
+	s.startJob(w, "aws", "aws-role", 15*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return s.cfg.Actions.AWSEnsureRole(ctx, req, p)
+	})
+}
+
+func (s *server) awsRemoveRole(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.AWSRemoveRole == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	var req profileRegion
+	if !readJSON(w, r, &req) {
+		return
+	}
+	s.startJob(w, "aws", "aws-role-remove", 15*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return nil, s.cfg.Actions.AWSRemoveRole(ctx, req.Profile, req.Region, p)
+	})
+}
+
+func (s *server) gcpStatus(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.GCPStatus == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	writeJSON(w, 200, s.cfg.Actions.GCPStatus(r.Context()))
+}
+
+func (s *server) gcpInstall(w http.ResponseWriter, _ *http.Request) {
+	if s.cfg.Actions.GCPInstall == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	s.startJob(w, "gcp", "gcp-install", 20*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return nil, s.cfg.Actions.GCPInstall(ctx, p)
+	})
+}
+
+func (s *server) gcpSignIn(w http.ResponseWriter, _ *http.Request) {
+	if s.cfg.Actions.GCPSignIn == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	s.startJob(w, "gcp", "gcp-signin", 10*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return nil, s.cfg.Actions.GCPSignIn(ctx, p)
+	})
+}
+
+func (s *server) gcpProjects(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.GCPProjects == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+	defer cancel()
+	list, err := s.cfg.Actions.GCPProjects(ctx)
+	if err != nil {
+		writeJSON(w, 200, map[string]any{"projects": []connect.GCPProject{}, "error": err.Error()})
+		return
+	}
+	if list == nil {
+		list = []connect.GCPProject{}
+	}
+	writeJSON(w, 200, map[string]any{"projects": list})
+}
+
+func (s *server) gcpEnableAPIs(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Actions.GCPEnableAPIs == nil {
+		writeErr(w, 501, "not available")
+		return
+	}
+	var req struct {
+		ProjectID string `json:"project_id"`
+	}
+	if !readJSON(w, r, &req) {
+		return
+	}
+	s.startJob(w, "gcp", "gcp-apis", 10*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		return nil, s.cfg.Actions.GCPEnableAPIs(ctx, req.ProjectID, p)
+	})
 }
 
 // awsTemplate returns what the user needs to create the read-only role: a fresh external ID, the
@@ -391,21 +624,34 @@ func (s *server) startDiscover(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, "target must be gcp or alibaba")
 		return
 	}
-	id, ok := s.jobs.start("discover", 45*time.Minute, func(ctx context.Context, report func(step, status, detail string)) error {
-		docs, err := s.cfg.Actions.Discover(ctx, req, report)
+	s.startJob(w, "discover", "discover", 45*time.Minute, func(ctx context.Context, p progress) (any, error) {
+		docs, err := s.cfg.Actions.Discover(ctx, req, p.Report)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		s.mu.Lock()
 		s.docs = docs
 		s.mu.Unlock()
-		return nil
+		return nil, nil
 	})
-	if !ok {
-		writeErr(w, http.StatusConflict, "another job is still running")
+}
+
+func (s *server) runningJobs(w http.ResponseWriter, _ *http.Request) {
+	out := map[string]string{}
+	for _, lane := range []string{"aws", "gcp", "discover"} {
+		if id, ok := s.jobs.running(lane); ok {
+			out[lane] = id
+		}
+	}
+	writeJSON(w, 200, out)
+}
+
+func (s *server) cancelJob(w http.ResponseWriter, r *http.Request) {
+	if !s.jobs.cancel(r.PathValue("id")) {
+		writeErr(w, 404, "no such running job")
 		return
 	}
-	writeJSON(w, http.StatusAccepted, map[string]string{"id": id})
+	writeJSON(w, 200, map[string]bool{"cancelled": true})
 }
 
 func (s *server) getJob(w http.ResponseWriter, r *http.Request) {

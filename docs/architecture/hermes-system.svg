@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1010" viewBox="0 0 1400 1010" role="img" aria-labelledby="t d">
+<title id="t">How Hermes works</title>
+<desc id="d">Hermes runs on your machine. It signs in through the clouds' own CLIs, creates a read-only role in AWS when you approve, discovers the account through it, builds a migration plan, checks the Google Cloud project, and deploys with OpenTofu after approval.</desc>
+<rect x="0" y="0" width="1400" height="1010" rx="0" fill="#ffffff" stroke="#ffffff" stroke-width="1.2"/>
+<text x="40" y="62" font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" font-size="32" font-weight="700" fill="#14212b" text-anchor="start">How Hermes works</text>
+<text x="40" y="92" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="16" font-weight="400" fill="#566674" text-anchor="start">Move a workload from AWS to Google Cloud: sign in, read, plan, check the target, then deploy with approvals.</text>
+<rect x="40" y="122" width="540" height="800" rx="14" fill="#f3f6f8" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="60" y="152" font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" font-size="18" font-weight="700" fill="#14212b" text-anchor="start">Your machine</text>
+<rect x="60" y="166" width="245" height="84" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="76" y="192" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Hermes UI</text>
+<text x="76" y="213.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">In your browser: connect,</text>
+<text x="76" y="231.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">overview, inventory, plan.</text>
+<rect x="315" y="166" width="245" height="84" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="331" y="192" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Cloud CLIs</text>
+<text x="331" y="213.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">aws login and gcloud auth open</text>
+<text x="331" y="231.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">the clouds' own sign-in pages.</text>
+<rect x="60" y="260" width="500" height="84" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="76" y="286" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">hermes ui (local server)</text>
+<text x="76" y="307.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">Listens on 127.0.0.1 only, with a session token and same-origin</text>
+<text x="76" y="325.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">checks.</text>
+<line x1="182" y1="250" x2="182" y2="252" stroke="#566674" stroke-width="1.8"/>
+<path d="M177,251 L182,260 L187,251 Z" fill="#566674"/>
+<line x1="437" y1="250" x2="437" y2="252" stroke="#566674" stroke-width="1.8"/>
+<path d="M432,251 L437,260 L442,251 Z" fill="#566674"/>
+<rect x="60" y="360" width="500" height="542" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="76" y="388" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Hermes core (the same Go code as the CLI)</text>
+<line x1="310" y1="344" x2="310" y2="352" stroke="#566674" stroke-width="1.8"/>
+<path d="M305,351 L310,360 L315,351 Z" fill="#566674"/>
+<circle cx="94" cy="440" r="15" fill="#d5ecea" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="94" y="445" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#0b7a75" text-anchor="middle">1</text>
+<text x="122" y="434" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Set up access</text>
+<text x="122" y="455.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">Signs you in through the CLIs. Creates the read-only role when</text>
+<text x="122" y="472.94" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">you approve.</text>
+<line x1="76" y1="498" x2="544" y2="498" stroke="#cbd5dc" stroke-width="1"/>
+<circle cx="94" cy="540" r="15" fill="#d5ecea" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="94" y="545" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#0b7a75" text-anchor="middle">2</text>
+<text x="122" y="534" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Discover</text>
+<text x="122" y="555.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">A read-only guard allows only listed Describe, List and Get</text>
+<text x="122" y="572.94" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">calls.</text>
+<line x1="76" y1="598" x2="544" y2="598" stroke="#cbd5dc" stroke-width="1"/>
+<circle cx="94" cy="640" r="15" fill="#d5ecea" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="94" y="645" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#0b7a75" text-anchor="middle">3</text>
+<text x="122" y="634" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Assess and plan</text>
+<text x="122" y="655.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">Matches each AWS resource to a Google Cloud service and writes</text>
+<text x="122" y="672.94" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">a phased plan with approval gates.</text>
+<line x1="76" y1="698" x2="544" y2="698" stroke="#cbd5dc" stroke-width="1"/>
+<circle cx="94" cy="740" r="15" fill="#d5ecea" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="94" y="745" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#0b7a75" text-anchor="middle">4</text>
+<text x="122" y="734" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Check the target</text>
+<text x="122" y="755.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">Billing, required APIs and your permissions on the project.</text>
+<line x1="76" y1="798" x2="544" y2="798" stroke="#cbd5dc" stroke-width="1"/>
+<circle cx="94" cy="840" r="15" fill="#d5ecea" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="94" y="845" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#0b7a75" text-anchor="middle">5</text>
+<text x="122" y="834" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Deploy</text>
+<text x="122" y="855.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">hermes.yaml to OpenTofu, a saved plan, then apply after</text>
+<text x="122" y="872.94" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">approval.</text>
+<rect x="720" y="122" width="640" height="186" rx="14" fill="#d5ecea" stroke="#d5ecea" stroke-width="1.2"/>
+<text x="744" y="154" font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" font-size="18" font-weight="700" fill="#14212b" text-anchor="start">Guardrails</text>
+<circle cx="752" cy="183" r="3.5" fill="#0b7a75"/>
+<text x="766" y="188" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#14212b" text-anchor="start">Reads only, except the steps you approve: the role, Google APIs, deploys.</text>
+<circle cx="752" cy="213" r="3.5" fill="#0b7a75"/>
+<text x="766" y="218" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#14212b" text-anchor="start">Never asks for passwords, access keys or key files.</text>
+<circle cx="752" cy="243" r="3.5" fill="#0b7a75"/>
+<text x="766" y="248" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#14212b" text-anchor="start">Applies only a saved plan, approved by its plan id.</text>
+<circle cx="752" cy="273" r="3.5" fill="#0b7a75"/>
+<text x="766" y="278" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14.5" font-weight="400" fill="#14212b" text-anchor="start">Cutover and switching off the source are never automatic.</text>
+<rect x="720" y="340" width="640" height="257" rx="14" fill="#f3f6f8" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="740" y="370" font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" font-size="18" font-weight="700" fill="#14212b" text-anchor="start">AWS, the account you move from</text>
+<rect x="740" y="399" width="600" height="82" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="756" y="425" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Read-only role</text>
+<text x="756" y="446.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">HermesDiscoveryReadOnly in one CloudFormation stack. Trusts only you, needs the</text>
+<text x="756" y="464.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">external ID, one-hour sessions.</text>
+<rect x="740" y="499" width="600" height="82" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="756" y="525" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Account metadata</text>
+<text x="756" y="546.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">EC2, VPC, ELB, RDS, S3, ECS, EKS, Lambda, SQS, SNS, DynamoDB and more. Never secret</text>
+<text x="756" y="564.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">values, files or table data.</text>
+<rect x="720" y="640" width="640" height="262" rx="14" fill="#f3f6f8" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="740" y="670" font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif" font-size="18" font-weight="700" fill="#14212b" text-anchor="start">Google Cloud, the project you move to</text>
+<rect x="740" y="699" width="600" height="82" rx="10" fill="#ffffff" stroke="#cbd5dc" stroke-width="1.2"/>
+<text x="756" y="725" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">Project checks</text>
+<text x="756" y="746.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">Billing, required APIs (Hermes turns them on when you ask) and permissions.</text>
+<rect x="740" y="798" width="600" height="84" rx="10" fill="#ffffff" stroke="#8a5200" stroke-width="1.2" stroke-dasharray="7 6"/>
+<text x="756" y="824" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="650" fill="#14212b" text-anchor="start">New services</text>
+<text x="756" y="845.0" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">Cloud Run, Cloud SQL, Cloud Storage, Pub/Sub and Secret Manager, created by OpenTofu</text>
+<text x="756" y="863.63" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13.5" font-weight="400" fill="#566674" text-anchor="start">from the reviewed plan.</text>
+<line x1="560" y1="440" x2="731" y2="440" stroke="#0b7a75" stroke-width="2.4"/>
+<path d="M730,434 L740,440 L730,446 Z" fill="#0b7a75"/>
+<text x="650.0" y="431" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0b7a75" text-anchor="middle">1 stack, approved</text>
+<line x1="560" y1="540" x2="731" y2="540" stroke="#0b7a75" stroke-width="2.4"/>
+<path d="M730,534 L740,540 L730,546 Z" fill="#0b7a75"/>
+<text x="650.0" y="531" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0b7a75" text-anchor="middle">read-only calls</text>
+<line x1="560" y1="740" x2="731" y2="740" stroke="#0b7a75" stroke-width="2.4"/>
+<path d="M730,734 L740,740 L730,746 Z" fill="#0b7a75"/>
+<text x="650.0" y="731" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0b7a75" text-anchor="middle">checks, APIs</text>
+<line x1="560" y1="840" x2="731" y2="840" stroke="#8a5200" stroke-width="2.4" stroke-dasharray="7 6"/>
+<path d="M730,834 L740,840 L730,846 Z" fill="#8a5200"/>
+<text x="650.0" y="831" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#8a5200" text-anchor="middle">apply, approved</text>
+<line x1="40" y1="953" x2="84" y2="953" stroke="#0b7a75" stroke-width="2.4"/>
+<text x="94" y="958" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">Built and tested (AWS discovery on a real sandbox account; sign-in and setup against simulated clouds)</text>
+<line x1="40" y1="980" x2="84" y2="980" stroke="#8a5200" stroke-width="2.4" stroke-dasharray="7 6"/>
+<text x="94" y="985" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#566674" text-anchor="start">Deploy works from the CLI but has not run on a real Google Cloud project yet; deploying from the page is designed</text>
+<text x="1360" y="985" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="600" fill="#0b7a75" text-anchor="end">github.com/nityam02/hermes-cloud-foundation</text>
+</svg>

@@ -143,6 +143,11 @@ func summarizeGaps(gaps []inventory.Gap) string {
 	return strings.Join(out, ", ")
 }
 
+// ExplainAWSError turns an error from the operator's own sign-in into a plain sentence and a fix.
+func ExplainAWSError(err error, profile string) (detail, fix string) {
+	return classifyAWS(err, AWSRequest{Profile: profile}, "")
+}
+
 // classifyAWS turns an AWS error into a plain sentence and a fix.
 func classifyAWS(err error, req AWSRequest, callerARN string) (detail, fix string) {
 	msg := err.Error()
@@ -154,8 +159,8 @@ func classifyAWS(err error, req AWSRequest, callerARN string) (detail, fix strin
 		if p == "" {
 			p = "default"
 		}
-		return "The credentials for this profile are missing, expired or invalid.",
-			fmt.Sprintf("Sign in again: `aws login --profile %s` (or `aws sso login --profile %s`), then check again.", p, p)
+		return fmt.Sprintf("The profile %s is not signed in, or its sign-in has expired.", p),
+			"Choose Sign in to AWS on this page (it runs `aws login` for you), or pick a profile that is signed in."
 	case strings.Contains(msg, "AssumeRole") && (strings.Contains(msg, "AccessDenied") || strings.Contains(msg, "not authorized")):
 		who := "your sign-in"
 		if callerARN != "" {
@@ -164,7 +169,7 @@ func classifyAWS(err error, req AWSRequest, callerARN string) (detail, fix strin
 		return "AWS refused to let you assume the role.",
 			fmt.Sprintf("Check three things: the role's trust policy names %s, the external ID matches the one used to create the role, and your sign-in is allowed to call sts:AssumeRole on the role.", who)
 	case strings.Contains(msg, "NoCredentialProviders") || strings.Contains(msg, "no valid providers in chain"):
-		return "No AWS sign-in was found on this machine.", "Run `aws login` (or `aws sso login`) and pick that profile."
+		return "No AWS sign-in was found for this profile.", "Choose Sign in to AWS on this page, or pick a profile that is signed in."
 	case strings.Contains(msg, "context deadline exceeded"):
 		return "AWS did not answer in time.", "Check your network and try again."
 	}
@@ -222,9 +227,18 @@ func DiscoverAWS(ctx context.Context, req AWSRequest, regions []string) (*invent
 	return d.Run(ctx)
 }
 
-// AWSProfiles lists the profile names in the shared AWS config and credentials files (names only; no
-// credential value is read or returned).
-func AWSProfiles() []string {
+// AWSProfile is a profile in the shared AWS config files and how it gets credentials.
+type AWSProfile struct {
+	Name string `json:"name"`
+	// Kind is login (console sign-in, `aws login`), sso (IAM Identity Center, `aws sso login`), keys
+	// (access keys saved in a file), role (assumes a role from another profile), process (an external
+	// credential helper) or other.
+	Kind string `json:"kind"`
+}
+
+// AWSProfiles lists the profiles in the shared AWS config and credentials files. Only section names
+// and key names are read: no value, and so no credential, is ever kept or returned.
+func AWSProfiles() []AWSProfile {
 	home, _ := os.UserHomeDir()
 	files := []string{os.Getenv("AWS_CONFIG_FILE"), os.Getenv("AWS_SHARED_CREDENTIALS_FILE")}
 	if files[0] == "" {
@@ -233,27 +247,58 @@ func AWSProfiles() []string {
 	if files[1] == "" {
 		files[1] = filepath.Join(home, ".aws", "credentials")
 	}
-	seen := map[string]bool{}
-	var out []string
+	keys := map[string]map[string]bool{}
+	var order []string
 	for _, f := range files {
-		data, err := os.ReadFile(f) //nolint:gosec // the standard AWS_CONFIG_FILE / ~/.aws paths on the operator's own machine; only profile names are used
+		data, err := os.ReadFile(f) //nolint:gosec // the standard AWS_CONFIG_FILE / ~/.aws paths on the operator's own machine; only names are used
 		if err != nil {
 			continue
 		}
+		current := ""
 		for _, line := range strings.Split(string(data), "\n") {
 			line = strings.TrimSpace(line)
-			if !strings.HasPrefix(line, "[") || !strings.HasSuffix(line, "]") {
+			if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") {
 				continue
 			}
-			name := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(line, "["), "]"))
-			name = strings.TrimSpace(strings.TrimPrefix(name, "profile "))
-			if name == "" || strings.HasPrefix(name, "sso-session") || strings.HasPrefix(name, "services ") || seen[name] {
+			if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
+				name := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(line, "["), "]"))
+				name = strings.TrimSpace(strings.TrimPrefix(name, "profile "))
+				current = ""
+				if name == "" || strings.HasPrefix(name, "sso-session") || strings.HasPrefix(name, "services ") {
+					continue
+				}
+				current = name
+				if keys[name] == nil {
+					keys[name] = map[string]bool{}
+					order = append(order, name)
+				}
 				continue
 			}
-			seen[name] = true
-			out = append(out, name)
+			if k, _, ok := strings.Cut(line, "="); ok && current != "" {
+				keys[current][strings.ToLower(strings.TrimSpace(k))] = true
+			}
 		}
 	}
-	sort.Strings(out)
+	sort.Strings(order)
+	out := make([]AWSProfile, 0, len(order))
+	for _, n := range order {
+		out = append(out, AWSProfile{Name: n, Kind: profileKind(keys[n])})
+	}
 	return out
+}
+
+func profileKind(k map[string]bool) string {
+	switch {
+	case k["role_arn"]:
+		return "role"
+	case k["sso_session"] || k["sso_start_url"]:
+		return "sso"
+	case k["login_session"]:
+		return "login"
+	case k["credential_process"]:
+		return "process"
+	case k["aws_access_key_id"]:
+		return "keys"
+	}
+	return "other"
 }
