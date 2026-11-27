@@ -59,11 +59,23 @@ jobs:
         run: make ui-test
       - name: Build the UI and the CLI that embeds it
         run: make ui-build build
-      - name: The embedded UI answers on loopback and refuses writes
+      - name: The embedded UI answers on loopback, needs its token and refuses writes
         run: |
-          ./bin/hermes ui --addr 127.0.0.1:18787 &
+          ./bin/hermes ui --addr 127.0.0.1:18787 > ui.log &
           pid=$!
-          for _ in $(seq 1 20); do curl -fsS http://127.0.0.1:18787/api/status && break; sleep 0.5; done
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18787/)" = 200
-          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18787/api/status)" = 405
+          for _ in $(seq 1 20); do grep -q 'token=' ui.log && break; sleep 0.5; done
+          token=$(sed -n 's/.*token=\([0-9a-f]*\).*/\1/p' ui.log | head -1)
+          test -n "$token"
+          base=http://127.0.0.1:18787
+          # no token, no access
+          test "$(curl -s -o /dev/null -w '%{http_code}' $base/api/status)" = 401
+          # the token link sets the session cookie and redirects to /
+          curl -fsS -c jar -o /dev/null "$base/?token=$token"
+          test "$(curl -s -b jar -o /dev/null -w '%{http_code}' $base/)" = 200
+          curl -fsS -b jar $base/api/status
+          # writes need the custom header and are never accepted from a bare request
+          code=$(curl -s -b jar -o /dev/null -w '%{http_code}' -X POST $base/api/connect/gcp/check -d '{}')
+          test "$code" != 200
+          # a foreign Host header is refused (DNS rebinding)
+          test "$(curl -s -b jar -o /dev/null -w '%{http_code}' -H 'Host: evil.example' $base/api/status)" != 200
           kill "$pid"
