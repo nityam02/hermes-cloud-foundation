@@ -14,6 +14,7 @@ import (
 	"embed"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -21,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -150,6 +152,7 @@ func New(cfg Config, static fs.FS) (http.Handler, error) {
 	mux.HandleFunc("POST /api/connect/aws/role/ensure", s.api(s.awsEnsureRole))
 	mux.HandleFunc("POST /api/connect/aws/role/remove", s.api(s.awsRemoveRole))
 	mux.HandleFunc("POST /api/connect/aws/template", s.api(s.awsTemplate))
+	mux.HandleFunc("POST /api/connect/aws/setup-policy", s.api(s.awsSetupPolicy))
 	mux.HandleFunc("POST /api/connect/aws/check", s.api(s.checkAWS))
 	mux.HandleFunc("GET /api/connect/gcp/status", s.api(s.gcpStatus))
 	mux.HandleFunc("POST /api/connect/gcp/install", s.api(s.gcpInstall))
@@ -456,7 +459,11 @@ func (s *server) awsFindRole(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	st, err := s.cfg.Actions.AWSFindRole(ctx, req.Profile, req.Region)
 	if err != nil {
-		writeJSON(w, 200, map[string]any{"found": false, "error": err.Error()})
+		out := map[string]any{"found": false, "error": err.Error()}
+		if errors.Is(err, connect.ErrSetupDenied) {
+			out["denied"] = true
+		}
+		writeJSON(w, 200, out)
 		return
 	}
 	writeJSON(w, 200, map[string]any{"found": st != nil && st.Status != "DELETE_COMPLETE", "stack": st})
@@ -582,6 +589,21 @@ func (s *server) awsTemplate(w http.ResponseWriter, r *http.Request) {
 		"console_url": fmt.Sprintf("https://%s.console.aws.amazon.com/cloudformation/home?region=%s#/stacks/create", req.Region, req.Region),
 	})
 }
+
+// awsSetupPolicy returns the least-privilege policy that lets an operator manage the role stack.
+func (s *server) awsSetupPolicy(w http.ResponseWriter, r *http.Request) {
+	var req struct{ Account string }
+	if !readJSON(w, r, &req) {
+		return
+	}
+	if req.Account != "" && !accountPattern.MatchString(req.Account) {
+		writeErr(w, 400, "account must be 12 digits")
+		return
+	}
+	writeJSON(w, 200, map[string]string{"policy": string(connect.SetupPolicy(req.Account))})
+}
+
+var accountPattern = regexp.MustCompile(`^[0-9]{12}$`)
 
 func (s *server) checkAWS(w http.ResponseWriter, r *http.Request) {
 	if s.cfg.Actions.CheckAWS == nil {

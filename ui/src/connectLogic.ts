@@ -37,7 +37,7 @@ export function shortArn(arn: string): string {
   return rest.replace(/^assumed-role\//, "role/");
 }
 
-export type RoleState = "loading" | "none" | "ready" | "other-principal" | "busy" | "broken" | "error";
+export type RoleState = "loading" | "none" | "ready" | "outdated" | "other-principal" | "busy" | "broken" | "error";
 
 export function roleState(find: RoleFind | null, me: string): RoleState {
   if (!find) return "loading";
@@ -47,6 +47,8 @@ export function roleState(find: RoleFind | null, me: string): RoleState {
   if (s.status.endsWith("_IN_PROGRESS")) return "busy";
   const complete = ["CREATE_COMPLETE", "UPDATE_COMPLETE", "UPDATE_ROLLBACK_COMPLETE", "IMPORT_COMPLETE", "IMPORT_ROLLBACK_COMPLETE"].includes(s.status);
   if (!complete || !s.role_arn) return "broken";
+  // Older templates hid the external ID, so the role cannot be used until it is updated.
+  if (!s.external_id) return "outdated";
   if (s.trusted_principal && me && s.trusted_principal !== me) return "other-principal";
   return "ready";
 }

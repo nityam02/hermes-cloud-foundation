@@ -347,6 +347,9 @@ func (f *fakeStack) Update(_ context.Context, body string, params map[string]str
 	next := *f.cur
 	next.Status = "UPDATE_COMPLETE"
 	next.TrustedPrincipal = params["TrustedPrincipalArn"]
+	if params["ExternalId"] != "" {
+		next.ExternalID = params["ExternalId"]
+	}
 	f.cur, f.next = &RoleStack{Status: "UPDATE_IN_PROGRESS"}, &next
 	return true, nil
 }
@@ -432,7 +435,7 @@ func TestEnsureRoleExplainsFailuresAndRefusesRoot(t *testing.T) {
 		t.Fatalf("a broken stack must be left alone: %v", err)
 	}
 	f = &fakeStack{err: errors.New("api error AccessDenied: not authorized to perform cloudformation:DescribeStacks")}
-	if _, err := EnsureRole(context.Background(), f, RoleRequest{Principal: me}, newRecorder(), time.Millisecond); err == nil || !strings.Contains(err.Error(), "may not create") {
+	if _, err := EnsureRole(context.Background(), f, RoleRequest{Principal: me}, newRecorder(), time.Millisecond); !errors.Is(err, ErrSetupDenied) {
 		t.Fatalf("%v", err)
 	}
 }
@@ -583,5 +586,45 @@ func TestGCPStatusWithoutOrWithAnExpiredSignIn(t *testing.T) {
 	}}
 	if st := GCPStatus(context.Background(), expired); st.SignedIn || !strings.Contains(st.Problem, "expired") {
 		t.Fatalf("%+v", st)
+	}
+}
+
+func TestEnsureRoleGivesAHiddenExternalIDANewValue(t *testing.T) {
+	// Stacks made from older templates hid the external ID (NoEcho): Describe cannot return it.
+	f := &fakeStack{cur: &RoleStack{Status: "UPDATE_COMPLETE", RoleARN: "arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly", TrustedPrincipal: me}, changed: true}
+	st, err := EnsureRole(context.Background(), f, RoleRequest{Principal: me}, newRecorder(), time.Millisecond)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(f.params["ExternalId"], "hermes-") || f.params["RoleName"] != "" {
+		t.Fatalf("a hidden external ID must be replaced, the role name kept: %v", f.params)
+	}
+	if st.ExternalID != f.params["ExternalId"] {
+		t.Fatalf("the new external ID must be returned: %+v", st)
+	}
+}
+
+func TestSetupPolicyIsScopedToTheStackAndTheRole(t *testing.T) {
+	var doc struct {
+		Statement []struct {
+			Action   []string
+			Resource string
+		}
+	}
+	if err := json.Unmarshal(SetupPolicy("123456789012"), &doc); err != nil || len(doc.Statement) != 2 {
+		t.Fatalf("%v %+v", err, doc)
+	}
+	if doc.Statement[0].Resource != "arn:aws:cloudformation:*:123456789012:stack/hermes-discovery-role/*" || doc.Statement[1].Resource != "arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly" {
+		t.Fatalf("%+v", doc)
+	}
+	for _, st := range doc.Statement {
+		for _, a := range st.Action {
+			if strings.Contains(a, "*") {
+				t.Errorf("no wildcard actions: %s", a)
+			}
+		}
+	}
+	if !errors.Is(explainStackErr(errors.New("api error AccessDenied: not authorized to perform: cloudformation:DescribeStacks")), ErrSetupDenied) {
+		t.Fatal("access denied must map to ErrSetupDenied")
 	}
 }

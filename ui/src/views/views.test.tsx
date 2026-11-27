@@ -102,7 +102,7 @@ describe("connect decisions", () => {
   });
   it("knows when the role is ready, missing, busy, broken or trusts someone else", () => {
     const me = "arn:aws:iam::1:user/op";
-    const stack = { status: "CREATE_COMPLETE", role_arn: "arn:aws:iam::1:role/HermesDiscoveryReadOnly", trusted_principal: me };
+    const stack = { status: "CREATE_COMPLETE", role_arn: "arn:aws:iam::1:role/HermesDiscoveryReadOnly", external_id: "hermes-0123456789abcdef", trusted_principal: me };
     expect(roleState(null, me)).toBe("loading");
     expect(roleState({ found: false }, me)).toBe("none");
     expect(roleState({ found: false, error: "denied" }, me)).toBe("error");
@@ -110,6 +110,7 @@ describe("connect decisions", () => {
     expect(roleState({ found: true, stack: { ...stack, status: "UPDATE_IN_PROGRESS" } }, me)).toBe("busy");
     expect(roleState({ found: true, stack: { ...stack, status: "ROLLBACK_COMPLETE" } }, me)).toBe("broken");
     expect(roleState({ found: true, stack: { ...stack, trusted_principal: "arn:aws:iam::1:user/other" } }, me)).toBe("other-principal");
+    expect(roleState({ found: true, stack: { ...stack, external_id: undefined } }, me)).toBe("outdated");
   });
   it("turns Google check results into the right buttons", () => {
     const r = (steps: CheckResult["steps"]): CheckResult => ({ ok: false, summary: "", steps });

@@ -2,6 +2,7 @@ package connect
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -94,7 +95,16 @@ func EnsureRole(ctx context.Context, api StackAPI, req RoleRequest, p Progress, 
 	case stackComplete(cur.Status):
 		p.Step("find", "done", "Found the role from an earlier setup.")
 		p.Step("update", "running", "Bringing the role up to date with the latest read-only permissions.")
-		changed, err := api.Update(ctx, body, map[string]string{"ExternalId": "", "TrustedPrincipalArn": req.Principal, "RoleName": ""})
+		ext := "" // keep the stack's own external ID
+		if cur.ExternalID == "" {
+			// An older template hid it, so nobody can use the role through Hermes: give it a new one.
+			ext = req.ExternalID
+			if len(ext) < externalIDMin {
+				ext = NewExternalID()
+			}
+			p.Step("update", "running", "The role's external ID is hidden by an older template. Setting a new one and the latest read-only permissions.")
+		}
+		changed, err := api.Update(ctx, body, map[string]string{"ExternalId": ext, "TrustedPrincipalArn": req.Principal, "RoleName": ""})
 		if err != nil {
 			return RoleStack{}, explainStackErr(err)
 		}
@@ -199,13 +209,40 @@ func explainStackErr(err error) error {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "AccessDenied") || strings.Contains(msg, "not authorized"):
-		return errors.New("your sign-in may not create CloudFormation stacks or IAM roles in this account. Ask an administrator to create the role, or use the template yourself (Create it yourself instead)")
+		return ErrSetupDenied
 	case strings.Contains(msg, "InsufficientCapabilities"):
 		return errors.New("CloudFormation needs the IAM capability to create the role")
 	case strings.Contains(msg, "ExpiredToken") || strings.Contains(msg, "failed to refresh cached credentials") || strings.Contains(msg, "login token") || strings.Contains(msg, "login session"):
 		return errors.New("your AWS sign-in has expired. Sign in again, then try again")
 	}
 	return fmt.Errorf("CloudFormation: %s", truncate(msg, 300))
+}
+
+// ErrSetupDenied means the operator's sign-in may not look up or change the role stack.
+var ErrSetupDenied = errors.New("your sign-in is not allowed to manage the Hermes role stack in this account. An administrator can attach the setup policy below to your sign-in, or you can create the role yourself")
+
+// SetupPolicy is the least privilege an operator needs to create, update and remove the role stack
+// from the page: CloudFormation on that one stack, and IAM on that one role.
+func SetupPolicy(account string) []byte {
+	if account == "" {
+		account = "*"
+	}
+	doc := map[string]any{
+		"Version": "2012-10-17",
+		"Statement": []any{
+			map[string]any{"Sid": "HermesRoleStack", "Effect": "Allow",
+				"Action": []string{"cloudformation:CreateStack", "cloudformation:UpdateStack", "cloudformation:DeleteStack",
+					"cloudformation:DescribeStacks", "cloudformation:DescribeStackEvents"},
+				"Resource": "arn:aws:cloudformation:*:" + account + ":stack/" + RoleStackName + "/*"},
+			map[string]any{"Sid": "HermesRole", "Effect": "Allow",
+				"Action": []string{"iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:UpdateRole", "iam:UpdateRoleDescription",
+					"iam:UpdateAssumeRolePolicy", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy",
+					"iam:ListRolePolicies", "iam:ListAttachedRolePolicies", "iam:TagRole", "iam:UntagRole", "iam:ListRoleTags"},
+				"Resource": "arn:aws:iam::" + account + ":role/HermesDiscoveryReadOnly"},
+		},
+	}
+	b, _ := json.MarshalIndent(doc, "", "  ")
+	return b
 }
 
 // cfnStack is the real StackAPI: CloudFormation with the operator's own sign-in. It is not the
@@ -249,7 +286,10 @@ func (s *cfnStack) Describe(ctx context.Context) (*RoleStack, error) {
 	for _, p := range st.Parameters {
 		switch aws.ToString(p.ParameterKey) {
 		case "ExternalId":
-			r.ExternalID = aws.ToString(p.ParameterValue)
+			// Stacks made from older templates hid the external ID (NoEcho), so AWS returns "****".
+			if v := aws.ToString(p.ParameterValue); v != "" && strings.Trim(v, "*") != "" {
+				r.ExternalID = v
+			}
 		case "TrustedPrincipalArn":
 			r.TrustedPrincipal = aws.ToString(p.ParameterValue)
 		}

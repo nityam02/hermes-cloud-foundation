@@ -471,10 +471,22 @@ function AwsSide({ conn, setAws, can }: { conn: Connection; setAws: SetAws; can:
         )}
       </div>
     ) : null;
+  } else if (rs === "outdated") {
+    roleBody = (
+      <>
+        <p>
+          This account has the Hermes role from an earlier setup, made with an older template that hides its external ID, so Hermes cannot use it yet. Updating gives it a new external ID and the latest read-only permissions.
+        </p>
+        <div className="row-actions">
+          <button type="button" className="btn primary" disabled={!can.aws_role} onClick={() => void ensure()}>Update the role</button>
+        </div>
+      </>
+    );
   } else if (rs === "none" || rs === "error") {
     roleBody = (
       <>
-        {rs === "error" && <div className="callout fail">{sentence(find?.error ?? "")}</div>}
+        {rs === "error" && find?.denied && <SetupDenied account={a.account} onRetry={lookForRole} />}
+        {rs === "error" && !find?.denied && <div className="callout fail">{sentence(find?.error ?? "")}</div>}
         <p>
           Hermes reads AWS through a role of its own. The role can list and describe resources but cannot read secrets, files or table data, and only your sign-in can use it.
         </p>
@@ -565,7 +577,11 @@ function AwsSide({ conn, setAws, can }: { conn: Connection; setAws: SetAws; can:
         action={roleDone && <button type="button" className="btn small" aria-expanded={manage} onClick={() => { setManage(!manage); setConfirmRemove(false); }}>{manage ? "Close" : "Manage"}</button>}
       >
         {roleBody}
-        {roleJobFailed && <JobError job={job.job} error={null} />}
+        {roleJobFailed && (job.job?.error ?? "").startsWith("your sign-in is not allowed") ? (
+          <SetupDenied account={a.account} onRetry={lookForRole} />
+        ) : (
+          roleJobFailed && <JobError job={job.job} error={null} />
+        )}
         {signedIn && job.error && !signInBusy && <JobError job={null} error={job.error} />}
       </Leg>
       <Leg
@@ -582,6 +598,32 @@ function AwsSide({ conn, setAws, can }: { conn: Connection; setAws: SetAws; can:
   );
 }
 
+/** The sign-in may not manage the role stack: show the exact policy an administrator can attach. */
+function SetupDenied({ account, onRetry }: { account: string; onRetry: () => void }) {
+  const [policy, setPolicy] = useState<string | null>(null);
+  useEffect(() => {
+    void api.post<{ policy: string }>("api/connect/aws/setup-policy", { account }).then((r) => setPolicy(r.policy), () => undefined);
+  }, [account]);
+  return (
+    <div className="callout fail" role="alert">
+      <strong>Your sign-in is not allowed to manage the Hermes role in this account.</strong>
+      <p>
+        An administrator can attach this policy to your sign-in (IAM, your user or role, Add permissions, Create inline policy, JSON). It only covers the stack <span className="mono">hermes-discovery-role</span> and the role <span className="mono">HermesDiscoveryReadOnly</span>. Or create the role yourself, below.
+      </p>
+      {policy && (
+        <details>
+          <summary>Show the policy</summary>
+          <pre className="code">{policy}</pre>
+          <CopyButton text={policy} label="Copy policy" />
+        </details>
+      )}
+      <div className="row-actions">
+        <button type="button" className="btn small" onClick={onRetry}>Look again</button>
+      </div>
+    </div>
+  );
+}
+
 type Template = { external_id: string; template: string; command: string; console_url: string };
 
 /** The do-it-yourself path: download the template, create the stack in the console, paste the ARN. */
@@ -589,11 +631,12 @@ function ManualRole({ conn, setAws, onUse }: { conn: Connection; setAws: SetAws;
   const a = conn.aws;
   const [tpl, setTpl] = useState<Template | null>(null);
   const [arn, setArn] = useState("");
+  const [ext, setExt] = useState("");
   const load = () => {
     if (tpl) return;
     void api.post<Template>("api/connect/aws/template", { principal: a.identity, region: a.region, externalId: a.external_id }).then((t) => {
       setTpl(t);
-      if (t.external_id !== a.external_id) setAws({ external_id: t.external_id });
+      setExt(t.external_id);
     }, () => undefined);
   };
   const download = () => {
@@ -622,10 +665,13 @@ function ManualRole({ conn, setAws, onUse }: { conn: Connection; setAws: SetAws;
             </dl>
           </li>
           <li>
-            Paste the stack's <b>RoleArn</b> output:
+            Paste the stack's <b>RoleArn</b> output. If the role already existed, enter the external ID it was made with instead.
             <div className="row-actions">
               <input className="grow" value={arn} onChange={(e) => setArn(e.target.value.trim())} placeholder="arn:aws:iam::123456789012:role/HermesDiscoveryReadOnly" spellCheck={false} aria-label="Role ARN" />
-              <button type="button" className="btn" disabled={!/^arn:aws[a-zA-Z-]*:iam::\d{12}:role\//.test(arn)} onClick={() => { setAws({ role_arn: arn, external_id: tpl.external_id, ok: false }); onUse(); }}>Use this role</button>
+            </div>
+            <div className="row-actions">
+              <input className="grow" value={ext} onChange={(e) => setExt(e.target.value.trim())} spellCheck={false} aria-label="External ID" />
+              <button type="button" className="btn" disabled={!/^arn:aws[a-zA-Z-]*:iam::\d{12}:role\//.test(arn) || ext.length < 16} onClick={() => { setAws({ role_arn: arn, external_id: ext, ok: false }); onUse(); }}>Use this role</button>
             </div>
           </li>
         </ol>

@@ -440,3 +440,26 @@ func TestAJobWithNoStepsYetStillHasAList(t *testing.T) {
 		t.Fatalf("steps must be an empty list, not null: %s", body)
 	}
 }
+
+func TestFindRoleSaysWhenTheSignInMayNotManageTheStack(t *testing.T) {
+	h := newHandler(t, Config{Actions: Actions{AWSFindRole: func(context.Context, string, string) (*connect.RoleStack, error) {
+		return nil, connect.ErrSetupDenied
+	}}})
+	var out struct {
+		Found, Denied bool
+		Error         string
+	}
+	_ = json.Unmarshal(post(h, "/api/connect/aws/role", `{"profile":"op"}`, nil).Body.Bytes(), &out)
+	if out.Found || !out.Denied || out.Error == "" {
+		t.Fatalf("%+v", out)
+	}
+	var pol struct{ Policy string }
+	w := post(h, "/api/connect/aws/setup-policy", `{"account":"123456789012"}`, nil)
+	_ = json.Unmarshal(w.Body.Bytes(), &pol)
+	if w.Code != 200 || !strings.Contains(pol.Policy, "stack/hermes-discovery-role/*") {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	if w := post(h, "/api/connect/aws/setup-policy", `{"account":"12; drop"}`, nil); w.Code != 400 {
+		t.Fatalf("bad account: %d", w.Code)
+	}
+}

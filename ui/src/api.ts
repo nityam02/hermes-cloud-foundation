@@ -124,6 +124,8 @@ export interface RoleStack {
 
 export interface RoleFind {
   found: boolean;
+  /** The sign-in may not look up or change the role stack. */
+  denied?: boolean;
   stack?: RoleStack | null;
   error?: string;
 }
